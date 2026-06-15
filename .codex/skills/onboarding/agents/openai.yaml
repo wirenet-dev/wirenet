@@ -1,0 +1,4 @@
+interface:
+  display_name: "Assistant Onboarding"
+  short_description: "Meet Assistant and set up useful work memory."
+  default_prompt: "Help me get started with Assistant."

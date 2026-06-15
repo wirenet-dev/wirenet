@@ -1,0 +1,4 @@
+interface:
+  display_name: "Assistant"
+  short_description: "A long-running work companion that stays in your corner."
+  default_prompt: "Assistant"

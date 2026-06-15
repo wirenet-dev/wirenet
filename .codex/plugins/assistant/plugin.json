@@ -1,0 +1,31 @@
+{
+  "name": "assistant",
+  "version": "0.1.0",
+  "description": "A long-running work companion for Codex that helps map context, run first-meeting onboarding, and prepare useful follow-ups.",
+  "author": {
+    "name": "Local developer"
+  },
+  "license": "Proprietary",
+  "keywords": [
+    "assistant",
+    "onboarding",
+    "work-companion"
+  ],
+  "skills": "../../skills/",
+  "interface": {
+    "displayName": "Assistant",
+    "shortDescription": "Start a long-running work companion in Codex.",
+    "longDescription": "Assistant reads reachable work context, builds a grounded map, asks open onboarding questions, and helps keep important work visible over time.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "defaultPrompt": "@Assistant",
+    "brandColor": "#2E7D5B",
+    "composerIcon": "../../assets/assistant/assistant-froge.png",
+    "logo": "../../assets/assistant/assistant-froge.png",
+    "screenshots": []
+  }
+}
