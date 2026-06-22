@@ -63,10 +63,17 @@ After enough calibration:
 
 - recommend one core Assistant check-in and what it watches
 - offer monitor threads for daily updates, important people, and selected projects; default to 9:00 AM and 4:00 PM check-ins in the user's timezone unless the user asks for different timing
+- offer `write-like-me-bootstrap` when Slack and email scans include enough authored messages to infer the user's writing postures
 - offer the shared-memory vault, explaining that this repo is the vault and will be updated in place
 - propose the specific people files, project packets, and agent instructions that should be written from the connector scans and interview
 
 Ask explicit approval before creating automations, threads, loops, installs, or memory files.
+
+The write-like-me offer should be concrete and optional:
+
+```text
+I can also bootstrap a write-like-me skill from your sent email and Slack messages, split by posture like quick replies, pushback, delegation, intros, and status updates. Want me to do that?
+```
 
 ## 6. Close
 

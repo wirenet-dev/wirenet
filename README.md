@@ -84,6 +84,7 @@ It should:
 - check whether useful plugins are missing
 - offer thread automations for recurring checks
 - offer a daily update monitor, people monitor, and project monitors where useful, defaulting to 9:00 AM and 4:00 PM check-ins in your timezone
+- offer to bootstrap a `write-like-me` skill from your sent Slack and email writing
 - offer shared-memory setup by using this repo as the vault
 - proactively propose `people/*.md`, project packets, and `AGENTS.md` updates after scanning connected Slack, email, calendar, docs, project trackers, and GitHub context
 
@@ -100,6 +101,7 @@ Useful starting points:
 - `loop`: recurring checks on a thread
 - `new-project`: create a project or experiment
 - `new-person`: create a person note
+- `write-like-me-bootstrap`: create a personal writing-style skill from Slack and email
 
 ## Structure
 

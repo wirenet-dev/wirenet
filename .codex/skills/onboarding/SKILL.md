@@ -39,9 +39,10 @@ Classify quietly:
 3. Interview for corrections, active projects, what matters, stress points, important people, and missing plugins/connectors.
 4. Propose the one core Assistant check-in.
 5. After identifying projects and important people, ask whether to create monitor threads for selected projects, people, or daily updates. Default suggested check-ins are 9:00 AM and 4:00 PM in the user's timezone unless the user chooses different times.
-6. Offer the shared-memory vault.
-7. Tell the user how to rename and pin the Assistant chat.
-8. End with a short recap and: `You can just talk to me now.`
+6. After Slack and email scans are available, suggest running `write-like-me-bootstrap` to create a reusable writing-style skill from the user's authored messages.
+7. Offer the shared-memory vault.
+8. Tell the user how to rename and pin the Assistant chat.
+9. End with a short recap and: `You can just talk to me now.`
 
 ## Approval Gates
 
@@ -60,8 +61,14 @@ that deserve durable notes. Propose the specific `people/*.md`, project packets,
 and `AGENTS.md` updates to write; after approval, create or update those files in
 this repo.
 
+Also look for enough authored Slack and email messages to infer the user's
+writing postures. When useful, offer to run `.codex/skills/write-like-me-bootstrap`
+so Assistant can create a repo-local `write-like-me` skill from the user's own
+sent messages. Ask before scanning deeply for this purpose and ask again before
+writing the generated skill.
+
 ## Done Means
 
-Onboarding is done only after the map, interview, plugin gaps, check-in, monitor thread offer, shared-memory offer, rename/pin guidance, and recap are handled, declined, or unavailable.
+Onboarding is done only after the map, interview, plugin gaps, check-in, monitor thread offer, write-like-me bootstrap offer, shared-memory offer, rename/pin guidance, and recap are handled, declined, or unavailable.
 
 Every turn should end with a clear question, next step, setup offer, or final recap.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Like Me Bootstrap"
+  short_description: "Infer writing style from Slack and email"
+  default_prompt: "Use $write-like-me-bootstrap to inspect my Slack and email writing and create a reusable write-like-me skill."
