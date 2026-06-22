@@ -39,6 +39,9 @@ That gives you:
 
 This repo is the vault. Do not create a second `vault/` directory inside it.
 
+If you do not want to think about the setup, press `Cmd+Cmd` to open Codex and
+say: `Set me up with jxnl/personal-monorepo-template as ~/vault`.
+
 ## Set Up Codex
 
 1. Open Codex.
