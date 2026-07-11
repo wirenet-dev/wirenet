@@ -5,7 +5,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
+from datetime import date
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from vault_model import render_projects_agents, render_projects_readme, with_metadata
 
 
 def default_vault_dir() -> Path:
@@ -67,6 +73,14 @@ distinction changes how future work should read the note.
 - `projects/<project>/README.md` carries durable project state; `projects/<project>/AGENTS.md` carries recurring source and routing instructions.
 - `notes/` is for durable scratch notes that do not yet belong in a person or project note.
 - `sources/` is for retained imported evidence and source material; treat it as read-only by default.
+
+## WireNet Workspace Roots
+
+- `/Users/gitt/Projects`: default starting point for active work.
+- `/Users/gitt/Developer`: durable owned code, tooling, and systems.
+- `/Users/gitt/Documents`: durable non-code domain work.
+- `/Users/gitt/Data`: durable datasets and data systems.
+- Treat `projects/<project>/` as an Assistant workstream packet by default; link external workspaces instead of copying their implementation into the vault.
 
 ## Where To Write
 
@@ -130,37 +144,6 @@ This note is Assistant's durable working profile for the user.
 """
 
 
-PROJECTS_README_TEMPLATE = """# Projects
-
-This folder holds pages for ongoing projects.
-
-Prefer one page per project over scattered status notes.
-
-## Active packets
-"""
-
-
-PROJECTS_AGENTS_TEMPLATE = """# AGENTS.md
-
-## Purpose
-
-This folder holds canonical rolling project packets.
-
-## Structure
-
-- `projects/README.md` indexes active packets.
-- `projects/<project>/README.md` holds durable project state, decisions, blockers, open loops, and evidence links.
-- `projects/<project>/AGENTS.md` holds recurring sources and update-routing instructions.
-
-## Defaults
-
-- Prefer updating an existing canonical packet over creating an adjacent status note.
-- Keep recurring Slack, DM, email, document, meeting, and repository inputs in the nearest packet `AGENTS.md`.
-- Keep current status and one-off evidence links in the packet `README.md`.
-- Use absolute dates and label inference when it matters.
-"""
-
-
 def resolve_path(raw: str) -> Path:
     return Path(raw).expanduser().resolve(strict=False)
 
@@ -202,26 +185,29 @@ def main() -> int:
     for rel_dir in ("agent", "people", "projects", "notes", "sources"):
         ensure_dir(vault_dir / rel_dir, created_dirs, args.dry_run)
 
-    ensure_file(vault_dir / "AGENTS.md", ROOT_AGENTS_TEMPLATE, created_files, args.dry_run)
-    ensure_file(vault_dir / "TODO.md", TODO_TEMPLATE, created_files, args.dry_run)
+    edited = date.today().isoformat()
+    ensure_file(vault_dir / "AGENTS.md", with_metadata(ROOT_AGENTS_TEMPLATE, edited), created_files, args.dry_run)
+    ensure_file(vault_dir / "TODO.md", with_metadata(TODO_TEMPLATE, edited), created_files, args.dry_run)
     ensure_file(
         vault_dir / "agent" / "USER_CONTEXT.md",
-        USER_CONTEXT_TEMPLATE,
+        with_metadata(USER_CONTEXT_TEMPLATE, edited),
         created_files,
         args.dry_run,
     )
     ensure_file(
         vault_dir / "projects" / "README.md",
-        PROJECTS_README_TEMPLATE,
+        render_projects_readme(edited),
         created_files,
         args.dry_run,
     )
     ensure_file(
         vault_dir / "projects" / "AGENTS.md",
-        PROJECTS_AGENTS_TEMPLATE,
+        render_projects_agents(edited),
         created_files,
         args.dry_run,
     )
+    ensure_file(vault_dir / "notes" / ".gitkeep", "", created_files, args.dry_run)
+    ensure_file(vault_dir / "sources" / ".gitkeep", "", created_files, args.dry_run)
 
     result = {
         "ok": True,

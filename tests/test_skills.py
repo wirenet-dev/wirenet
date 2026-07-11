@@ -16,41 +16,9 @@ def load_module(path: Path):
     return module
 
 
-def frontmatter(path: Path) -> dict[str, object]:
-    text = path.read_text()
-    assert text.startswith("---\n"), f"missing frontmatter: {path}"
-    _, raw, _ = text.split("---", 2)
-    data: dict[str, object] = {}
-    for line in raw.splitlines():
-        if not line.strip():
-            continue
-        key, sep, value = line.partition(":")
-        assert sep, f"frontmatter line must be key/value: {path}: {line}"
-        data[key.strip()] = value.strip()
-    return data
-
-
-def test_markdown_has_last_edited_frontmatter() -> None:
-    markdown_files = sorted(
-        path
-        for path in ROOT.glob("**/*.md")
-        if not any(part.startswith(".") for part in path.relative_to(ROOT).parts)
-    )
-    assert markdown_files
-    for path in markdown_files:
-        data = frontmatter(path)
-        assert data.get("last_edited") == "2026-06-15", path
-
-
-def test_skill_frontmatter_shape() -> None:
-    skill_files = sorted((ROOT / ".codex" / "skills").glob("*/SKILL.md"))
-    assert skill_files
-    for path in skill_files:
-        data = frontmatter(path)
-        assert set(data) == {"name", "description", "last_edited"}, path
-        assert isinstance(data["name"], str) and data["name"]
-        assert isinstance(data["description"], str) and data["description"]
-        assert data["last_edited"] == "2026-06-15"
+def test_repository_markdown_uses_ci_metadata_contract() -> None:
+    validator = load_module(ROOT / "scripts" / "validate_markdown.py")
+    assert validator.validate_tree(ROOT) == []
 
 
 def test_onboarding_scripts_default_to_repo_root_vault() -> None:
@@ -59,6 +27,7 @@ def test_onboarding_scripts_default_to_repo_root_vault() -> None:
         "setup_shared_memory_vault.py",
         "new_person_note.py",
         "new_project_note.py",
+        "vault_doctor.py",
     ):
         module = load_module(script_dir / script_name)
         assert module.default_vault_dir() == ROOT

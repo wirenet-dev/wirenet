@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import argparse
 import re
-from datetime import date
+import sys
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[4]
-PEOPLE_DIR = ROOT / "people"
-TEMPLATE = PEOPLE_DIR / "person.md"
+SHARED_SCRIPTS = Path(__file__).resolve().parents[2] / "onboarding" / "scripts"
+sys.path.insert(0, str(SHARED_SCRIPTS))
+
+from vault_model import render_person_note  # noqa: E402
 
 
 def slugify(value: str) -> str:
@@ -17,15 +19,7 @@ def slugify(value: str) -> str:
 
 
 def build_note(name: str, role: str) -> str:
-    template = TEMPLATE.read_text()
-    today = date.today().isoformat()
-    note = template.replace("<Person Name>", name)
-    note = note.replace(
-        "What this person does or how they relate to this workspace.",
-        role or "TBD",
-    )
-    note = note.replace("YYYY-MM-DD", today)
-    return note
+    return render_person_note(name, role)
 
 
 def main() -> int:
@@ -33,18 +27,24 @@ def main() -> int:
     parser.add_argument("name")
     parser.add_argument("--role", default="")
     parser.add_argument("--slug", default="")
-    parser.add_argument("--force", action="store_true")
+    parser.add_argument(
+        "--vault-dir",
+        default=str(ROOT),
+        help="Vault root path. Defaults to the repository containing this script.",
+    )
     args = parser.parse_args()
 
+    vault_dir = Path(args.vault_dir).expanduser().resolve(strict=False)
+    people_dir = vault_dir / "people"
     slug = args.slug or slugify(args.name)
-    path = PEOPLE_DIR / f"{slug}.md"
-    if path.exists() and not args.force:
-        print(f"exists: {path.relative_to(ROOT)}")
+    path = people_dir / f"{slug}.md"
+    if path.exists():
+        print(f"exists: {path.relative_to(vault_dir)}")
         return 0
 
-    PEOPLE_DIR.mkdir(parents=True, exist_ok=True)
-    path.write_text(build_note(args.name, args.role))
-    print(f"created: {path.relative_to(ROOT)}")
+    people_dir.mkdir(parents=True, exist_ok=True)
+    path.write_text(build_note(args.name, args.role), encoding="utf-8")
+    print(f"created: {path.relative_to(vault_dir)}")
     return 0
 
 

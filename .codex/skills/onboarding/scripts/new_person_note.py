@@ -5,25 +5,23 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
-from datetime import date
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from vault_model import normalize_slug, normalize_text, render_person_note
 
 
 def default_vault_dir() -> Path:
     return Path(__file__).resolve().parents[4]
 
 
-def normalize_text(value: str) -> str:
-    return re.sub(r"\s+", " ", value or "").strip()
-
-
 def normalize_key(value: str) -> str:
     text = normalize_text(value).lower()
     if "@" in text:
         text = text.split("@", 1)[0]
-    text = re.sub(r"[^a-z0-9._-]+", "-", text)
-    return re.sub(r"-+", "-", text).strip("-")
+    return normalize_slug(text)
 
 
 def parse_args() -> argparse.Namespace:
@@ -59,50 +57,7 @@ def main() -> int:
     if note_path.exists():
         raise SystemExit(f"Person note already exists; update the canonical note instead: {note_path}")
 
-    today = date.today().isoformat()
-    content = "\n".join(
-        [
-            "---",
-            f"title: {json.dumps(name)}",
-            "usernames: []",
-            "aliases: []",
-            "emails: []",
-            "github_usernames: []",
-            "teams: []",
-            "tags:",
-            "  - people",
-            "last_seen_at:",
-            f"created_at: {today}",
-            f"updated_at: {today}",
-            "---",
-            "",
-            "## Snapshot",
-            "",
-            f"- Name: {name}",
-            "- Slack: Replace with handle and user ID when known.",
-            "- Email: Replace with a confirmed address when known.",
-            "- Team / role: Replace with confirmed context when known.",
-            "",
-            "## Why They Matter Now",
-            "",
-            "- Replace with a short, dated reason this relationship matters.",
-            "",
-            "## Working Style & Interaction Notes",
-            "",
-            "- Replace with evidence-backed collaboration patterns.",
-            "",
-            "## Collaboration Guidance",
-            "",
-            "- Replace with practical guidance for future work with this person.",
-            "",
-            "## Evidence Log",
-            "",
-            "- Add dated links to relevant Slack threads or DMs, email threads, docs, meetings, or project notes.",
-            "",
-            "## Open Questions",
-            "",
-        ]
-    )
+    content = render_person_note(name)
 
     result = {"ok": True, "dry_run": bool(args.dry_run), "path": str(note_path), "stable_key": key}
     if not args.dry_run:
