@@ -20,6 +20,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        run: python -m pip install pytest
+
       - name: Choose package version
         id: version
         shell: bash
@@ -31,35 +39,10 @@ jobs:
           fi
           echo "value=${version}" >> "${GITHUB_OUTPUT}"
 
-      - name: Validate markdown frontmatter
-        shell: bash
+      - name: Validate source and tests
         run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          root = Path.cwd()
-          markdown_files = sorted(path for path in root.glob("**/*.md") if ".git" not in path.parts)
-          if not markdown_files:
-              raise SystemExit("no markdown files found")
-
-          for path in markdown_files:
-              text = path.read_text()
-              if not text.startswith("---\n"):
-                  raise SystemExit(f"missing frontmatter: {path}")
-              frontmatter = text.split("---", 2)[1]
-              if "last_edited:" not in frontmatter:
-                  raise SystemExit(f"missing last_edited: {path}")
-
-          for path in sorted((root / ".codex" / "skills").glob("*/SKILL.md")):
-              frontmatter = path.read_text().split("---", 2)[1]
-              keys = {
-                  line.partition(":")[0].strip()
-                  for line in frontmatter.splitlines()
-                  if line.strip()
-              }
-              if keys != {"name", "description", "last_edited"}:
-                  raise SystemExit(f"bad skill frontmatter shape: {path}")
-          PY
+          python scripts/validate_markdown.py .
+          pytest -q
 
       - name: Build zip
         shell: bash
@@ -79,6 +62,30 @@ jobs:
             ./ "${package_dir}/"
           cd dist
           zip -qr "personal-monorepo-template-${version}.zip" personal-monorepo
+
+      - name: Bootstrap and validate packaged vault
+        shell: bash
+        run: |
+          version="${{ steps.version.outputs.value }}"
+          scratch="$(mktemp -d)"
+          unzip -q "dist/personal-monorepo-template-${version}.zip" -d "${scratch}/package"
+          package_root="${scratch}/package/personal-monorepo"
+          generated="${scratch}/generated-vault"
+          python "${package_root}/scripts/validate_markdown.py" "${package_root}"
+          python "${package_root}/.codex/skills/onboarding/scripts/setup_shared_memory_vault.py" \
+            --vault-dir "${generated}"
+          python "${package_root}/scripts/validate_markdown.py" "${generated}"
+          python "${package_root}/.codex/skills/onboarding/scripts/vault_doctor.py" \
+            --vault-dir "${generated}" > "${scratch}/doctor.json"
+          python - "${scratch}/doctor.json" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          result = json.loads(Path(sys.argv[1]).read_text())
+          if not result["ok"]:
+              raise SystemExit(json.dumps(result, indent=2))
+          PY
 
       - name: Upload package
         uses: actions/upload-artifact@v4
