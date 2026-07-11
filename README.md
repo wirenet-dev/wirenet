@@ -1,5 +1,5 @@
 ---
-last_edited: 2026-06-15
+last_edited: 2026-07-11
 ---
 
 # Personal Codex Vault
@@ -12,7 +12,7 @@ Canonical repo: `jxnl/personal-monorepo-template`.
 This template gives Codex a place to look before it acts and a place to write
 important context after you approve it:
 
-- `projects/` for active work
+- `projects/` for Assistant workstream packets that may point to external workspaces
 - `experiments/` for short spikes
 - `people/` for collaborators and agents
 - `.codex/skills/` for repo-local skills
@@ -51,6 +51,16 @@ That gives you:
 ```
 
 This repo is the vault. Do not create a second `vault/` directory inside it.
+
+Reconcile the canonical scaffold and verify it:
+
+```sh
+python3 .codex/skills/onboarding/scripts/setup_shared_memory_vault.py
+python3 .codex/skills/onboarding/scripts/vault_doctor.py
+```
+
+Both commands are safe to rerun. Setup and doctor repair create only missing
+canonical files and router entries; they preserve existing personalized files.
 
 ## Set Up Codex
 
@@ -115,9 +125,32 @@ Useful starting points:
 
 ## Structure
 
-- `projects/`: long-lived work
+- `projects/`: Assistant workstream packets with durable state and source routes
 - `experiments/`: short-lived spikes
 - `people/`: notes about people or agents
 - `.codex/`: skills, plugin metadata, and assets
 - `templates/`: starter files
 - `tests/`: checks for template integrity
+
+## WireNet Workspace Policy
+
+The vault is shared memory, not the default home for implementation code or
+large data. New active work normally begins under `/Users/gitt/Projects` and can
+later move to `/Users/gitt/Developer`, `/Users/gitt/Documents`, or
+`/Users/gitt/Data` when it becomes durable code, domain work, or data work.
+Project packets in this vault should link those external roots explicitly.
+
+## Validation And Migration
+
+Run the same checks used by packaging CI:
+
+```sh
+python3 scripts/validate_markdown.py .
+pytest -q
+git diff --check
+```
+
+Use the repository-local doctor instead of relying on a global `wirenet status`
+command. Conservative migration-copy instructions are in
+`docs/bootstrap-and-migration.md`. The correction implementation and verification
+record is in `docs/vault-bootstrap-correction-result.md`.

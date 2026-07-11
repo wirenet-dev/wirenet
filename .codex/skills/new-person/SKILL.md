@@ -1,7 +1,7 @@
 ---
 name: new-person
-description: Create or update a public-safe person note under `people/` from the repository's `people/person.md` template. Use when the user asks to add a collaborator, create a person profile, remember someone's preferences, make a people note, or bootstrap `people/<name>.md`.
-last_edited: 2026-06-15
+description: Create or update a public-safe canonical person note under `people/`. Use when the user asks to add a collaborator, create a person profile, remember someone's preferences, make a people note, or bootstrap `people/<name>.md`.
+last_edited: 2026-07-11
 ---
 
 # New Person
@@ -21,6 +21,9 @@ python .codex/skills/new-person/scripts/new_person.py "Person Name" --role "Role
 4. Edit the generated note with only useful, non-sensitive context.
 5. Keep private facts, secrets, health details, account data, and confidential content out of the note.
 6. Add or update `Last Verified` when facts may go stale.
+
+The helper uses the same canonical person renderer as onboarding. Use
+`--vault-dir` only when the target is not the repository containing this skill.
 
 ## Output
 

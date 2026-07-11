@@ -1,7 +1,7 @@
 ---
 name: new-project
 description: Bootstrap a new project or experiment directory with README and optional `AGENTS.md` files. Use when the user asks to create a new project, start an experiment, add a workspace entry, scaffold a project folder, or bootstrap durable work in this personal monorepo.
-last_edited: 2026-06-15
+last_edited: 2026-07-11
 ---
 
 # New Project
@@ -26,6 +26,10 @@ python .codex/skills/new-project/scripts/new_project.py "Experiment Name" --type
 ```
 
 5. Add project-specific commands, data sources, and safety gates to the generated `AGENTS.md` if they matter.
+
+Project creation uses the same canonical packet renderer as onboarding and
+always creates or updates `projects/README.md`. Use `--vault-dir` only when the
+target is not the repository containing this skill.
 ## Output
 
 Report the created folder and any missing fields that need human input.

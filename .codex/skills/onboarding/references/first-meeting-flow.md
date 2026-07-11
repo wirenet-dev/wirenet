@@ -1,5 +1,5 @@
 ---
-last_edited: 2026-06-15
+last_edited: 2026-07-11
 ---
 
 # First-Meeting Flow
@@ -25,6 +25,10 @@ Decide quietly:
 - `established`: skip onboarding and help with the request.
 
 Check chat context, repo docs, connected tools, existing check-ins, existing threads, and any real memory or vault surface.
+
+Run the repository-local vault doctor read-only before classifying the setup
+state. Missing canonical scaffold means the vault is partial even when useful
+context already exists.
 
 Treat the personal monorepo root as the shared-memory vault. Do not create a
 new nested `vault/` directory or default to `~/vault` while onboarding inside

@@ -1,7 +1,7 @@
 ---
 name: onboarding
 description: Start Assistant onboarding in a new or first-meeting Assistant chat. Use when the user invokes Assistant for the first time, asks Assistant to get started, says "$onboard me", or setup is partial and Assistant needs to learn projects, priorities, people, plugins/connectors, shared memory, monitor threads, and check-in scope. The first user-visible sentence must be exactly "Hi, I'm your assistant."
-last_edited: 2026-06-15
+last_edited: 2026-07-11
 ---
 
 # Assistant Onboarding
@@ -26,11 +26,13 @@ Use only as needed:
 
 ## Setup State
 
-Classify quietly:
+Run `scripts/vault_doctor.py` read-only against the selected vault root, then
+classify quietly:
 
 - `brand_new`: no useful Assistant baseline. Run the full first meeting.
 - `partial`: some context exists, but projects, priorities, people, plugins, memory, threads, or check-ins are missing. Fill the gaps.
-- `established`: a useful baseline exists. Skip onboarding and help.
+- `established`: a useful baseline exists. Reconcile any reported invariant
+  gaps after approval, then skip onboarding and help.
 
 ## Full Flow
 

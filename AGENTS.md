@@ -1,5 +1,5 @@
 ---
-last_edited: 2026-06-15
+last_edited: 2026-07-11
 ---
 
 # Root Agent Instructions
@@ -52,7 +52,13 @@ Prefer updating the canonical existing file over creating adjacent notes.
 
 ## Working On Projects
 
-- Use `projects/` for long-lived work and `experiments/` for short-lived spikes.
+- Treat `projects/<project>/` as an Assistant workstream packet by default. A
+  packet may point to an external implementation repository or workspace.
+- Use `/Users/gitt/Projects` as the default starting point for active work,
+  `/Users/gitt/Developer` for long-running owned code and systems,
+  `/Users/gitt/Documents` for durable non-code domain work, and
+  `/Users/gitt/Data` for durable datasets and data systems.
+- Use `experiments/` for short-lived vault-local spikes.
 - When creating a new project, use `.codex/skills/new-project` or follow `templates/project_README.md` and `templates/PROJECT_AGENTS.md`.
 - When creating a new person note, use `.codex/skills/new-person` or follow `people/person.md`.
 - During Assistant onboarding, after scanning connected Slack, email, calendar, docs, project trackers, and GitHub context, proactively propose the people files and project packets that should be created or updated. Ask for approval, then write the approved files directly in this repo.
