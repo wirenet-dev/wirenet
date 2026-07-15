@@ -4,6 +4,19 @@ last_edited: 2026-07-15
 
 # WireNet Manager v0.1 Architecture
 
+## Core Design Principle: Metadata As Code
+
+WireNet Manager treats metadata as a maintained architectural surface rather
+than incidental application state. Markdown owns human-readable meaning;
+frontmatter owns portable concept identity and type; `AGENTS.md` owns executable
+agent routing; links and indexes own navigation; and device-local JSON owns only
+runtime identity and path resolution. Every layer remains versioned, reviewable,
+and covered by deterministic producers, validators, and regression contracts.
+
+This separation is the guardrail for future synchronization: a database or
+Knowledge Hub may index and exchange the files, but it must not silently become
+the only place where their meaning or relationships exist.
+
 ## Routing Overview
 
 ```text

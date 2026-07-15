@@ -26,6 +26,12 @@ Preserve durable meaning, not activity. Prefer the clearest existing canonical
 home, link instead of duplicating, and let the structure grow when a new concept
 earns a distinct purpose.
 
+Apply **Metadata as Code**: keep durable identity, type, relationships, routing,
+and lifecycle explicit beside the content, preserve unknown producer metadata,
+and make inferred changes reviewable. Do not hide canonical meaning in chat,
+bindings, or application state, and do not let metadata replace readable prose
+or inherited `AGENTS.md` instructions.
+
 The shelves are defaults rather than a closed taxonomy:
 
 | Destination | Use it for | Do not use it for |

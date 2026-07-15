@@ -10,6 +10,26 @@ external workspaces through device-local bindings, and maintains portable
 Project Packs that begin with a human handoff and local agent instructions,
 then grow only when the work earns more structure.
 
+## Metadata As Code
+
+**Metadata as Code is the central WireNet Manager design principle.** Durable
+work context should not disappear into hidden application state: its identity,
+type, relationships, routing, and lifecycle live next to human-readable content
+in version-controlled files.
+
+- Markdown remains the canonical content that humans and agents can inspect.
+- YAML frontmatter gives concepts explicit types, stable IDs, visibility, and
+  producer-owned extensions.
+- `AGENTS.md`, indexes, and Markdown links make routing, disclosure, and graph
+  relationships reviewable instead of implicit.
+- Small JSON registries hold only machine-local identity and path resolution,
+  never the project prose itself.
+- Schemas, deterministic generators, doctors, routing contracts, and regression
+  tests evolve that metadata with software-level discipline.
+
+This creates a portable foundation for future synchronization without making a
+database, proprietary UI, or invisible agent memory the source of truth.
+
 ## Install And Bootstrap
 
 ```sh

@@ -10,14 +10,18 @@ frontmatter carries machine-readable identity; links define graph edges; folder
 placement and inherited `AGENTS.md` files define routing. Changes to those
 surfaces can therefore be breaking changes even when no Python code changes.
 
-The product principle is **Knowledge as Code**. **Markdown as Code** is the
-engineering discipline used to implement it.
+The central product principle is **Metadata as Code**: identity, type,
+relationships, routing, and lifecycle are explicit versioned interfaces rather
+than hidden application state. **Knowledge as Code** is the broader result, and
+**Markdown as Code** is the engineering discipline used to develop and verify
+the natural-language parts of that system.
 
 Google's OKF specification does not name this discipline "Markdown as Code."
 It describes a minimal Markdown-and-YAML knowledge format that is human- and
 agent-readable, portable, and diffable in version control, and explicitly
-relates it to "metadata as code." WireNet extends that posture from knowledge
-representation to agent behavior and routing.
+relates it to "metadata as code." WireNet adopts that principle directly and
+extends its engineering consequences from knowledge representation to agent
+behavior and routing.
 
 ## Contract Surfaces
 

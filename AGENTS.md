@@ -21,6 +21,14 @@ folder only through the bootstrap flow.
 6. `docs/upstream-reference.md` and `docs/routing/` when comparing Jason Liu's
    original model or changing routing semantics
 
+## Metadata As Code
+
+Treat metadata as a versioned product interface. Identity, type, links, routing,
+and lifecycle must remain explicit, inspectable, diffable, and testable beside
+the Markdown they describe. Do not move durable meaning into hidden application
+state, and do not let structured metadata replace canonical human prose or
+`AGENTS.md` instructions.
+
 ## Product Boundaries
 
 - The plugin owns reusable skills, deterministic behavior, schemas, and seed
