@@ -2,7 +2,7 @@
 last_edited: 2026-07-15
 ---
 
-# Project Pack Contract v0.1
+# Project And Experiment Pack Contract v0.2
 
 ## Open Core
 
@@ -30,7 +30,9 @@ as a running changelog.
 ### `WORKLOG.md`
 
 Detailed attempts, evidence, active loop state, and the next experiment while
-an UltraGoal is running. It is working state, not a portable summary.
+an explicitly invoked UltraGoal is running. UltraGoal is the only producer;
+ordinary Manager and sync work must never create or update this file. It is
+working state, not a portable summary.
 
 ### Other Concepts
 
@@ -83,7 +85,7 @@ WireNet maps them semantically without making the optional files mandatory:
 | `AGENTS.md` | runtime sidecar outside OKF |
 | optional `GOAL.md` | `Project Brief` |
 | optional `RESULT.md` | `Project Result` |
-| optional `WORKLOG.md` | producer-defined worklog concept |
+| optional `WORKLOG.md` | `Goal Worklog` with `producer: ultragoal` |
 | optional `log.md` | reserved OKF update history |
 | another concept | descriptive producer-defined type |
 
@@ -94,9 +96,10 @@ complete file vocabulary.
 ## Additive Indexes
 
 Manager `index.md` declares OKF 0.1 and catalogs the content shelves.
-`projects/index.md` lists active Project Packs using normal relative Markdown
-links and short descriptions. Other shelves receive an index only after real
-content benefits from progressive disclosure; no empty shelf guide is seeded.
+`projects/index.md` groups Project Packs by lifecycle state using normal
+relative Markdown links and short descriptions. Other shelves receive an index
+only after real content benefits from progressive disclosure; no empty shelf
+guide is seeded.
 
 Individual packets do not need another index while their structure is small;
 an agent may add a packet-local index as the packet grows. The Google-derived
@@ -122,12 +125,27 @@ but do not enter its payload.
 Templates, ignored outputs, plugin implementation, device-local bindings, and
 runtime instructions remain outside the knowledge projection.
 
+## Experiment Pack Contract
+
+Every Experiment Pack also starts with `README.md` and `AGENTS.md`, but its
+status document is organized around a bounded question and decision criterion.
+It uses a stable `experiment_id`, `wirenet-experiment-pack/v0.1`, and
+`wirenet-okf-experiment-pack/v0.1`. Optional `RESULT.md` records a durable
+observation, evidence, and decision.
+
+Experiments are not mini-projects. They remain deliberately light and may be
+concluded, archived, or promoted. Promotion preserves the Experiment Pack as
+origin evidence, creates a linked Project Pack, and transfers any local
+workspace binding.
+
 ## UltraGoal Worklogs
 
-An active UltraGoal may use `WORKLOG.md` for detailed attempts, evidence,
-current loop state, and the next experiment. Meaningful conclusions are
-distilled into `README.md`, optional `RESULT.md`, or another suitable concept.
-Add a sparse `log.md` entry only when chronology is independently useful.
+An explicitly activated UltraGoal may use `WORKLOG.md` for detailed attempts,
+evidence, current loop state, and the next experiment. The document must use
+`type: "Goal Worklog"` and `producer: "ultragoal"`; the Doctor rejects other
+ownership. Meaningful conclusions are distilled into `README.md`, optional
+`RESULT.md`, or another suitable concept. Add a sparse `log.md` entry only when
+chronology is independently useful.
 
 ## Retrieval Boundary
 
@@ -137,8 +155,8 @@ chronological retrieval only while entries remain sparse and semantic.
 
 ## Local Binding
 
-Absolute paths are not portable knowledge. The local registry keeps them
-separate:
+Absolute paths are not portable knowledge. Manager-native packets need no
+binding. Externally bound packets use the local registry:
 
 ```json
 {
@@ -149,6 +167,10 @@ separate:
 
 Another device can bind the same `project_id` to a different path without
 editing or conflicting with the Project Pack itself.
+
+The registry also supports `{ "experiment_id": ..., "path": ... }` rows and
+separate ignored paths. Promotion transfers an experiment row to the new
+project ID without placing local paths in portable Markdown.
 
 ## Update Threshold
 

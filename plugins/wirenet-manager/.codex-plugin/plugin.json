@@ -1,7 +1,7 @@
 {
   "name": "wirenet-manager",
-  "version": "0.1.2",
-  "description": "Bootstrap and run a local work-memory Manager with portable, reviewable Project Packs.",
+  "version": "0.2.0",
+  "description": "Bootstrap and run local work memory with Project Packs, bounded experiments, and explicit persistent goals.",
   "author": {
     "name": "WireNet",
     "url": "https://wirenet.dev"
@@ -13,7 +13,7 @@
   "interface": {
     "displayName": "WireNet Manager",
     "shortDescription": "Local work memory and Project Pack routing",
-    "longDescription": "Bootstrap a content-only local Manager, keep external projects connected through local bindings, and maintain portable typed Project Packs with a transparent runtime overlay.",
+    "longDescription": "Bootstrap a content-only local Manager, maintain Manager-native or externally bound Project Packs, run bounded Experiment Packs, and explicitly activate persistent UltraGoals without implicit triggering.",
     "developerName": "WireNet",
     "category": "Productivity",
     "websiteURL": "https://wirenet.dev",
@@ -26,12 +26,15 @@
       "Bootstrap a local Manager",
       "Route external workspaces",
       "Maintain reviewable Project Packs",
+      "Run bounded experiments",
+      "Activate persistent goals explicitly",
       "Inspect local OKF memory"
     ],
     "defaultPrompt": [
       "Use $wirenet-manager to show my current stack.",
       "Use $wirenet-manager to open my Manager viewer.",
-      "Use $wirenet-manager-bootstrap to set up ~/Manager."
+      "Use $wirenet-manager-bootstrap to set up ~/Manager.",
+      "Use $ultragoal to explicitly activate a persistent goal."
     ]
   }
 }

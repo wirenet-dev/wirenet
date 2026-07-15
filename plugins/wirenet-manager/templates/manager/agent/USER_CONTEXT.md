@@ -1,6 +1,6 @@
 ---
 type: "Role Context"
-schema: "wirenet-manager/v0.1"
+schema: "wirenet-manager/v0.2"
 visibility: private
 status: draft
 last_edited: 2026-07-15
@@ -23,4 +23,4 @@ last_edited: 2026-07-15
 ## Known Workspaces
 
 - Keep human-readable workspace descriptions here. Exact local project paths
-  belong in `.wirenet/project-bindings.json`.
+  belong in `.wirenet/workspace-bindings.json`.

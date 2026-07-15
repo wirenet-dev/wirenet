@@ -2,7 +2,7 @@
 last_edited: 2026-07-15
 ---
 
-# WireNet Manager v0.1 Model
+# WireNet Manager v0.2 Model
 
 ## Product And Runtime
 
@@ -22,7 +22,7 @@ WireNet Manager plugin                  ~/Manager
 ```
 
 No plugin skills are copied into `~/Manager`. A user may add personal
-repo-local skills under `.agents/skills/` later, but v0.1 does not create that
+repo-local skills under `.agents/skills/` later, but v0.2 does not create that
 folder.
 
 The local Markdown boundary is canonical: `AGENTS.md` is runtime; `index.md`
@@ -38,7 +38,7 @@ projects/<slug>/
 ├── AGENTS.md     # read order and routing; runtime sidecar outside OKF
 ├── GOAL.md       # optional stable outcome; OKF Project Brief
 ├── RESULT.md     # optional completed evidence; Project Result
-├── WORKLOG.md    # optional detailed UltraGoal state
+├── WORKLOG.md    # optional; only explicitly invoked UltraGoal state
 ├── log.md        # optional sparse OKF history
 └── <concept>.md  # optional purpose-driven project knowledge
 ```
@@ -48,13 +48,31 @@ projects/<slug>/
 normally, while the Inspector and future Knowledge Hub exclude it from the
 knowledge projection.
 
+Knowledge-first projects may remain entirely inside Manager. Bind an external
+workspace only when code, media, data, deliverables, or a separate toolchain
+needs its own working tree.
+
+## Experiment Packs
+
+```text
+experiments/<slug>/
+├── README.md     # question, bound, criterion, current state
+├── AGENTS.md     # lightweight routing and promotion rules
+└── RESULT.md     # optional durable conclusion
+```
+
+Every experiment has one stable `experiment_id`. It remains bounded and ends as
+`concluded`, `promoted`, or `archived`; promotion preserves the Experiment Pack
+and creates a linked Project Pack.
+
 ## Portable And Local State
 
 - `project_id` is stable and portable across devices.
 - `README.md` and `AGENTS.md` are the minimum packet.
 - Every concept and the runtime sidecar share `project_id`; `index.md` and
   `log.md` are path-scoped.
-- `.wirenet/project-bindings.json` maps that ID to local absolute paths.
+- `.wirenet/workspace-bindings.json` maps project and experiment IDs to local
+  absolute paths and records ignored paths.
 - `.wirenet/manager.json` records Manager, plugin, schema, and OKF-profile
   versions.
 - Project Pack files never contain device-local paths.
@@ -65,10 +83,10 @@ knowledge projection.
 2. `$wirenet-manager-sync` classifies the workspace and proposes a focused diff.
 3. A long-running Manager task reconciles TODOs, packets, and signals.
 
-There is no hidden filesystem watcher in v0.1.
+There is no hidden filesystem watcher in v0.2.
 
 The global instruction has an always-on core managed block and may have a
 separate routing block. Add routing only for a convention the user explicitly
-recognizes as stable. The block itself is the v0.1 source of truth: do not copy
+recognizes as stable. The block itself is the v0.2 source of truth: do not copy
 the same routes into Manager JSON or portable Project Packs. Users without a
 stable layout need only individual project bindings.

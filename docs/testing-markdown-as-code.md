@@ -45,11 +45,11 @@ sentence that intentionally acts as a routing contract.
 | Layer | Question | Primary checks |
 | --- | --- | --- |
 | Syntax | Can tools parse the product? | Markdown metadata, JSON, plugin and skill validation |
-| Schema | Are required identities and reserved files valid? | OKF `type`, runtime sidecars, packet `project_id`, index and log shape |
+| Schema | Are required identities and reserved files valid? | OKF `type`, runtime sidecars, packet IDs, index and log shape, Worklog producer |
 | Routing | Does each durable concept have one canonical owner? | Frozen routing contracts, read/write routes, approval gates |
-| Production | Do generators materialize the contract? | Bootstrap seed, open Project Pack core, optional concepts, canonical project index |
+| Production | Do generators materialize the contract? | Bootstrap seed, Project and Experiment Pack cores, optional concepts, lifecycle-aware indexes |
 | Safety | Are previews and repair non-destructive? | Dry-run has no writes, repair is create-only, rejected routes leave no partial packet |
-| Reconciliation | Does an external path resolve predictably? | Longest binding, experiment and ignored routes, untracked classification |
+| Reconciliation | Does a Manager-native or external path resolve predictably? | Local packet detection, longest binding, project, experiment, ignored, and untracked classification |
 | Consumption | Can humans inspect the portable knowledge source? | Full concept rendering, typed nodes, real link edges, and complete exclusion of reserved, runtime, and hidden-state documents |
 | Reference | Did WireNet accidentally erase a useful Jason behavior? | Frozen upstream contract and explicit semantic delta |
 
@@ -61,10 +61,17 @@ sentence that intentionally acts as a routing contract.
   never overwrites personalized content.
 - Project creation preview writes nothing. A rejected duplicate path, slug, or
   project ID leaves indexes, bindings, and packets unchanged.
+- Experiment creation preview writes nothing. Promotion preserves the original
+  packet, creates reciprocal links, transfers bindings, and leaves both indexes
+  Doctor-valid.
 - Every packet starts with typed `README.md` and runtime `AGENTS.md`; optional
   concepts require the packet schema and non-empty OKF `type`; the sidecar and
   concepts share one `project_id`.
-- `projects/index.md` routes every active packet; no generic shelf README
+- Lifecycle helpers reject invalid status edges without partial writes;
+  deterministic transition checks never replace semantic completion, archive,
+  or promotion judgment.
+- `projects/index.md` routes every project by lifecycle state and
+  `experiments/index.md` routes real Experiment Packs once they exist; no generic shelf README
   placeholder exists.
 - Every in-scope Markdown file is either typed knowledge, reserved `index.md` or
   `log.md`, or runtime `AGENTS.md`; the Doctor rejects any other case.
@@ -74,6 +81,9 @@ sentence that intentionally acts as a routing contract.
   explicit-approval behavior.
 - The global managed block recalls the sync skill only when it is installed and
   enabled; disabling the plugin does not block ordinary tasks.
+- UltraGoal is globally installed but has `allow_implicit_invocation: false`;
+  only explicitly activated UltraGoal state may create or update a
+  `WORKLOG.md` with `type: Goal Worklog` and `producer: ultragoal`.
 - The viewer never becomes a source of truth and never exposes hidden bindings,
   runtime `AGENTS.md`, plugin implementation, or ignored outputs.
 - Reserved indexes, logs, and runtime `AGENTS.md` never enter the generated

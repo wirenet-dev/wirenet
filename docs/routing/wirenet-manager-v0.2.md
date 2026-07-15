@@ -2,11 +2,11 @@
 last_edited: 2026-07-15
 ---
 
-# WireNet Manager v0.1 Routing Contract
+# WireNet Manager v0.2 Routing Contract
 
 This document presents WireNet Manager in the same form as the frozen Jason Liu
 reference. The matching machine-readable contract is
-[`contracts/routing/wirenet-manager-v0.1.json`](../../contracts/routing/wirenet-manager-v0.1.json).
+[`contracts/routing/wirenet-manager-v0.2.json`](../../contracts/routing/wirenet-manager-v0.2.json).
 
 ## System Boundary
 
@@ -27,9 +27,11 @@ installed WireNet Manager plugin
 ├── agent/USER_CONTEXT.md      durable working context
 ├── projects/index.md          canonical OKF collection catalog
 ├── projects/<slug>/           portable Project Pack
+├── experiments/index.md       created with the first Experiment Pack
+├── experiments/<slug>/        bounded portable Experiment Pack
 ├── people/, notes/, docs/, sources/
 │                               supporting personal knowledge
-├── experiments/, outputs/, archive/
+├── outputs/, archive/
 └── .wirenet/                  device-local identity and paths
                │ project_id + local path
                ▼
@@ -54,7 +56,7 @@ content seed.
 | Root `README.md` | Typed Manager Overview and human landing page | Seed | Canonical instance overview |
 | `TODO.md` | Ordered current stack | Seed and approved updates | State, not instructions |
 | `agent/USER_CONTEXT.md` | Confirmed user and operating context | Seed and approved updates | Context, not instructions |
-| `projects/index.md` | Canonical OKF active-packet catalog | Seed and packet generator | Navigation |
+| `projects/index.md` | Canonical lifecycle-aware Project Pack catalog | Seed and packet generator | Navigation |
 | `projects/AGENTS.md` | Runtime rules for the open packet core, identity, portability, and extensions | Seed | Yes, inherited for projects |
 | Project `README.md` | Current operational handoff | Packet generator and sync | Canonical project state |
 | Project `AGENTS.md` | Runtime sidecar for read order, sources, safety, and update rules | Packet generator and approved changes | Yes, inherited locally |
@@ -67,9 +69,12 @@ content seed.
 | `sources/` | Curated Knowledge Shelf, read-only by default and link-first | Seed and approved imports | Supporting evidence |
 | `outputs/` | Ignored device-local working memory for generated intermediates | Seed and local writes | No portable authority |
 | `archive/` | Inactive durable context preserved for history | Seed and approved archival moves | Supporting history |
-| `.wirenet/project-bindings.json` | Project IDs, paths, classifications | Bootstrap and routing helpers | Device-local path resolution only |
+| Experiment `README.md` | Question, bound, decision criterion, observation, and lifecycle | Experiment generator and sync | Canonical experiment state |
+| Experiment `AGENTS.md` | Runtime sidecar for bounded work and promotion | Experiment generator | Yes, inherited locally |
+| Optional Experiment `RESULT.md` | Conclusion and decision evidence | Agent when useful | Purpose-specific content |
+| `.wirenet/workspace-bindings.json` | Project and experiment IDs, paths, and ignored routes | Bootstrap and routing helpers | Device-local path resolution only |
 | Global managed core block | Cross-workspace reconciliation trigger | Optional bootstrap step after approval | Yes, outside Manager |
-| Installed plugin skills | Bootstrap, ongoing Manager, and sync behavior | Plugin install/update | Procedural authority globally |
+| Installed plugin skills | Bootstrap, ongoing Manager, sync, and explicit-only UltraGoal behavior | Plugin install/update | Procedural authority globally |
 | Installed plugin seed | Canonical bootstrap and repair scaffold | Plugin install/update | Creation input |
 
 ## Agent Routing
@@ -92,9 +97,9 @@ global AGENTS.md managed core block
         ▼           ▼            ▼            ▼
      tracked     untracked   experiment    ignored
         │           │            │            │
-        │       ask once      stay quiet    stay quiet
+        │       ask once      reconcile    stay quiet
         ▼
- project AGENTS.md determines read order and destinations
+ packet AGENTS.md determines read order and destinations
         │
         ├── README.md  current state and next move
         ├── AGENTS.md  local routing and safety
@@ -109,7 +114,8 @@ carry behavioral instructions.
 
 ## Project Creation
 
-An approved external workspace classified as a project creates an open packet:
+Approved durable work creates the same open packet whether it is Manager-native
+or connected to an external workspace:
 
 ```text
 projects/<slug>/
@@ -117,12 +123,26 @@ projects/<slug>/
 └── AGENTS.md
 ```
 
-Agents add `GOAL.md`, `RESULT.md`, `WORKLOG.md`, a packet-local `index.md`,
-reserved `log.md`, or other typed concepts only when they make the handoff
-clearer. Every concept and the `AGENTS.md` runtime sidecar share the packet's
+Agents add `GOAL.md`, `RESULT.md`, a packet-local `index.md`, reserved `log.md`,
+or other typed concepts only when they make the handoff clearer. Only an
+explicitly invoked UltraGoal may create or update `WORKLOG.md`. Every concept
+and the `AGENTS.md` runtime sidecar share the packet's
 stable `project_id`; reserved files are scoped by directory and have no concept frontmatter. The
-generator adds the packet to `projects/index.md`, then writes the absolute
-external path only to the device-local binding registry.
+generator adds the packet to `projects/index.md`. It writes an absolute path to
+the device-local registry only for an externally bound packet.
+
+## Experiments And Promotion
+
+A bounded spike with a clear question and decision criterion creates a lighter
+Experiment Pack with `README.md` and `AGENTS.md`. An optional `RESULT.md` records
+the conclusion when it earns a separate concept. The packet may be concluded,
+archived, or promoted; promotion preserves the original experiment, creates a
+linked Project Pack, and transfers any device-local workspace binding.
+
+Projects use `active`, `waiting`, `blocked`, `completed`, and `archived`.
+Experiments use `active`, `concluded`, `promoted`, and `archived`. The lifecycle
+helper validates allowed transitions; the Manager skill makes the semantic
+decision about when a transition is deserved.
 
 ## Supporting Shelves
 
@@ -135,8 +155,8 @@ external path only to the device-local binding registry.
   intermediates, not canonical or synchronized knowledge.
 - `archive/` receives an explicit retention policy: preserve inactive durable
   context instead of deleting it.
-- `experiments/` becomes primarily a classification policy for external spikes;
-  v0.1 does not copy experiment work into Manager.
+- `experiments/` contains real lightweight packets for bounded spikes, including
+  Manager-native and externally bound experiments.
 
 These are WireNet policies, not retroactive claims about Jason's intent.
 Their reusable explanations live in the plugin and runtime `AGENTS.md`, not in
@@ -157,18 +177,19 @@ overlay:
    frontmatter; the Doctor rejects untyped drift.
 2. `AGENTS.md`, ignored outputs, plugin implementation, and device-local state
    remain outside the projection.
-3. Concept frontmatter adds stable type, project identity, and producer fields.
-4. Root `index.md` and `projects/index.md` are required by the WireNet profile
-   as stable entry points, although OKF itself makes indexes optional.
+3. Concept frontmatter adds stable type, packet identity, and producer fields.
+4. Root `index.md` and `projects/index.md` are required by the WireNet profile;
+   `experiments/index.md` becomes required once Experiment Packs exist. These
+   are stable entry points although OKF itself makes indexes optional.
 5. Packet-local indexes and all `log.md` files remain optional reserved
    supporting documents, not concepts.
 6. Standard Markdown links between concepts create the only graph relationships.
 7. Inspector, future export, and future sync consumers derive from this one
    projection; the Inspector emits only typed concepts.
 
-Project Packs are the intended first synchronization units, but the complete
-typed Manager knowledge tree is one OKF bundle. The runtime overlay remains
-local and inspectable without being synchronized as knowledge.
+Project and Experiment Packs are the intended first synchronization units, but
+the complete typed Manager knowledge tree is one OKF bundle. The runtime overlay
+remains local and inspectable without being synchronized as knowledge.
 
 ## Memory Update Strategy
 

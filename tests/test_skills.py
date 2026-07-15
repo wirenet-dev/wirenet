@@ -39,6 +39,7 @@ def test_plugin_skill_frontmatter_uses_official_contract() -> None:
     validator = load_module(ROOT / "scripts" / "validate_markdown.py")
     skills = sorted((ROOT / "plugins/wirenet-manager/skills").glob("*/SKILL.md"))
     assert {skill.parent.name for skill in skills} == {
+        "ultragoal",
         "wirenet-manager",
         "wirenet-manager-bootstrap",
         "wirenet-manager-sync",
@@ -59,7 +60,8 @@ def test_manager_seed_contains_content_but_no_embedded_skills() -> None:
     for shelf in ("archive", "docs", "experiments", "notes", "outputs", "people", "projects", "sources"):
         assert not (seed / shelf / "README.md").exists()
     assert not (seed / "templates").exists()
-    assert (seed / ".wirenet/project-bindings.json").is_file()
+    assert (seed / ".wirenet/workspace-bindings.json").is_file()
+    assert not (seed / ".wirenet/project-bindings.json").exists()
     assert not (seed / ".agents").exists()
     assert not (seed / ".codex").exists()
 
@@ -80,9 +82,24 @@ def test_manager_skills_share_one_content_routing_contract() -> None:
     assert "Manager `index.md` declares OKF 0.1" in contract
     assert "Every other Markdown document" in contract
     assert "Neither file is required merely because a packet exists" in contract
+    assert "File-World Heuristic" in contract
+    assert "Short-lived work is not automatically an experiment" in contract
+    assert "`outputs/<task-slug>/`" in (
+        ROOT / "plugins/wirenet-manager/templates/manager/AGENTS.md"
+    ).read_text(encoding="utf-8")
 
 
-def test_plugin_manifest_and_marketplace_point_to_v01_package() -> None:
+def test_ultragoal_is_installed_but_explicit_only() -> None:
+    skill = ROOT / "plugins/wirenet-manager/skills/ultragoal"
+    metadata = (skill / "agents/openai.yaml").read_text(encoding="utf-8")
+    instructions = (skill / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "allow_implicit_invocation: false" in metadata
+    assert "Never infer activation" in instructions
+    assert 'producer: "ultragoal"' in instructions
+
+
+def test_plugin_manifest_and_marketplace_point_to_v02_package() -> None:
     manifest = json.loads(
         (ROOT / "plugins/wirenet-manager/.codex-plugin/plugin.json").read_text(encoding="utf-8")
     )
@@ -90,7 +107,7 @@ def test_plugin_manifest_and_marketplace_point_to_v01_package() -> None:
         (ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
     )
     assert manifest["name"] == "wirenet-manager"
-    assert manifest["version"] == "0.1.2"
+    assert manifest["version"] == "0.2.0"
     assert manifest["skills"] == "./skills/"
     assert manifest["interface"]["brandColor"] == "#FF5C1A"
     for asset_key in ("composerIcon", "logo", "logoDark"):

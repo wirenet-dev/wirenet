@@ -27,32 +27,38 @@ personal Manager.
    `scripts/create_project_pack.py`. It creates an open packet with `README.md`
    and `AGENTS.md`, updates the canonical `projects/index.md`, and stores one
    stable `project_id`. Add optional goal, result, log, worklog, index, or other
-   concepts only when useful.
-10. Preview `scripts/install_global_guidance.py`; ask before applying the core
+   concepts only when useful. Omit `--workspace` for a knowledge-first,
+   Manager-native project.
+10. For approved bounded experiments, preview then apply the plugin-root
+   `scripts/create_experiment_pack.py`. It creates a lightweight packet and
+   optional workspace binding rather than a full project.
+11. Record approved ignored folders with
+   `../wirenet-manager-sync/scripts/record_ignored_workspace.py`.
+12. Preview `scripts/install_global_guidance.py`; ask before applying the core
     managed block to the user's global `AGENTS.md`.
-11. Ask one optional routing question: does the user already have a stable
+13. Ask one optional routing question: does the user already have a stable
     workspace convention they want Codex to follow everywhere? If yes, propose
     the smallest useful one-line rules and preview them with repeated
     `--routing-rule` arguments. If no, install no routing block and do not
     invent or impose a folder structure. Existing project bindings are enough.
-12. If an existing global section already describes workspace roots, offer to
+14. If an existing global section already describes workspace roots, offer to
     replace it with the optional managed routing block. Never keep manual and
     managed copies of the same rules.
-13. Offer a pinned Manager task and optional recurring check-in. Create or
+15. Offer a pinned Manager task and optional recurring check-in. Create or
     change tasks and automations only with explicit approval.
 
 ## Safety
 
 - Never move, copy, upload, or index raw project media or source trees.
 - Never scan the whole home directory without an explicit root choice.
-- Keep absolute workspace paths only in `.wirenet/project-bindings.json`.
+- Keep absolute workspace paths only in `.wirenet/workspace-bindings.json`.
 - Preserve existing global instructions outside the managed blocks.
 - Treat the optional global routing block as its own source of truth. Do not
-  mirror it into Manager JSON or Project Packs in v0.1.
+  mirror it into Manager JSON or packets in v0.2.
 - Change or remove routing only after explicit approval. Never reorganize a
   user's folders merely because their current system looks inconsistent.
 - Never silently add a Git remote, cloud database, or sync service.
-- Bootstrap accepts only the canonical v0.1 contract. If an existing folder
+- Bootstrap accepts only the canonical v0.2 contract. If an existing folder
   fails the Doctor, leave it untouched and bootstrap a fresh target for explicit
   review instead of translating another layout.
 
@@ -62,4 +68,4 @@ personal Manager.
   repair, and doctor wrapper.
 - `scripts/install_global_guidance.py`: idempotent core and optional routing
   block installer.
-- `references/manager-model.md`: canonical v0.1 structure and routing model.
+- `references/manager-model.md`: canonical v0.2 structure and routing model.

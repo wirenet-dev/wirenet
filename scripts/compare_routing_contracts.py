@@ -10,7 +10,10 @@ from pathlib import Path
 from typing import Any
 
 
-CONTRACT_VERSION = "wirenet-routing-contract/v0.1"
+CONTRACT_VERSIONS = {
+    "wirenet-routing-contract/v0.1",
+    "wirenet-routing-contract/v0.2",
+}
 ENTITY_FIELDS = {
     "id",
     "path",
@@ -82,8 +85,8 @@ def _validate_rows(
 
 def validate_contract(contract: dict[str, Any]) -> list[str]:
     errors: list[str] = []
-    if contract.get("contract_version") != CONTRACT_VERSION:
-        errors.append(f"contract_version must be {CONTRACT_VERSION!r}")
+    if contract.get("contract_version") not in CONTRACT_VERSIONS:
+        errors.append(f"contract_version must be one of {sorted(CONTRACT_VERSIONS)!r}")
     for key in ("system_id", "title"):
         if not isinstance(contract.get(key), str) or not contract[key]:
             errors.append(f"{key} must be a non-empty string")
@@ -131,7 +134,7 @@ def _row_delta(before: list[dict[str, Any]], after: list[dict[str, Any]]) -> dic
 
 def compare_contracts(before: dict[str, Any], after: dict[str, Any]) -> dict[str, Any]:
     return {
-        "contract_version": CONTRACT_VERSION,
+        "contract_version": after.get("contract_version"),
         "before": before["system_id"],
         "after": after["system_id"],
         "entities": _row_delta(before["entities"], after["entities"]),
@@ -170,7 +173,7 @@ def main() -> int:
     parser.add_argument(
         "after",
         nargs="?",
-        default=str(root / "contracts/routing/wirenet-manager-v0.1.json"),
+        default=str(root / "contracts/routing/wirenet-manager-v0.2.json"),
     )
     parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON.")
     args = parser.parse_args()

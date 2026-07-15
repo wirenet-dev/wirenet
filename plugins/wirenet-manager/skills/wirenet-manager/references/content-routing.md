@@ -40,14 +40,27 @@ README files into an instance.
 | --- | --- | --- |
 | `TODO.md` | Cross-project commitments, waiting items, and ordered next moves | Project detail or routine task logs |
 | `agent/USER_CONTEXT.md` | Confirmed working style, responsibilities, and operating boundaries | Temporary mood or weak inference |
-| `projects/<slug>/` | Portable state and context for a durable workstream | Implementation code, raw media, or a fixed form |
+| `projects/<slug>/` | Portable state for a durable Manager-native or externally bound workstream | Implementation code, raw media, or a fixed form |
 | `people/` | Evidence-backed context about recurring collaborators | Sensitive or irrelevant personal detail |
 | `notes/` | Quick durable scratch knowledge without a better home | A second copy of canonical project state |
 | `docs/` | Optional structured documents without a stronger project, person, or source home | Documentation already canonical in an external repo |
 | `sources/` | Curated Knowledge Shelf: retained evidence, source notes, and linkable context | Large, private, or operational source trees |
-| `experiments/` | Context for short-lived spikes or their classification | Durable projects that deserve a packet |
+| `experiments/<slug>/` | Lightweight context for a bounded spike with a question and decision criterion | Durable multi-session work that should be promoted |
 | `outputs/` | Ignored device-local working memory for generated intermediates | Canonical knowledge or synchronized artifacts |
 | `archive/` | Inactive durable context that should remain reviewable | A dumping ground for unresolved active work |
+
+## File-World Heuristic
+
+Treat this as a gentle judgment call, not a rigid classifier:
+
+- A few transient review files may stay together under `outputs/<task-slug>/`.
+- When files begin to need recurring editing, durable delivery, their own
+  toolchain, or a reusable body of work, suggest a separate external workspace
+  and connect it to a Project Pack.
+- Short-lived work is not automatically an experiment. Use an Experiment Pack
+  when a bounded question and decision criterion matter.
+- Do not interrupt useful work merely to reorganize it. Suggest a move when the
+  files have started to earn their own home.
 
 ## Open Project Packs
 
@@ -60,7 +73,8 @@ The agent may create these conventions only when useful:
 
 - `GOAL.md`: stable outcome and completion contract;
 - `RESULT.md`: completed outcomes and verification;
-- `WORKLOG.md`: detailed active UltraGoal attempts and next experiment;
+- `WORKLOG.md`: detailed active UltraGoal attempts and next experiment; only an
+  explicitly invoked UltraGoal may create or update it;
 - `log.md`: sparse OKF chronology for meaningful transitions;
 - `index.md`: optional packet-local progressive disclosure when the packet grows;
 - any other concept whose purpose is clearer than forcing it into a standard file.
@@ -81,10 +95,11 @@ WireNet keeps only README files that carry instance knowledge:
   runtime instructions, not untyped README placeholders.
 
 Manager `index.md` declares OKF 0.1 and catalogs the bundle.
-`projects/index.md` is the canonical active-packet catalog. Other shelf or
-packet indexes are created only when real content benefits from progressive
-disclosure. Reserved indexes and logs support agents and future sync, but do
-not enter the WireNet Inspector payload.
+`projects/index.md` is the canonical lifecycle-aware Project Pack catalog.
+`experiments/index.md` is created with the first real Experiment Pack. Other
+shelf or packet indexes are created only when real content benefits from
+progressive disclosure. Reserved indexes and logs support agents and future
+sync, but do not enter the WireNet Inspector payload.
 
 ## Canonical Markdown Boundary
 
@@ -100,16 +115,29 @@ not enter the WireNet Inspector payload.
 
 ## UltraGoal And OKF History
 
-`WORKLOG.md` and `log.md` serve different resolutions:
+`WORKLOG.md` and `log.md` serve different resolutions and have different owners:
 
 - `WORKLOG.md` may contain detailed attempts, failures, evidence, and the next
-  action while an UltraGoal is active.
+  action only while an explicitly activated UltraGoal owns the loop. It uses
+  `type: "Goal Worklog"` and `producer: "ultragoal"`.
 - `log.md` contains only sparse, durable state transitions useful for navigation
   or synchronization.
 
 Do not maintain both with the same information. A log entry may link to a
 meaningful WORKLOG conclusion or RESULT, but it must not reproduce the worklog.
-Neither file is required merely because a packet exists.
+Neither file is required merely because a packet exists. A normal Manager or
+Sync update must never create a WORKLOG.
+
+## Project And Experiment Lifecycle
+
+- Project: `active`, `waiting`, `blocked`, `completed`, or `archived`.
+- Experiment: `active`, `concluded`, `promoted`, or `archived`.
+- Archive a project only when no open next move or waiting handoff remains and
+  durable results have been retained.
+- Promote an experiment when it becomes a durable multi-session workstream.
+  Preserve the experiment as origin evidence and transfer its local bindings.
+- Use the plugin lifecycle contract and transition helpers for mechanics;
+  semantic readiness remains an agent judgment.
 
 ## Decision Heuristic
 

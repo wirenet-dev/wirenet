@@ -49,7 +49,7 @@ show behavioral drift:
 - [`routing/jason-liu-original.md`](routing/jason-liu-original.md) documents the
   original scaffold, producers, consumers, and routing behavior at upstream
   commit `df863768495aaf524a2bf9b5b25ef2622a2591a1`.
-- [`routing/wirenet-manager-v0.1.md`](routing/wirenet-manager-v0.1.md) documents
+- [`routing/wirenet-manager-v0.2.md`](routing/wirenet-manager-v0.2.md) documents
   the same dimensions for the distributed plugin and generated Manager.
 - [`routing/comparison-and-regression.md`](routing/comparison-and-regression.md)
   explains preserved, changed, added, and removed behavior.

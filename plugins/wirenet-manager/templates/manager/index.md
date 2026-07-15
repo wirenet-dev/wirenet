@@ -7,7 +7,7 @@ okf_version: "0.1"
 - [Manager overview](README.md) — human entry point and workspace boundary.
 - [Current stack](TODO.md) — ordered commitments and waiting items.
 - [User context](agent/USER_CONTEXT.md) — durable working style and responsibilities.
-- [Projects](projects/index.md) — active portable Project Packs.
+- [Projects](projects/index.md) — Project Packs grouped by lifecycle state.
 
 # Knowledge Shelves
 

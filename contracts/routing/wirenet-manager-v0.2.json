@@ -1,7 +1,7 @@
 {
-  "contract_version": "wirenet-routing-contract/v0.1",
-  "system_id": "wirenet-manager-v0.1",
-  "title": "WireNet Manager v0.1 Routing",
+  "contract_version": "wirenet-routing-contract/v0.2",
+  "system_id": "wirenet-manager-v0.2",
+  "title": "WireNet Manager v0.2 Routing",
   "provenance": {
     "repository": "https://github.com/wirenet-dev/wirenet-manager.git",
     "ref": "main",
@@ -174,11 +174,11 @@
       "id": "project-worklog",
       "path": "projects/<slug>/WORKLOG.md",
       "kind": "concept",
-      "presence": "optional-agent-created",
+      "presence": "optional-explicit-skill-created",
       "authority": "active-goal-iteration",
       "audience": "human-and-agent",
-      "description": "Detailed UltraGoal attempts, evidence, failures, and next experiment while a durable goal is active.",
-      "produced_by": ["UltraGoal when useful"],
+      "description": "Detailed UltraGoal attempts, evidence, failures, and next experiment while an explicitly activated durable goal is active.",
+      "produced_by": ["explicitly invoked UltraGoal only"],
       "consumed_by": ["UltraGoal", "future tasks", "human viewer"],
       "evidence": ["docs/project-pack-contract.md", "plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md"]
     },
@@ -259,12 +259,60 @@
       "path": "experiments/",
       "kind": "knowledge-shelf",
       "presence": "bootstrap-generated-directory",
-      "authority": "classification-policy",
+      "authority": "experiment-collection",
       "audience": "human-and-agent",
-      "description": "Policy for short-lived spikes; external experiment paths are remembered without creating full packets.",
-      "produced_by": ["bootstrap", "approved route records"],
-      "consumed_by": ["wirenet-manager-sync", "human"],
-      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md", "plugins/wirenet-manager/skills/wirenet-manager-sync/SKILL.md"]
+      "description": "Collection for bounded, decision-oriented Experiment Packs that remain lighter than durable projects.",
+      "produced_by": ["bootstrap", "create-experiment-pack helper"],
+      "consumed_by": ["wirenet-manager", "wirenet-manager-sync", "human"],
+      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md", "plugins/wirenet-manager/scripts/create_experiment_pack.py"]
+    },
+    {
+      "id": "experiments-okf-index",
+      "path": "experiments/index.md",
+      "kind": "reserved-index",
+      "presence": "generated-on-first-pack",
+      "authority": "navigation",
+      "audience": "human-and-agent",
+      "description": "Lifecycle-aware catalog of active, concluded, promoted, and archived Experiment Packs.",
+      "produced_by": ["create-experiment-pack helper", "transition-packet helper", "promote-experiment helper"],
+      "consumed_by": ["wirenet-manager", "wirenet-manager-sync", "human"],
+      "evidence": ["plugins/wirenet-manager/scripts/manager_model.py", "plugins/wirenet-manager/scripts/manager_doctor.py"]
+    },
+    {
+      "id": "experiment-status",
+      "path": "experiments/<slug>/README.md",
+      "kind": "concept",
+      "presence": "generated-required",
+      "authority": "experiment-state",
+      "audience": "human-and-agent",
+      "description": "Bounded question, decision criterion, current observation, next move, and lifecycle state.",
+      "produced_by": ["create-experiment-pack helper", "wirenet-manager-sync after approval"],
+      "consumed_by": ["experiment AGENTS.md", "promote-experiment helper", "human viewer"],
+      "evidence": ["plugins/wirenet-manager/scripts/create_experiment_pack.py", "plugins/wirenet-manager/scripts/manager_model.py"]
+    },
+    {
+      "id": "experiment-agent-instructions",
+      "path": "experiments/<slug>/AGENTS.md",
+      "kind": "runtime-instruction",
+      "presence": "generated-required",
+      "authority": "local-routing",
+      "audience": "agent",
+      "description": "Experiment read order, bounded update rules, safety, and promotion guidance.",
+      "produced_by": ["create-experiment-pack helper"],
+      "consumed_by": ["Codex instruction inheritance", "wirenet-manager-sync"],
+      "evidence": ["plugins/wirenet-manager/scripts/create_experiment_pack.py", "plugins/wirenet-manager/scripts/manager_model.py"]
+    },
+    {
+      "id": "experiment-result",
+      "path": "experiments/<slug>/RESULT.md",
+      "kind": "concept",
+      "presence": "optional-generated-or-agent-created",
+      "authority": "experiment-evidence",
+      "audience": "human-and-agent",
+      "description": "Durable observation, supporting evidence, and decision when the experiment earns a separate result.",
+      "produced_by": ["create-experiment-pack helper", "wirenet-manager-sync after approval"],
+      "consumed_by": ["experiment AGENTS.md", "human viewer", "future tasks"],
+      "evidence": ["plugins/wirenet-manager/scripts/create_experiment_pack.py", "plugins/wirenet-manager/scripts/manager_model.py"]
     },
     {
       "id": "outputs-collection",
@@ -297,7 +345,7 @@
       "presence": "installed-plugin",
       "authority": "procedure",
       "audience": "agent",
-      "description": "Manager behavior is versioned in an installable plugin, not copied into personal Manager content.",
+      "description": "Manager behavior, including explicit-only UltraGoal, is versioned in an installable plugin and not copied into personal Manager content.",
       "produced_by": ["WireNet Manager plugin release"],
       "consumed_by": ["Codex global plugin discovery", "ChatGPT Work"],
       "evidence": ["plugins/wirenet-manager/.codex-plugin/plugin.json", "plugins/wirenet-manager/skills/"]
@@ -316,15 +364,15 @@
     },
     {
       "id": "local-bindings",
-      "path": ".wirenet/project-bindings.json",
+      "path": ".wirenet/workspace-bindings.json",
       "kind": "device-local-registry",
       "presence": "seed-and-updated",
       "authority": "path-resolution",
       "audience": "agent",
-      "description": "Maps stable project IDs to machine-local paths and records experiment or ignored routes. It contains no instructions or portable prose.",
-      "produced_by": ["bootstrap", "create-project-pack helper", "record-routing helper"],
+      "description": "Maps stable Project and Experiment Pack IDs to machine-local paths and records ignored routes. It contains no instructions or portable prose.",
+      "produced_by": ["bootstrap", "create-project-pack helper", "create-experiment-pack helper", "record-ignored-workspace helper"],
       "consumed_by": ["inspect-workspace helper", "manager doctor"],
-      "evidence": ["plugins/wirenet-manager/templates/manager/.wirenet/project-bindings.json", "plugins/wirenet-manager/scripts/create_project_pack.py"]
+      "evidence": ["plugins/wirenet-manager/templates/manager/.wirenet/workspace-bindings.json", "plugins/wirenet-manager/scripts/create_project_pack.py"]
     },
     {
       "id": "manager-metadata",
@@ -348,7 +396,7 @@
       "description": "Code, media, data, and operational work remain outside Manager and are connected by project ID and local path.",
       "produced_by": ["user and project tools"],
       "consumed_by": ["project task", "wirenet-manager-sync"],
-      "evidence": ["README.md#v01-Boundary", "docs/architecture-v0.1.md#Product-Boundary"]
+      "evidence": ["README.md#v02-Boundary", "docs/architecture-v0.2.md#Product-Boundary"]
     },
     {
       "id": "viewer",
@@ -367,7 +415,7 @@
     {
       "id": "discovery",
       "trigger": "The Manager skill is invoked or a task opens inside Manager.",
-      "reads": ["global AGENTS.md managed core block", "Manager/AGENTS.md", "Manager/README.md", "Manager/index.md", "TODO.md", "projects/index.md", "relevant Project Pack"],
+      "reads": ["global AGENTS.md managed core block", "Manager/AGENTS.md", "Manager/README.md", "Manager/index.md", "TODO.md", "projects/index.md", "experiments/index.md when present", "relevant Project or Experiment Pack"],
       "writes": [],
       "approval": "not-required-for-read",
       "description": "Resolve Manager, read the ordered current stack and catalog, then disclose only the relevant packet and sources.",
@@ -384,11 +432,11 @@
     },
     {
       "id": "project-create",
-      "trigger": "An approved external workspace is classified as a durable project.",
-      "reads": ["projects/index.md", ".wirenet/project-bindings.json", "approved workspace path"],
-      "writes": ["README.md", "AGENTS.md", "projects/index.md entry", "local binding", "requested optional concepts"],
+      "trigger": "Work is classified as a durable Manager-native or externally bound project.",
+      "reads": ["projects/index.md", ".wirenet/workspace-bindings.json", "optional approved workspace path"],
+      "writes": ["README.md", "AGENTS.md", "projects/index.md entry", "optional local binding", "requested optional concepts"],
       "approval": "dry-run preview then explicit apply approval",
-      "description": "Create the portable open packet core and bind it to external implementation work without copying that work into Manager.",
+      "description": "Create the portable open packet core; bind external implementation work when present, while Manager-native work needs no device binding.",
       "evidence": ["plugins/wirenet-manager/scripts/create_project_pack.py", "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/SKILL.md"]
     },
     {
@@ -401,10 +449,46 @@
       "evidence": ["plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md", "plugins/wirenet-manager/templates/manager/AGENTS.md"]
     },
     {
+      "id": "experiment-create",
+      "trigger": "A bounded spike has a clear question and decision criterion but has not earned durable project scope.",
+      "reads": ["experiments/index.md when present", ".wirenet/workspace-bindings.json", "optional approved workspace path"],
+      "writes": ["Experiment Pack README.md", "Experiment Pack AGENTS.md", "experiments/index.md", "optional local binding", "optional RESULT.md"],
+      "approval": "dry-run preview then explicit apply approval",
+      "description": "Create a lightweight Experiment Pack that can be concluded, archived, or promoted without prematurely creating a Project Pack.",
+      "evidence": ["plugins/wirenet-manager/scripts/create_experiment_pack.py", "plugins/wirenet-manager/contracts/lifecycle-v0.2.json"]
+    },
+    {
+      "id": "experiment-promote",
+      "trigger": "An Experiment Pack becomes a durable multi-session workstream.",
+      "reads": ["Experiment Pack", ".wirenet/workspace-bindings.json", "lifecycle contract"],
+      "writes": ["linked Project Pack", "promoted Experiment Pack status", "transferred workspace bindings", "project and experiment indexes"],
+      "approval": "dry-run preview then explicit apply approval",
+      "description": "Preserve the experiment as origin evidence, create a durable Project Pack, and transfer any device-local workspace route.",
+      "evidence": ["plugins/wirenet-manager/scripts/promote_experiment.py", "plugins/wirenet-manager/contracts/lifecycle-v0.2.json"]
+    },
+    {
+      "id": "packet-lifecycle-transition",
+      "trigger": "A Project or Experiment Pack reaches a meaningful lifecycle boundary.",
+      "reads": ["packet README.md", "lifecycle contract"],
+      "writes": ["validated status", "updated collection index"],
+      "approval": "dry-run preview then explicit apply approval",
+      "description": "Apply only an allowed Project or Experiment transition; semantic archive and promotion criteria remain agent-judged and reviewable.",
+      "evidence": ["plugins/wirenet-manager/scripts/transition_packet.py", "plugins/wirenet-manager/contracts/lifecycle-v0.2.json"]
+    },
+    {
+      "id": "ultragoal-activation",
+      "trigger": "The user explicitly invokes UltraGoal or explicitly asks to create, set, start, or activate a persistent goal.",
+      "reads": ["matched Project Pack", "GOAL.md when present", "UltraGoal skill policy"],
+      "writes": ["optional GOAL.md", "optional producer-owned WORKLOG.md", "RESULT.md on verified completion", "active goal runtime"],
+      "approval": "explicit invocation required; implicit activation disabled in agents/openai.yaml",
+      "description": "Keep persistent goal machinery globally available without triggering it from importance, complexity, or ordinary long-running work.",
+      "evidence": ["plugins/wirenet-manager/skills/ultragoal/SKILL.md", "plugins/wirenet-manager/skills/ultragoal/agents/openai.yaml"]
+    },
+    {
       "id": "onboarding",
       "trigger": "WireNet Manager is installed, missing, unhealthy, or being repaired.",
       "reads": ["installed plugin seed", "approved project roots", "existing Manager when repairing"],
-      "writes": ["content-only Manager", ".wirenet/manager.json", ".wirenet/project-bindings.json", "optional global managed blocks"],
+      "writes": ["content-only Manager", ".wirenet/manager.json", ".wirenet/workspace-bindings.json", "optional global managed blocks"],
       "approval": "dry-run first; approval before apply, project-root inspection, or global guidance",
       "description": "Bootstrap content separately from behavior, discover only approved roots, and never overwrite personalized files during repair.",
       "evidence": ["plugins/wirenet-manager/skills/wirenet-manager-bootstrap/SKILL.md", "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py"]
@@ -421,10 +505,10 @@
     {
       "id": "cross-workspace-sync",
       "trigger": "A task runs in an external workspace and reaches a meaningful handoff, or the global core block requests reconciliation.",
-      "reads": ["global AGENTS.md managed core block", "current workspace", ".wirenet/project-bindings.json", "matched Project Pack"],
-      "writes": ["approved Project Pack diff", "approved experiment or ignored route"],
+      "reads": ["global AGENTS.md managed core block", "current workspace", ".wirenet/workspace-bindings.json", "matched Project or Experiment Pack"],
+      "writes": ["approved Project or Experiment Pack diff", "approved ignored route"],
       "approval": "ask once for untracked classification; preview durable writes",
-      "description": "Classify manager, tracked, experiment, ignored, or untracked work and update only when durable meaning changed.",
+      "description": "Classify Manager-native, externally tracked, experiment, ignored, or untracked work and update only when durable meaning changed.",
       "evidence": ["plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/install_global_guidance.py", "plugins/wirenet-manager/skills/wirenet-manager-sync/SKILL.md"]
     },
     {
@@ -448,7 +532,7 @@
   ],
   "known_ambiguities": [
     "The Manager is one OKF bundle plus a transparent AGENTS.md and device-local runtime overlay; only typed concepts and reserved index or log files are knowledge-sync candidates.",
-    "Project Packs are designed as future synchronization units, but no database or multi-device merge protocol exists in v0.1.",
+    "Project and Experiment Packs are designed as future synchronization units, but no database or multi-device merge protocol exists in v0.2.",
     "docs/, outputs/, archive/, and notes/ now have explicit WireNet policies; their long-term retention and synchronization behavior needs usage evidence.",
     "Root and project-collection indexes are required by the WireNet profile for stable navigation even though OKF permits them to be absent; packet-local indexes remain optional."
   ]

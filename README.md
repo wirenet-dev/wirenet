@@ -60,7 +60,7 @@ respectively `Manager Overview` and `Project Status`.
 The distinction also applies during development: templates in the plugin are
 reusable blueprints, not user knowledge. They become runtime or knowledge only
 when bootstrap materializes them in a particular user's Manager. See
-[`docs/architecture-v0.1.md`](docs/architecture-v0.1.md) for the file-level
+[`docs/architecture-v0.2.md`](docs/architecture-v0.2.md) for the file-level
 contract.
 
 ## Install And Bootstrap
@@ -80,7 +80,7 @@ project folders where they already are. See
 [`docs/installing-wirenet-manager.md`](docs/installing-wirenet-manager.md) for
 the full flow.
 
-## v0.1 Boundary
+## v0.2 Boundary
 
 ```text
 Developer repository / installed plugin       Generated Manager workspace
@@ -90,18 +90,19 @@ plugins/wirenet-manager/                       ~/Manager/
 ├── skills/                                    ├── .wirenet/             runtime
 ├── scripts/                                   ├── README.md, TODO.md    knowledge
 └── templates/manager/             ───────▶    ├── index.md, log.md     OKF support
-                                                ├── projects/, people/   knowledge
-                                                ├── notes/docs/sources   knowledge
+                                                ├── projects/, experiments/ knowledge
+                                                ├── people/, notes/, docs/  knowledge
+                                                ├── sources/                knowledge
 external project folders           ◀──────▶    └── ignored outputs      local work
 ```
 
 - The plugin owns behavior, schemas, deterministic helpers, and the seed.
-- `~/Manager` owns personal context, Project Packs, local bindings, and Git
-  history. It contains no copied plugin skills in v0.1.
+- `~/Manager` owns personal context, Project and Experiment Packs, local
+  bindings, and Git history. It contains no copied plugin skills in v0.2.
 - External projects keep code, media, datasets, and operational files.
 - Client and specialist capabilities remain independently versioned plugins.
 - No database, cloud sync, shared Knowledge Hub, or filesystem watcher is part
-  of v0.1.
+  of v0.2.
 
 ## Plugin Skills
 
@@ -110,7 +111,9 @@ external project folders           ◀──────▶    └── ignored
   installation of the global reconciliation rule, and optional user-approved
   workspace routing.
 - `$wirenet-manager-sync`: classify external workspaces and reconcile meaningful
-  Project Pack changes.
+  Project or Experiment Pack changes.
+- `$ultragoal`: explicit-only persistent goal execution. It is installed with
+  the plugin but cannot be selected implicitly.
 
 ## WireNet Inspector
 
@@ -146,7 +149,7 @@ Skills use the current installable plugin structure. The repo marketplace is at
 
 ## Project Pack Contract
 
-Every v0.1 Project Pack contains:
+Every Project Pack contains:
 
 | File | Responsibility | WireNet OKF mapping |
 | --- | --- | --- |
@@ -154,19 +157,24 @@ Every v0.1 Project Pack contains:
 | `AGENTS.md` | Read order, sources, safety, update rules | runtime sidecar outside OKF |
 
 These two files are the open core, not a fixed form. The Manager may add
-`GOAL.md`, `RESULT.md`, `WORKLOG.md`, reserved `index.md` or `log.md`, and other
-typed concepts when they improve the handoff. All concepts and the runtime
+`GOAL.md`, `RESULT.md`, reserved `index.md` or `log.md`, and other typed concepts
+when they improve the handoff. Only an explicitly invoked `$ultragoal` may add
+or update `WORKLOG.md`. All concepts and the runtime
 sidecar share one stable `project_id`; reserved files are identified by their
 packet path and carry no duplicate concept metadata. Manager `index.md` and
 `projects/index.md` are required by the WireNet profile as navigational entry
 points, even though OKF itself makes both indexes and logs optional. Packet-local
 indexes and all logs remain optional.
 
+Experiment Packs use the same open two-file core but are bounded by a question
+and decision criterion. They can be concluded, archived, or promoted into a
+linked Project Pack while preserving the experiment as origin evidence.
+
 Machine-local paths live only in
-`~/Manager/.wirenet/project-bindings.json`. Project Pack metadata follows a
-small WireNet OKF profile; the binding registry itself is device-local runtime,
-not part of the knowledge bundle or a claim that v0.1 implements the complete
-OKF mirror system.
+`~/Manager/.wirenet/workspace-bindings.json`. Project and Experiment Pack
+metadata follows small WireNet OKF profiles; the binding registry itself is
+device-local runtime, not part of the knowledge bundle or a claim that v0.2
+implements the complete OKF mirror system.
 
 `AGENTS.md` uses the separate `wirenet-runtime/v0.1` metadata schema and has no
 OKF `type`. Codex reads its Markdown instructions normally; the knowledge
@@ -181,7 +189,7 @@ concept relationships.
 - `plugins/wirenet-manager/scripts/`: deterministic shared Manager helpers,
   including the common OKF projection and read-only viewer generator.
 - `plugins/wirenet-manager/viewer/`: one-file WireNet Inspector template.
-- `docs/architecture-v0.1.md`: file-by-file architecture and routing diagram.
+- `docs/architecture-v0.2.md`: file-by-file architecture and routing diagram.
 - `docs/project-pack-contract.md`: Project Pack and OKF profile.
 - `docs/testing-markdown-as-code.md`: contract surfaces, test layers, and
   regression invariants for the natural-language product.
@@ -247,5 +255,5 @@ python3 scripts/compare_routing_contracts.py
 
 ## Release Status
 
-Plugin `0.1.2` is the current reviewed implementation of the v0.1 architecture.
+Plugin `0.2.0` is the current implementation of the v0.2 lifecycle architecture.
 The repository's `main` branch is the canonical installation source.

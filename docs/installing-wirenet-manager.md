@@ -2,7 +2,7 @@
 last_edited: 2026-07-15
 ---
 
-# Installing WireNet Manager v0.1
+# Installing WireNet Manager v0.2
 
 ## Distribution
 
@@ -49,11 +49,21 @@ folder names plus lightweight markers such as `.git`, `package.json`,
 
 The user classifies candidates as:
 
-- `project`: create an open Project Pack with `README.md`, `AGENTS.md`, both
-  collection routes, and a local binding; add goal, result, worklog, index,
+- `project`: create an open Project Pack with `README.md`, `AGENTS.md`, the
+  collection route, and an optional local binding; add goal, result, index,
   log, or other concepts only when useful;
-- `experiment`: remember the path without creating a full packet;
+- `experiment`: create a lightweight Experiment Pack around a question and
+  decision criterion, with an optional local binding;
 - `ignored`: remember the path and do not ask again.
+
+Manager-native projects and experiments omit the binding entirely. The user can
+work directly in their packet when no external code, media, data, or operational
+folder is needed. Externally bound and Manager-native packets otherwise follow
+the same knowledge contract.
+
+UltraGoal is installed with the plugin but cannot be invoked implicitly. It is
+available only when the user explicitly names or activates a persistent goal;
+only then may it create or update `WORKLOG.md`.
 
 ## Install Global Guidance
 
@@ -70,7 +80,7 @@ only when the user already has a stable convention or explicitly wants one. It
 does not impose a folder hierarchy on an unstructured system. Project bindings
 continue to work without global routing.
 
-The optional block is the only v0.1 source for those global routing rules; the
+The optional block is the only v0.2 source for those global routing rules; the
 same rules are not mirrored into Manager JSON. Existing instructions outside
 the managed blocks are preserved, and an equivalent manual routing section is
 removed only after the user approves the replacement.

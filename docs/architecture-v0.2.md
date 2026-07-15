@@ -2,7 +2,7 @@
 last_edited: 2026-07-15
 ---
 
-# WireNet Manager v0.1 Architecture
+# WireNet Manager v0.2 Architecture
 
 ## Core Design Principle: Metadata As Code
 
@@ -51,7 +51,7 @@ GitHub or local marketplace ─────────────────�
                                                ~/Manager
                                           ┌──────────┴──────────┐
                                           │                     │
-                                  portable Project Packs   local bindings
+                               portable Project/Experiment Packs   local bindings
                                           │                     │
                          future sync       │                     │ path lookup
                                           ▼                     ▼
@@ -70,9 +70,9 @@ External task ends
          classify local path
           ┌───────┼───────────┬───────────┐
           ▼       ▼           ▼           ▼
-       tracked  project   experiment    ignored
+       tracked  new pack  experiment    ignored
           │       │           │           │
-          │   create pack   remember     stay quiet
+          │   create pack  reconcile    stay quiet
           ▼
    propose smallest diff
           │
@@ -86,7 +86,7 @@ External task ends
 ### Marketplace And Manifest
 
 - `.agents/plugins/marketplace.json` exposes the local plugin package.
-- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.1.2,
+- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.2.0,
   bundled skills, interface copy, and starter prompts.
 
 ### Skills
@@ -95,15 +95,24 @@ External task ends
 - `skills/wirenet-manager-bootstrap/`: seed, repair, discovery, and global rule.
 - `skills/wirenet-manager-sync/`: cross-workspace classification and durable
   reconciliation.
+- `skills/ultragoal/`: explicitly invoked persistent goal execution. Its
+  `agents/openai.yaml` disables implicit invocation.
 
 Each skill keeps its `SKILL.md` concise and places detailed contracts under
 `references/`. UI metadata lives in `agents/openai.yaml`.
 
 ### Deterministic Scripts
 
-- `scripts/manager_model.py`: schemas, IDs, JSON helpers, and Project Pack renderers.
-- `scripts/manager_doctor.py`: read-only Manager and Project Pack validation.
-- `scripts/create_project_pack.py`: dry-run-first packet and binding creation.
+- `scripts/manager_model.py`: schemas, IDs, JSON helpers, and packet renderers.
+- `scripts/manager_doctor.py`: read-only Manager, Project Pack, Experiment Pack,
+  binding, and lifecycle validation.
+- `scripts/create_project_pack.py`: dry-run-first Manager-native or externally
+  bound Project Pack creation.
+- `scripts/create_experiment_pack.py`: dry-run-first lightweight Experiment Pack
+  creation.
+- `scripts/promote_experiment.py`: linked Experiment-to-Project promotion and
+  workspace-binding transfer.
+- `scripts/transition_packet.py`: deterministic lifecycle transition checks.
 - `scripts/discover_projects.py`: shallow approved-root discovery.
 - `scripts/okf_projection.py`: the single typed-concept, reserved-file, and
   Markdown-link projection shared by Inspector and future export or sync consumers.
@@ -134,11 +143,13 @@ WireNet preserves Jason Liu's plain-file operating model instead of replacing
 it with OKF:
 
 1. Project `README.md` remains canonical current state; optional `GOAL.md`,
-   `RESULT.md`, `WORKLOG.md`, and additional concepts remain normal Markdown.
+   `RESULT.md`, and additional concepts remain normal Markdown. `WORKLOG.md` is
+   reserved for an explicitly invoked UltraGoal.
 2. `AGENTS.md` remains executable routing and behavioral guidance for agents,
    uses a separate runtime schema, and is never an OKF concept.
-3. `.wirenet/project-bindings.json` stores only device-local project IDs,
-   paths, and classifications; it does not contain instructions or project prose.
+3. `.wirenet/workspace-bindings.json` stores only device-local Project and
+   Experiment Pack IDs, paths, and ignored classifications; it does not contain
+   instructions or project prose.
 4. OKF `type` frontmatter, `index.md`, `log.md`, and Markdown links define the
    portable knowledge projection, progressive disclosure, chronology, and graph
    relationships.
@@ -168,18 +179,21 @@ skills. Bootstrap adds the dynamic `.wirenet/manager.json` file.
 - `index.md`: required WireNet bundle catalog and OKF version declaration.
 - `TODO.md`: cross-project current stack.
 - `agent/USER_CONTEXT.md`: durable user working context.
-- `projects/index.md`: canonical catalog for progressive disclosure and search.
+- `projects/index.md`: lifecycle-aware catalog for progressive disclosure and search.
 - `projects/<slug>/`: open packet with required `README.md` and `AGENTS.md`;
   other concepts, packet-local indexes, and logs are optional.
+- `experiments/index.md`: created when the first real Experiment Pack exists.
+- `experiments/<slug>/`: bounded packet with required `README.md` and
+  `AGENTS.md`, optional result, and promotion lineage.
 - `people/`: recurring collaborator notes.
 - `notes/`: durable scratch material without a canonical home.
 - `docs/`: optional structured documents without a stronger canonical home.
 - `sources/`: curated Knowledge Shelf, read-only by default and link-first.
-- `experiments/` and `archive/`: bounded supporting shelves.
+- `archive/`: inactive durable supporting knowledge retained rather than deleted.
 - `outputs/`: ignored device-local working memory for generated intermediates.
 - `.wirenet/manager.json`: schema, Manager ID, plugin version, and OKF profile.
-- `.wirenet/project-bindings.json`: device-local project paths and ignored or
-  experimental routes.
+- `.wirenet/workspace-bindings.json`: device-local project paths, experiment
+  paths, and ignored routes.
 
 ## Global Guidance
 
@@ -191,9 +205,27 @@ Bootstrap manages two independent regions in the user's global Codex
   explicitly wants applied everywhere.
 
 The routing block is absent for users without a stable workspace layout. It is
-the sole v0.1 source for global creation routes; no parallel workspace-roots
+the sole v0.2 source for global creation routes; no parallel workspace-roots
 JSON is created. Device-local bindings for already known projects remain in
-`.wirenet/project-bindings.json`.
+`.wirenet/workspace-bindings.json`.
+
+The core block makes Manager reconciliation available from external workspaces.
+The current path is classified against the registry or a Manager-native packet;
+the semantic skill decides whether a meaningful handoff is worth proposing.
+There is no background watcher and no write for routine edits.
+
+## Lifecycle Model
+
+Project statuses are `active`, `waiting`, `blocked`, `completed`, and
+`archived`. Experiment statuses are `active`, `concluded`, `promoted`, and
+`archived`. The JSON lifecycle contract and transition helper validate allowed
+edges; the agent still judges whether completion, archival, or promotion is
+semantically warranted.
+
+Manager-native and externally bound packets use the same knowledge contract.
+The only difference is whether `.wirenet/workspace-bindings.json` contains a
+local path. Promotion preserves the Experiment Pack, links both packets, and
+transfers any external binding to the new Project Pack.
 
 ## Deliberate Non-Goals
 

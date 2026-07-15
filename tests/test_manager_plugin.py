@@ -13,8 +13,11 @@ PLUGIN_SCRIPTS = PLUGIN / "scripts"
 BOOTSTRAP = PLUGIN / "skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py"
 GUIDANCE = PLUGIN / "skills/wirenet-manager-bootstrap/scripts/install_global_guidance.py"
 INSPECT = PLUGIN / "skills/wirenet-manager-sync/scripts/inspect_workspace.py"
-ROUTING = PLUGIN / "skills/wirenet-manager-sync/scripts/record_routing.py"
+IGNORE = PLUGIN / "skills/wirenet-manager-sync/scripts/record_ignored_workspace.py"
 CREATE_PROJECT = PLUGIN_SCRIPTS / "create_project_pack.py"
+CREATE_EXPERIMENT = PLUGIN_SCRIPTS / "create_experiment_pack.py"
+PROMOTE_EXPERIMENT = PLUGIN_SCRIPTS / "promote_experiment.py"
+TRANSITION = PLUGIN_SCRIPTS / "transition_packet.py"
 DISCOVER = PLUGIN_SCRIPTS / "discover_projects.py"
 DOCTOR = PLUGIN_SCRIPTS / "manager_doctor.py"
 
@@ -173,9 +176,10 @@ def test_bootstrap_materializes_content_only_manager_with_local_git(tmp_path: Pa
     ).stdout.strip() == "1"
 
     metadata = json.loads((destination / ".wirenet/manager.json").read_text(encoding="utf-8"))
-    assert metadata["schema_version"] == "wirenet-manager/v0.1"
+    assert metadata["schema_version"] == "wirenet-manager/v0.2"
     assert metadata["project_pack_profile"] == "wirenet-project-pack/v0.1"
-    assert metadata["plugin_version"] == "0.1.2"
+    assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
+    assert metadata["plugin_version"] == "0.2.0"
     assert metadata["manager_id"].startswith("mgr_")
 
     repeated = json.loads(run_script(BOOTSTRAP, "--manager-dir", str(destination)).stdout)
@@ -298,9 +302,9 @@ def test_project_pack_is_open_and_supports_optional_concepts_and_local_routing(t
     assert "[Campaign](campaign/README.md) — Nested packet" in index
     assert not (manager / "projects/README.md").exists()
     registry = json.loads(
-        (manager / ".wirenet/project-bindings.json").read_text(encoding="utf-8")
+        (manager / ".wirenet/workspace-bindings.json").read_text(encoding="utf-8")
     )
-    assert {row["path"] for row in registry["bindings"]} == {
+    assert {row["path"] for row in registry["projects"]} == {
         str(parent.resolve()),
         str(child.resolve()),
     }
@@ -315,20 +319,16 @@ def test_project_pack_is_open_and_supports_optional_concepts_and_local_routing(t
     ignored = child / "scratch"
     ignored.mkdir()
     run_script(
-        ROUTING,
+        IGNORE,
         str(ignored),
-        "--classification",
-        "ignored",
         "--manager-dir",
         str(manager),
         "--apply",
     )
     repeated_route = json.loads(
         run_script(
-            ROUTING,
+            IGNORE,
             str(ignored),
-            "--classification",
-            "ignored",
             "--manager-dir",
             str(manager),
             "--apply",
@@ -420,7 +420,7 @@ def test_manager_doctor_rejects_local_template_shelf(tmp_path: Path) -> None:
         run_script(DOCTOR, "--manager-dir", str(manager), check=False).stdout
     )
     assert diagnosis["ok"] is False
-    assert "templates/ is not part of the canonical v0.1 workspace" in diagnosis["errors"]
+    assert "templates is not part of the canonical v0.2 workspace" in diagnosis["errors"]
 
 
 def test_manager_doctor_rejects_typed_runtime_instructions(tmp_path: Path) -> None:
@@ -449,7 +449,7 @@ def test_project_preview_and_rejected_overlap_are_side_effect_free(tmp_path: Pat
     workspace.mkdir()
     tracked_paths = (
         manager / "projects/index.md",
-        manager / ".wirenet/project-bindings.json",
+        manager / ".wirenet/workspace-bindings.json",
     )
     before = {path: path.read_bytes() for path in tracked_paths}
 
@@ -503,6 +503,233 @@ def test_project_preview_and_rejected_overlap_are_side_effect_free(tmp_path: Pat
     assert Path(str(created["packet"])).is_dir()
 
 
+def test_manager_native_project_needs_no_device_binding(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    created = json.loads(
+        run_script(
+            CREATE_PROJECT,
+            "Native Project",
+            "--summary",
+            "Work performed directly in Manager",
+            "--manager-dir",
+            str(manager),
+            "--apply",
+        ).stdout
+    )
+
+    registry = json.loads(
+        (manager / ".wirenet/workspace-bindings.json").read_text(encoding="utf-8")
+    )
+    assert registry["projects"] == []
+    packet = Path(str(created["packet"]))
+    inspection = json.loads(
+        run_script(
+            INSPECT,
+            "--manager-dir",
+            str(manager),
+            "--workspace",
+            str(packet / "working-note"),
+        ).stdout
+    )
+    assert inspection["classification"] == "tracked"
+    assert inspection["manager_native"] is True
+    assert inspection["project_id"] == created["project_id"]
+
+
+def test_experiment_can_be_bound_promoted_and_completed_as_project(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    workspace = tmp_path / "spike"
+    workspace.mkdir()
+
+    experiment = json.loads(
+        run_script(
+            CREATE_EXPERIMENT,
+            "Routing Spike",
+            "--question",
+            "Does the route work?",
+            "--decision-criterion",
+            "The Manager Doctor passes",
+            "--workspace",
+            str(workspace),
+            "--manager-dir",
+            str(manager),
+            "--apply",
+        ).stdout
+    )
+    experiment_packet = Path(str(experiment["packet"]))
+    assert {path.name for path in experiment_packet.iterdir()} == {"README.md", "AGENTS.md"}
+    assert frontmatter_value(experiment_packet / "README.md", "status") == "active"
+    assert "Routing Spike" in (manager / "experiments/index.md").read_text(encoding="utf-8")
+
+    inspection = json.loads(
+        run_script(
+            INSPECT,
+            "--manager-dir",
+            str(manager),
+            "--workspace",
+            str(workspace / "trial"),
+        ).stdout
+    )
+    assert inspection["classification"] == "experiment"
+    assert inspection["experiment_id"] == experiment["experiment_id"]
+
+    promoted = json.loads(
+        run_script(
+            PROMOTE_EXPERIMENT,
+            "routing-spike",
+            "--project-name",
+            "Routing Product",
+            "--summary",
+            "Durable routing work",
+            "--manager-dir",
+            str(manager),
+            "--apply",
+        ).stdout
+    )
+    project_packet = Path(str(promoted["project_packet"]))
+    assert frontmatter_value(experiment_packet / "README.md", "status") == "promoted"
+    assert frontmatter_value(project_packet / "README.md", "source_experiment_id") == experiment["experiment_id"]
+    assert "../../projects/routing-product/README.md" in experiment_packet.joinpath("README.md").read_text(encoding="utf-8")
+    assert "../../experiments/routing-spike/README.md" in project_packet.joinpath("README.md").read_text(encoding="utf-8")
+
+    registry = json.loads(
+        (manager / ".wirenet/workspace-bindings.json").read_text(encoding="utf-8")
+    )
+    assert registry["experiments"] == []
+    assert registry["projects"] == [
+        {"project_id": promoted["project_id"], "path": str(workspace.resolve())}
+    ]
+
+    transitioned = json.loads(
+        run_script(
+            TRANSITION,
+            "project",
+            "routing-product",
+            "--to",
+            "completed",
+            "--manager-dir",
+            str(manager),
+            "--apply",
+        ).stdout
+    )
+    assert transitioned["changed"] is True
+    assert frontmatter_value(project_packet / "README.md", "status") == "completed"
+    assert "Routing Product" in (manager / "projects/index.md").read_text(encoding="utf-8")
+    assert json.loads(run_script(DOCTOR, "--manager-dir", str(manager)).stdout)["ok"] is True
+
+
+def test_invalid_lifecycle_transition_is_side_effect_free(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    experiment = json.loads(
+        run_script(
+            CREATE_EXPERIMENT,
+            "Archived Spike",
+            "--question",
+            "Can this be skipped?",
+            "--decision-criterion",
+            "No",
+            "--manager-dir",
+            str(manager),
+            "--apply",
+        ).stdout
+    )
+    packet = Path(str(experiment["packet"]))
+    run_script(
+        TRANSITION,
+        "experiment",
+        "archived-spike",
+        "--to",
+        "archived",
+        "--manager-dir",
+        str(manager),
+        "--apply",
+    )
+    before = packet.joinpath("README.md").read_bytes()
+    rejected = run_script(
+        TRANSITION,
+        "experiment",
+        "archived-spike",
+        "--to",
+        "concluded",
+        "--manager-dir",
+        str(manager),
+        "--apply",
+        check=False,
+    )
+    assert rejected.returncode == 2
+    assert "invalid experiment transition" in json.loads(rejected.stdout)["error"]
+    assert packet.joinpath("README.md").read_bytes() == before
+
+
+def test_worklog_is_reserved_for_explicit_ultragoal_state(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    project = json.loads(
+        run_script(
+            CREATE_PROJECT,
+            "Persistent Goal",
+            "--summary",
+            "Requires durable attempts",
+            "--manager-dir",
+            str(manager),
+            "--apply",
+        ).stdout
+    )
+    packet = Path(str(project["packet"]))
+    packet.joinpath("WORKLOG.md").write_text(
+        "\n".join(
+            [
+                "---",
+                'type: "Project Note"',
+                'schema: "wirenet-project-pack/v0.1"',
+                f'project_id: "{project["project_id"]}"',
+                "---",
+                "",
+                "# Worklog",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    diagnosis = json.loads(
+        run_script(DOCTOR, "--manager-dir", str(manager), check=False).stdout
+    )
+    assert any("WORKLOG.md must use OKF type Goal Worklog" in error for error in diagnosis["errors"])
+    assert any("WORKLOG.md must declare producer ultragoal" in error for error in diagnosis["errors"])
+
+
+def test_doctor_rejects_out_of_packet_worklog_and_malformed_binding(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    manager.joinpath("notes/WORKLOG.md").write_text(
+        "\n".join(
+            [
+                "---",
+                'type: "Goal Worklog"',
+                'producer: "ultragoal"',
+                "---",
+                "",
+                "# Misrouted Worklog",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    registry_path = manager / ".wirenet/workspace-bindings.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    registry["ignored"] = [{"path": "relative/path"}]
+    registry_path.write_text(json.dumps(registry, indent=2) + "\n", encoding="utf-8")
+
+    diagnosis = json.loads(
+        run_script(DOCTOR, "--manager-dir", str(manager), check=False).stdout
+    )
+    assert "notes/WORKLOG.md is reserved for UltraGoal state in a Project Pack" in diagnosis["errors"]
+    assert "workspace-bindings.json ignored[0] path must be absolute" in diagnosis["errors"]
+
+
 def test_manager_doctor_detects_project_index_drift(tmp_path: Path) -> None:
     manager = tmp_path / "Manager"
     bootstrap(manager)
@@ -526,7 +753,7 @@ def test_manager_doctor_detects_project_index_drift(tmp_path: Path) -> None:
     )
     assert diagnosis["ok"] is False
     assert any(
-        "index-drift: Project Pack is missing from projects/index.md" in error
+        "projects/index-drift: packet is missing from projects/index.md" in error
         for error in diagnosis["errors"]
     )
     assert Path(str(result["packet"])).is_dir()
@@ -571,7 +798,7 @@ def test_manager_doctor_detects_project_identity_drift(tmp_path: Path) -> None:
     assert diagnosis["ok"] is False
     assert any("duplicate project_id" in error for error in diagnosis["errors"])
     assert any(
-        "all Project Pack concept files must share one project_id" in error
+        "all projects packet files must share one project_id" in error
         for error in diagnosis["errors"]
     )
 

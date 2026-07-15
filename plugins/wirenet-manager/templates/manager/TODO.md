@@ -1,6 +1,6 @@
 ---
 type: "Task Stack"
-schema: "wirenet-manager/v0.1"
+schema: "wirenet-manager/v0.2"
 visibility: private
 status: active
 last_edited: 2026-07-15

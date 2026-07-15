@@ -19,7 +19,8 @@ Every active Project Pack starts with:
 
 - `GOAL.md` — stable outcome and completion contract; OKF `Project Brief`.
 - `RESULT.md` — completed outcomes and verification; WireNet `Project Result`.
-- `WORKLOG.md` — detailed active UltraGoal attempts, evidence, and next action.
+- `WORKLOG.md` — detailed active UltraGoal attempts, evidence, and next action;
+  only an explicitly invoked UltraGoal may create or update it.
 - `log.md` — sparse meaningful changes under ISO-date headings; reserved OKF history.
 - Other Markdown concepts — allowed when their purpose is clearer than forcing
   the information into a standard filename.
@@ -30,7 +31,7 @@ Every active Project Pack starts with:
   Reserved `index.md` and `log.md` are path-scoped and carry no concept
   frontmatter.
 - Keep local filesystem paths out of portable Project Pack files.
-- Update `projects/index.md` when creating or archiving a packet.
+- Update `projects/index.md` after every packet creation or lifecycle transition.
 - Create `GOAL.md`, `RESULT.md`, `WORKLOG.md`, `log.md`, or another concept only
   when it earns a separate durable role.
 - Never mirror UltraGoal `WORKLOG.md` detail into `log.md`; the latter is only a

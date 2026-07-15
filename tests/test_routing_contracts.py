@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACTS = ROOT / "contracts/routing"
 JASON = CONTRACTS / "jason-liu-original.json"
-WIRENET = CONTRACTS / "wirenet-manager-v0.1.json"
+WIRENET = CONTRACTS / "wirenet-manager-v0.2.json"
 COMPARE = ROOT / "scripts/compare_routing_contracts.py"
 SEED = ROOT / "plugins/wirenet-manager/templates/manager"
 
@@ -39,7 +39,7 @@ def test_current_product_surfaces_use_only_manager_terminology() -> None:
         ROOT / "README.md",
         ROOT / "AGENTS.md",
         ROOT / "docs",
-        ROOT / "contracts/routing/wirenet-manager-v0.1.json",
+        ROOT / "contracts/routing/wirenet-manager-v0.2.json",
         ROOT / "plugins",
         ROOT / "scripts",
     )
@@ -155,7 +155,7 @@ def test_projects_index_is_the_canonical_collection_router() -> None:
 
     index = (SEED / "projects/index.md").read_text(encoding="utf-8")
     assert not index.startswith("---\n")
-    assert "progressive disclosure" in index
+    assert "Manager-native and externally bound Project Packs" in index
     assert "## Active Project Packs" in index
     assert not (SEED / "projects/README.md").exists()
 
@@ -167,7 +167,7 @@ def test_agents_files_remain_the_executable_routing_hierarchy() -> None:
     assert "## Read Order" in root_agents
     assert "projects/README.md" not in root_agents
     assert "projects/index.md" in root_agents
-    assert "The relevant Project Pack's `README.md` and `AGENTS.md`" in root_agents
+    assert "The relevant Project or Experiment Pack's `README.md` and `AGENTS.md`" in root_agents
     assert "## Minimum Contract" in projects_agents
     for filename in ("README.md", "AGENTS.md", "GOAL.md", "RESULT.md", "WORKLOG.md", "log.md"):
         assert filename in projects_agents
@@ -210,6 +210,10 @@ def test_contract_delta_exposes_wirenet_additions_and_changed_roles() -> None:
         "manager-metadata",
         "external-workspace",
         "viewer",
+        "experiments-okf-index",
+        "experiment-status",
+        "experiment-agent-instructions",
+        "experiment-result",
     } <= added_entities
     assert "root-human-guide" in set(report["entities"]["removed"])
 
@@ -221,7 +225,15 @@ def test_contract_delta_exposes_wirenet_additions_and_changed_roles() -> None:
     assert "presence" in changed_entities["project-result"]
 
     added_routes = set(report["routes"]["added"])
-    assert {"cross-workspace-sync", "okf-navigation", "viewer-projection"} <= added_routes
+    assert {
+        "cross-workspace-sync",
+        "experiment-create",
+        "experiment-promote",
+        "packet-lifecycle-transition",
+        "ultragoal-activation",
+        "okf-navigation",
+        "viewer-projection",
+    } <= added_routes
 
 
 def test_wirenet_contract_separates_workspace_runtime_and_okf_projection() -> None:

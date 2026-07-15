@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Preview, create, or conservatively repair a WireNet Manager v0.1."""
+"""Preview, create, or conservatively repair a WireNet Manager v0.2."""
 
 from __future__ import annotations
 

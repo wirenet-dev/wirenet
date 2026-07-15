@@ -2,14 +2,16 @@
 last_edited: 2026-07-15
 ---
 
-# WireNet Manager v0.1 System Model
+# WireNet Manager v0.2 System Model
 
 ## Boundaries
 
 - The installed plugin owns reusable behavior, schemas, deterministic scripts,
   and the seed template.
 - `~/Manager` owns personal durable content and local Git history.
-- External project workspaces keep code, media, data, and operational files.
+- Knowledge-first projects may remain Manager-native. External workspaces keep
+  code, media, data, deliverables, and operational files when a separate working
+  tree is useful.
 - Client and domain capabilities belong in separately versioned plugins.
 - The future Knowledge Hub will synchronize portable Project Pack concepts, not
   machine-local paths.
@@ -22,15 +24,23 @@ last_edited: 2026-07-15
 | `AGENTS.md` | Read order, sources, rules, safety | runtime sidecar outside OKF |
 | optional `GOAL.md` | Outcome, constraints, completion criteria | `Project Brief` |
 | optional `RESULT.md` | Completed outcomes and verification | `Project Result` |
-| optional `WORKLOG.md` | Detailed active UltraGoal state | producer-defined concept |
+| optional `WORKLOG.md` | Detailed state owned only by an explicitly invoked UltraGoal | `Goal Worklog` with `producer: ultragoal` |
 | optional `log.md` | Sparse dated state transitions | reserved OKF history |
 | other optional concepts | Purpose-driven project knowledge | producer-defined OKF type |
 
 `README.md` and `AGENTS.md` are the minimum packet. Every concept and the runtime
 sidecar share one stable `project_id`; reserved `index.md` and `log.md` are
 scoped by the packet path and carry no concept frontmatter. Local filesystem paths stay in
-`.wirenet/project-bindings.json` so portable Project Packs can later move
+`.wirenet/workspace-bindings.json` so portable Project Packs can later move
 between devices.
+
+## Experiment Pack
+
+Every real experiment starts with typed `README.md` and runtime `AGENTS.md`,
+shares one stable `experiment_id`, and may add `RESULT.md` when the conclusion
+deserves durable evidence. Experiments stay bounded and end by conclusion,
+promotion, or archive. Promotion preserves the original packet and creates a
+new linked Project Pack while transferring device-local workspace bindings.
 
 ## Update Boundary
 
@@ -50,4 +60,4 @@ Future sync consumers use typed Markdown concepts plus reserved indexes and
 logs. The WireNet Inspector emits only typed concepts; reserved indexes, logs,
 runtime `AGENTS.md`, hidden local state, ignored outputs, and plugin
 implementation do not enter its generated payload. No untyped guide exception
-exists in v0.1.
+exists in v0.2.

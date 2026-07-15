@@ -28,7 +28,7 @@ def write_concept(
     path.write_text(
         "---\n"
         f'type: "{concept_type}"\n'
-        'schema: "wirenet-manager/v0.1"\n'
+        'schema: "wirenet-manager/v0.2"\n'
         f'{project_line}'
         f'{audience_line}'
         f'title: "{title}"\n'

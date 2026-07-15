@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Shared data model and renderers for WireNet Manager v0.1."""
+"""Shared data model and renderers for WireNet Manager v0.2."""
 
 from __future__ import annotations
 
@@ -10,12 +10,17 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 
-MANAGER_SCHEMA = "wirenet-manager/v0.1"
+MANAGER_SCHEMA = "wirenet-manager/v0.2"
 PROJECT_PACK_SCHEMA = "wirenet-project-pack/v0.1"
-BINDINGS_SCHEMA = "wirenet-project-bindings/v0.1"
-OKF_PROFILE = "wirenet-okf-project-pack/v0.1"
+EXPERIMENT_PACK_SCHEMA = "wirenet-experiment-pack/v0.1"
+BINDINGS_SCHEMA = "wirenet-workspace-bindings/v0.2"
+PROJECT_OKF_PROFILE = "wirenet-okf-project-pack/v0.1"
+EXPERIMENT_OKF_PROFILE = "wirenet-okf-experiment-pack/v0.1"
 RUNTIME_SCHEMA = "wirenet-runtime/v0.1"
-PLUGIN_VERSION = "0.1.2"
+PLUGIN_VERSION = "0.2.0"
+
+PROJECT_STATUSES = ("active", "waiting", "blocked", "completed", "archived")
+EXPERIMENT_STATUSES = ("active", "concluded", "promoted", "archived")
 
 
 def now() -> datetime:
@@ -43,6 +48,10 @@ def new_project_id() -> str:
     return f"prj_{uuid.uuid4()}"
 
 
+def new_experiment_id() -> str:
+    return f"exp_{uuid.uuid4()}"
+
+
 def manager_metadata(manager_id: str | None = None) -> dict[str, object]:
     stamp = iso_timestamp()
     return {
@@ -52,16 +61,18 @@ def manager_metadata(manager_id: str | None = None) -> dict[str, object]:
         "updated_at": stamp,
         "plugin_version": PLUGIN_VERSION,
         "project_pack_profile": PROJECT_PACK_SCHEMA,
-        "okf_profile": OKF_PROFILE,
+        "experiment_pack_profile": EXPERIMENT_PACK_SCHEMA,
+        "okf_profiles": [PROJECT_OKF_PROFILE, EXPERIMENT_OKF_PROFILE],
     }
 
 
-def empty_bindings() -> dict[str, object]:
+def empty_workspace_bindings() -> dict[str, object]:
     return {
         "schema_version": BINDINGS_SCHEMA,
         "updated_at": iso_timestamp(),
-        "bindings": [],
-        "routes": [],
+        "projects": [],
+        "experiments": [],
+        "ignored": [],
     }
 
 
@@ -82,13 +93,14 @@ def write_json(path: Path, value: dict[str, object]) -> None:
     temporary.replace(path)
 
 
-def load_bindings(manager_dir: Path) -> dict[str, object]:
-    path = manager_dir / ".wirenet/project-bindings.json"
+def load_workspace_bindings(manager_dir: Path) -> dict[str, object]:
+    path = manager_dir / ".wirenet/workspace-bindings.json"
     if not path.exists():
-        return empty_bindings()
+        return empty_workspace_bindings()
     value = load_json(path)
-    value.setdefault("bindings", [])
-    value.setdefault("routes", [])
+    value.setdefault("projects", [])
+    value.setdefault("experiments", [])
+    value.setdefault("ignored", [])
     return value
 
 
@@ -96,33 +108,43 @@ def yaml_string(value: str) -> str:
     return json.dumps(value, ensure_ascii=False)
 
 
-def common_frontmatter(
+def concept_frontmatter(
     *,
     concept_type: str,
+    schema: str,
+    okf_profile: str,
+    identity_key: str,
+    identity: str,
+    name: str,
     title: str,
-    project_id: str,
+    summary: str,
+    scope: str,
+    context_scope: str,
+    assembly_scope: str,
     status: str,
     stamp: datetime,
     visibility: str = "private",
-    audience: str | None = None,
+    producer: str | None = None,
 ) -> list[str]:
     lines = [
         "---",
         f"type: {yaml_string(concept_type)}",
-        f"schema: {yaml_string(PROJECT_PACK_SCHEMA)}",
-        f"okf_profile: {yaml_string(OKF_PROFILE)}",
-        f"project_id: {yaml_string(project_id)}",
+        f"schema: {yaml_string(schema)}",
+        f"okf_profile: {yaml_string(okf_profile)}",
+        f"{identity_key}: {yaml_string(identity)}",
+        f"name: {yaml_string(name)}",
         f"title: {yaml_string(title)}",
-        "scope: projects",
-        "context_scope: project",
+        f"summary: {yaml_string(' '.join(summary.split()))}",
+        f"scope: {scope}",
+        f"context_scope: {context_scope}",
         f"visibility: {visibility}",
+        f"assembly_scope: {assembly_scope}",
+        f"status: {status}",
     ]
-    if audience:
-        lines.append(f"audience: {audience}")
+    if producer:
+        lines.append(f"producer: {yaml_string(producer)}")
     lines.extend(
         [
-            "assembly_scope: project_context",
-            f"status: {status}",
             f"timestamp: {iso_timestamp(stamp)}",
             f"created_at: {iso_date(stamp)}",
             f"updated_at: {iso_date(stamp)}",
@@ -134,11 +156,73 @@ def common_frontmatter(
     return lines
 
 
-def runtime_frontmatter(*, title: str, project_id: str, stamp: datetime) -> list[str]:
+def project_frontmatter(
+    *,
+    concept_type: str,
+    name: str,
+    title: str,
+    summary: str,
+    project_id: str,
+    status: str,
+    stamp: datetime,
+    producer: str | None = None,
+) -> list[str]:
+    return concept_frontmatter(
+        concept_type=concept_type,
+        schema=PROJECT_PACK_SCHEMA,
+        okf_profile=PROJECT_OKF_PROFILE,
+        identity_key="project_id",
+        identity=project_id,
+        name=name,
+        title=title,
+        summary=summary,
+        scope="projects",
+        context_scope="project",
+        assembly_scope="project_context",
+        status=status,
+        stamp=stamp,
+        producer=producer,
+    )
+
+
+def experiment_frontmatter(
+    *,
+    concept_type: str,
+    name: str,
+    title: str,
+    summary: str,
+    experiment_id: str,
+    status: str,
+    stamp: datetime,
+) -> list[str]:
+    return concept_frontmatter(
+        concept_type=concept_type,
+        schema=EXPERIMENT_PACK_SCHEMA,
+        okf_profile=EXPERIMENT_OKF_PROFILE,
+        identity_key="experiment_id",
+        identity=experiment_id,
+        name=name,
+        title=title,
+        summary=summary,
+        scope="experiments",
+        context_scope="experiment",
+        assembly_scope="experiment_context",
+        status=status,
+        stamp=stamp,
+    )
+
+
+def runtime_frontmatter(
+    *,
+    title: str,
+    identity_key: str,
+    identity: str,
+    stamp: datetime,
+) -> list[str]:
     return [
         "---",
         f"schema: {yaml_string(RUNTIME_SCHEMA)}",
-        f"project_id: {yaml_string(project_id)}",
+        f"{identity_key}: {yaml_string(identity)}",
         f"title: {yaml_string(title)}",
         "audience: agent",
         "visibility: local",
@@ -151,14 +235,25 @@ def runtime_frontmatter(*, title: str, project_id: str, stamp: datetime) -> list
     ]
 
 
-def render_project_readme(title: str, summary: str, project_id: str, stamp: datetime) -> str:
-    lines = common_frontmatter(
+def render_project_readme(
+    title: str,
+    summary: str,
+    project_id: str,
+    stamp: datetime,
+    *,
+    source_experiment: str = "",
+) -> str:
+    lines = project_frontmatter(
         concept_type="Project Status",
+        name=title,
         title=f"{title} Status",
+        summary=summary,
         project_id=project_id,
         status="active",
         stamp=stamp,
     )
+    if source_experiment:
+        lines.insert(-2, f"source_experiment_id: {yaml_string(source_experiment)}")
     lines.extend(
         [
             f"# {title}",
@@ -186,7 +281,7 @@ def render_project_readme(title: str, summary: str, project_id: str, stamp: date
             "## Sources",
             "",
             "- Add canonical documents, repositories, conversations, or datasets.",
-            "- Device-local workspace paths belong in `.wirenet/project-bindings.json`.",
+            "- Device-local workspace paths belong in `.wirenet/workspace-bindings.json`.",
             "",
         ]
     )
@@ -196,7 +291,8 @@ def render_project_readme(title: str, summary: str, project_id: str, stamp: date
 def render_project_agents(title: str, project_id: str, stamp: datetime) -> str:
     lines = runtime_frontmatter(
         title=f"{title} Agent Instructions",
-        project_id=project_id,
+        identity_key="project_id",
+        identity=project_id,
         stamp=stamp,
     )
     lines.extend(
@@ -213,7 +309,7 @@ def render_project_agents(title: str, project_id: str, stamp: datetime) -> str:
             "2. This `AGENTS.md` for recurring sources, safety, and routing.",
             "3. Read `GOAL.md`, `RESULT.md`, `WORKLOG.md`, or `log.md` only when present and relevant.",
             "4. Follow links to additional Project Pack concepts only as the task needs them.",
-            "5. Revisit the canonical external sources listed below selectively.",
+            "5. Revisit canonical external sources selectively when a workspace is bound.",
             "",
             "## Recurring Sources",
             "",
@@ -224,11 +320,11 @@ def render_project_agents(title: str, project_id: str, stamp: datetime) -> str:
             "- Update `README.md` only when future work would otherwise misunderstand the project.",
             "- Create or update `GOAL.md` only when a separate durable outcome contract improves the handoff.",
             "- Create or update `RESULT.md` only when completed outcomes deserve durable evidence or verification.",
-            "- Let an active UltraGoal use `WORKLOG.md` for detailed attempts; do not mirror that detail into `log.md`.",
-            "- Create or update `log.md` only when a sparse OKF chronology materially improves navigation or synchronization.",
+            "- Only an explicitly invoked UltraGoal may create or update `WORKLOG.md`.",
+            "- Create or update `log.md` only when sparse chronology materially improves navigation or synchronization.",
+            "- Never mirror detailed UltraGoal WORKLOG entries into `log.md`.",
             "- Additional Markdown concepts are allowed when they have a clear purpose, OKF `type`, and this packet's `project_id`.",
             "- Update this file only when read order, recurring sources, safety gates, or routing changes.",
-            "- Keep optional `log.md` semantic: no routine edits, command logs, raw transcripts, or duplicated status.",
             "- Do not record raw source material, secrets, or generated files.",
             "",
             "## Safety Gates",
@@ -241,9 +337,11 @@ def render_project_agents(title: str, project_id: str, stamp: datetime) -> str:
 
 
 def render_project_goal(title: str, summary: str, project_id: str, stamp: datetime) -> str:
-    lines = common_frontmatter(
+    lines = project_frontmatter(
         concept_type="Project Brief",
+        name=title,
         title=f"{title} Goal",
+        summary=summary,
         project_id=project_id,
         status="active",
         stamp=stamp,
@@ -278,9 +376,11 @@ def render_project_goal(title: str, summary: str, project_id: str, stamp: dateti
 
 
 def render_project_result(title: str, project_id: str, stamp: datetime) -> str:
-    lines = common_frontmatter(
+    lines = project_frontmatter(
         concept_type="Project Result",
+        name=title,
         title=f"{title} Results",
+        summary=f"Completed outcomes and verification for {title}.",
         project_id=project_id,
         status="pending",
         stamp=stamp,
@@ -319,11 +419,176 @@ def render_project_log(title: str, stamp: datetime) -> str:
     )
 
 
-def project_id_from_readme(path: Path) -> str | None:
+def render_experiment_readme(
+    title: str,
+    question: str,
+    decision_criterion: str,
+    experiment_id: str,
+    stamp: datetime,
+) -> str:
+    lines = experiment_frontmatter(
+        concept_type="Experiment Status",
+        name=title,
+        title=f"{title} Experiment",
+        summary=question,
+        experiment_id=experiment_id,
+        status="active",
+        stamp=stamp,
+    )
+    lines.extend(
+        [
+            f"# {title}",
+            "",
+            "## Question",
+            "",
+            question,
+            "",
+            "## Bound",
+            "",
+            "Describe the smallest useful spike and its time, evidence, or scope limit.",
+            "",
+            "## Decision Criterion",
+            "",
+            decision_criterion,
+            "",
+            "## Current State",
+            "",
+            "Describe the latest durable observation without turning this into an activity log.",
+            "",
+            "## Next Move",
+            "",
+            "- [ ] Run the smallest useful next experiment.",
+            "",
+            "## Sources",
+            "",
+            "- Add links to relevant evidence or an optional `RESULT.md` when the conclusion deserves it.",
+            "- Device-local workspace paths belong in `.wirenet/workspace-bindings.json`.",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def render_experiment_agents(title: str, experiment_id: str, stamp: datetime) -> str:
+    lines = runtime_frontmatter(
+        title=f"{title} Experiment Instructions",
+        identity_key="experiment_id",
+        identity=experiment_id,
+        stamp=stamp,
+    )
+    lines.extend(
+        [
+            f"# {title} Experiment Instructions",
+            "",
+            "## Purpose",
+            "",
+            "Keep this spike bounded, decision-oriented, and lighter than a Project Pack.",
+            "",
+            "## Read Order",
+            "",
+            "1. `README.md` for the question, bound, decision criterion, and next move.",
+            "2. This `AGENTS.md` for routing and safety.",
+            "3. Read optional `RESULT.md` or other typed concepts only when present and relevant.",
+            "",
+            "## Update Rules",
+            "",
+            "- Record durable observations, not every trial or command.",
+            "- Conclude, archive, or promote the experiment when the decision criterion is met.",
+            "- Promote before using UltraGoal; persistent multi-iteration work belongs in a Project Pack.",
+            "- Preserve this packet as historical evidence after promotion.",
+            "- Do not record raw source material, secrets, or generated files.",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def render_experiment_result(title: str, experiment_id: str, stamp: datetime) -> str:
+    lines = experiment_frontmatter(
+        concept_type="Experiment Result",
+        name=title,
+        title=f"{title} Result",
+        summary=f"Conclusion and decision evidence for {title}.",
+        experiment_id=experiment_id,
+        status="pending",
+        stamp=stamp,
+    )
+    lines.extend(
+        [
+            f"# {title} Result",
+            "",
+            "## Observation",
+            "",
+            "- Record the durable finding.",
+            "",
+            "## Evidence",
+            "",
+            "- Link the smallest evidence needed to support the conclusion.",
+            "",
+            "## Decision",
+            "",
+            "- Conclude, archive, or promote this experiment.",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def frontmatter(path: Path) -> dict[str, str]:
     if not path.is_file():
-        return None
-    match = re.search(r"(?m)^project_id:\s*[\"']?(?P<id>[^\"'\s]+)", path.read_text(encoding="utf-8"))
-    return match.group("id") if match else None
+        return {}
+    content = path.read_text(encoding="utf-8")
+    if not content.startswith("---\n"):
+        return {}
+    end = content.find("\n---\n", 4)
+    if end < 0:
+        return {}
+    values: dict[str, str] = {}
+    for line in content[4:end].splitlines():
+        if ":" not in line or line.startswith((" ", "-")):
+            continue
+        key, raw = line.split(":", 1)
+        value = raw.strip()
+        if value.startswith(('"', "'")) and value.endswith(value[0]):
+            value = value[1:-1]
+        values[key.strip()] = value
+    return values
+
+
+def update_frontmatter(content: str, updates: dict[str, str]) -> str:
+    if not content.startswith("---\n"):
+        raise ValueError("document is missing YAML frontmatter")
+    end = content.find("\n---\n", 4)
+    if end < 0:
+        raise ValueError("document has malformed YAML frontmatter")
+    lines = content[4:end].splitlines()
+    positions = {
+        line.split(":", 1)[0].strip(): index
+        for index, line in enumerate(lines)
+        if ":" in line and not line.startswith((" ", "-"))
+    }
+    for key, value in updates.items():
+        rendered = f"{key}: {yaml_string(value)}" if key in {
+            "name",
+            "title",
+            "summary",
+            "producer",
+            "promoted_to_project_id",
+            "source_experiment_id",
+        } else f"{key}: {value}"
+        if key in positions:
+            lines[positions[key]] = rendered
+        else:
+            lines.append(rendered)
+    return "---\n" + "\n".join(lines) + content[end:]
+
+
+def project_id_from_readme(path: Path) -> str | None:
+    return frontmatter(path).get("project_id")
+
+
+def experiment_id_from_readme(path: Path) -> str | None:
+    return frontmatter(path).get("experiment_id")
 
 
 def project_packet_for_id(manager_dir: Path, project_id: str) -> Path | None:
@@ -333,27 +598,85 @@ def project_packet_for_id(manager_dir: Path, project_id: str) -> Path | None:
     return None
 
 
-def insert_project_index(
-    content: str,
-    slug: str,
-    title: str,
-    summary: str,
-) -> str:
-    heading = "## Active Project Packs"
-    if heading not in content:
-        raise ValueError(f"project index is missing {heading!r}")
-    description = " ".join(summary.split())
-    entry = f"- [{title}]({slug}/README.md)"
-    if description:
-        entry += f" — {description}"
-    if entry in content.splitlines():
-        updated = content
-    else:
-        marker = content.index(heading) + len(heading)
-        line_end = content.find("\n", marker)
-        if line_end < 0:
-            updated = content + f"\n\n{entry}\n"
-        else:
-            remainder = content[line_end + 1 :].lstrip("\n")
-            updated = content[: line_end + 1] + f"\n{entry}\n" + remainder
-    return updated
+def experiment_packet_for_id(manager_dir: Path, experiment_id: str) -> Path | None:
+    for readme in sorted((manager_dir / "experiments").glob("*/README.md")):
+        if experiment_id_from_readme(readme) == experiment_id:
+            return readme.parent
+    return None
+
+
+def workspace_paths(bindings: dict[str, object]) -> set[str]:
+    rows = [
+        *bindings.get("projects", []),
+        *bindings.get("experiments", []),
+        *bindings.get("ignored", []),
+    ]
+    return {
+        str(row.get("path"))
+        for row in rows
+        if isinstance(row, dict) and isinstance(row.get("path"), str)
+    }
+
+
+def render_projects_index(manager_dir: Path) -> str:
+    sections = {
+        "active": "Active Project Packs",
+        "waiting": "Waiting And Blocked",
+        "blocked": "Waiting And Blocked",
+        "completed": "Completed Project Packs",
+        "archived": "Archived Project Packs",
+    }
+    grouped: dict[str, list[str]] = {heading: [] for heading in dict.fromkeys(sections.values())}
+    for readme in sorted((manager_dir / "projects").glob("*/README.md")):
+        metadata = frontmatter(readme)
+        status = metadata.get("status", "active")
+        heading = sections.get(status, "Active Project Packs")
+        name = metadata.get("name") or readme.parent.name
+        summary = metadata.get("summary", "")
+        entry = f"- [{name}]({readme.parent.name}/README.md)"
+        if summary:
+            entry += f" — {summary}"
+        grouped[heading].append(entry)
+    lines = [
+        "# Projects",
+        "",
+        "This index catalogs Manager-native and externally bound Project Packs.",
+        "External code, media, data, and deliverables remain in their own workspaces.",
+        "",
+    ]
+    for heading in dict.fromkeys(sections.values()):
+        lines.extend([f"## {heading}", "", *grouped[heading], ""])
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def render_experiments_index(manager_dir: Path) -> str:
+    sections = {
+        "active": "Active Experiments",
+        "concluded": "Concluded Experiments",
+        "promoted": "Promoted Experiments",
+        "archived": "Archived Experiments",
+    }
+    grouped: dict[str, list[str]] = {heading: [] for heading in sections.values()}
+    for readme in sorted((manager_dir / "experiments").glob("*/README.md")):
+        metadata = frontmatter(readme)
+        status = metadata.get("status", "active")
+        heading = sections.get(status, "Active Experiments")
+        name = metadata.get("name") or readme.parent.name
+        summary = metadata.get("summary", "")
+        entry = f"- [{name}]({readme.parent.name}/README.md)"
+        if summary:
+            entry += f" — {summary}"
+        grouped[heading].append(entry)
+    lines = [
+        "---",
+        "okf_version: 0.1",
+        "---",
+        "",
+        "# Experiments",
+        "",
+        "This index catalogs bounded spikes and their outcomes.",
+        "",
+    ]
+    for status, heading in sections.items():
+        lines.extend([f"## {heading}", "", *grouped[heading], ""])
+    return "\n".join(lines).rstrip() + "\n"

@@ -17,7 +17,7 @@ python3 scripts/compare_routing_contracts.py --json
 
 ## Preserved
 
-| Jason mechanism | WireNet v0.1 | Preservation rule |
+| Jason mechanism | WireNet v0.2 | Preservation rule |
 | --- | --- | --- |
 | Root and nearest `AGENTS.md` | Same | Markdown instructions remain the executable routing layer. |
 | Root `README.md` | Same human role | It remains the landing page and becomes typed `Manager Overview`. |
@@ -31,7 +31,7 @@ python3 scripts/compare_routing_contracts.py --json
 | `notes/` | Same durable-scratch role | WireNet types real content and avoids placeholder guides. |
 | `sources/` | Same retained-evidence role | WireNet types real content and preserves read-only-by-default. |
 | Repo-local skills as procedures | Same conceptual separation | WireNet packages generic Manager behavior globally instead of copying it into personal content. |
-| Git-backed reviewable memory | Same | Manager Git remains local history in v0.1. |
+| Git-backed reviewable memory | Same | Manager Git remains local history in v0.2. |
 
 ## Changed
 
@@ -46,14 +46,17 @@ python3 scripts/compare_routing_contracts.py --json
 | `docs/`, `outputs/`, and `archive/` receive explicit policies | Jason's placeholders otherwise have no usable routing semantics. | Policies must stay open and must not turn working output into canonical knowledge. |
 | Inspector exposes OKF concepts without support or runtime files | Humans need a faithful view of portable knowledge without inventing semantic or routing edges. | It must render complete concepts, use only Markdown-link edges, and exclude `index.md`, `log.md`, `AGENTS.md`, and hidden state from its payload. |
 | Generic shelf README files are removed | Reusable rules belong to plugin/runtime; instance Markdown should be actual typed knowledge. | The Doctor must reject every untyped non-reserved in-scope Markdown file. |
+| Experiments become real lightweight packets | Bounded spikes need durable questions and conclusions without prematurely becoming projects. | Promotion must preserve origin evidence and transfer bindings without copying local paths into knowledge. |
+| Packet lifecycles are explicit | Active, waiting, blocked, completed, archived, concluded, and promoted states need predictable indexes and transitions. | Deterministic helpers validate edges; semantic completion and archival judgment remains with the agent and user. |
+| UltraGoal is bundled but explicit-only | Persistent goals should work globally without accidental activation. | `agents/openai.yaml` must keep implicit invocation disabled and only UltraGoal may own `WORKLOG.md`. |
 
 ## Added
 
-- stable `manager_id` and `project_id` values;
+- stable `manager_id`, `project_id`, and `experiment_id` values;
 - device-local `.wirenet/` metadata and path bindings;
 - project and route classification;
 - dry-run-first bootstrap, repair, doctor, and deterministic packet generator;
-- a globally installable Manager, bootstrap, and sync skill set;
+- a globally installable Manager, bootstrap, sync, and explicit-only UltraGoal skill set;
 - OKF concept metadata, reserved index and log behavior, links, and graph view;
 - a formal distinction between external implementation work and portable memory;
 - machine-readable routing contracts and contract-delta tests.
@@ -92,7 +95,7 @@ This is safe only while tests enforce these facts:
 
 ## OKF Scope Decision
 
-The clean v0.1 interpretation is:
+The clean v0.2 interpretation is:
 
 - `~/Manager` is one canonical OKF bundle plus a transparent runtime overlay;
 - each Project Pack is a self-contained portable synchronization unit;
@@ -127,6 +130,12 @@ The suite checks:
 10. the Doctor rejects untyped non-reserved Markdown anywhere in the in-scope
     knowledge tree;
 11. contract comparison makes added, removed, and changed entities visible.
+12. Manager-native and externally bound packets resolve through the same
+    semantic contract;
+13. Experiment creation, lifecycle transitions, promotion, and binding transfer
+    are dry-run-first and Doctor-valid;
+14. UltraGoal cannot be invoked implicitly and malformed or foreign-owned
+    `WORKLOG.md` files fail validation.
 
 When upstream changes, first run `scripts/compare_upstream.py --fetch`, inspect
 the commits, and deliberately update the frozen Jason contract only when its

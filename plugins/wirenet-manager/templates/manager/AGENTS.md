@@ -17,8 +17,9 @@ reviewable, and useful to the next task.
 
 1. `README.md` and `index.md` for the human overview and knowledge catalog.
 2. `TODO.md` for the immediate stack.
-3. `projects/index.md` for active workstreams.
-4. The relevant Project Pack's `README.md` and `AGENTS.md`.
+3. `projects/index.md` for project lifecycle and `experiments/index.md` when it
+   exists and a bounded spike is relevant.
+4. The relevant Project or Experiment Pack's `README.md` and `AGENTS.md`.
 5. Optional `GOAL.md`, `RESULT.md`, `WORKLOG.md`, `log.md`, and additional
    concepts only when present and relevant.
 6. People, notes, docs, sources, and external workspaces only when the task needs them.
@@ -31,7 +32,8 @@ reviewable, and useful to the next task.
 - Completed work and verification may be separated into `RESULT.md` when the
   evidence deserves a durable document.
 - Recurring source routes and project-specific agent rules belong in `AGENTS.md`.
-- Detailed UltraGoal attempts belong in optional `WORKLOG.md`.
+- Only an explicitly invoked UltraGoal may create or update `WORKLOG.md` for
+  detailed attempts and recovery state.
 - Meaningful dated state transitions may use optional `log.md` when a sparse
   chronology improves navigation; routine activity does not.
 - Additional project concepts are allowed when they have a clear purpose, OKF
@@ -41,9 +43,17 @@ reviewable, and useful to the next task.
 - Quick durable scratch knowledge belongs in `notes/`; structured standalone
   documents may use `docs/` when no more specific home is stronger.
 - Curated retained evidence belongs in `sources/`; short-lived spikes belong in
-  `experiments/`; inactive durable context belongs in `archive/`.
-- Generated intermediates may use ignored `outputs/`, but canonical meaning
-  must be promoted into a typed knowledge document.
+  `experiments/`; each real experiment starts with `README.md` and `AGENTS.md`,
+  remains bounded, and ends by conclusion, promotion, or archive. Inactive
+  durable context belongs in `archive/`.
+- A few transient review files may stay together under
+  `outputs/<task-slug>/`. When files begin to need recurring editing, durable
+  delivery, or their own toolchain, suggest an external workspace and Project
+  Pack without interrupting useful work merely to reorganize it. Promote
+  canonical meaning into a typed knowledge document.
+- Do not write new working state into archived packets without explicit
+  reactivation. Treat waiting and blocked as live states, and preserve promoted
+  experiments as origin evidence.
 
 ## Workspace Contract
 
