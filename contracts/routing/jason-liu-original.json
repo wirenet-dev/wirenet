@@ -2,12 +2,12 @@
   "contract_version": "wirenet-routing-contract/v0.1",
   "system_id": "jason-liu-personal-monorepo",
   "title": "Jason Liu Personal Monorepo Routing",
-  "snapshot": {
+  "provenance": {
     "repository": "https://github.com/jxnl/personal-monorepo-template.git",
     "ref": "upstream/main",
     "commit": "df863768495aaf524a2bf9b5b25ef2622a2591a1",
     "committed_at": "2026-06-22T11:05:11-07:00",
-    "capture_rule": "Frozen evidence snapshot; do not infer semantics from folder names alone."
+    "capture_rule": "Frozen evidence record; do not infer semantics from folder names alone."
   },
   "scope": {
     "workspace_model": "One Git repository is both the Assistant shared-memory vault and a place for projects, experiments, people notes, repo-local capabilities, and supporting shelves.",

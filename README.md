@@ -30,6 +30,39 @@ in version-controlled files.
 This creates a portable foundation for future synchronization without making a
 database, proprietary UI, or invisible agent memory the source of truth.
 
+## Canonical Three-Layer Model
+
+Every WireNet Manager file belongs to exactly one architectural layer. This is
+the primary decision rule for extending the product:
+
+| Layer | Owns | Canonical location | Portability |
+| --- | --- | --- | --- |
+| Plugin | Reusable behavior, schemas, generators, validators, templates, and product documentation | Installed `plugins/wirenet-manager/` package | Versioned and distributed as the product |
+| Runtime | Agent routing and device-local operating state | `AGENTS.md`, nested `AGENTS.md`, `.wirenet/`, and ignored working output | Inspectable and versionable where useful, but never interpreted as OKF knowledge |
+| Knowledge | Durable user meaning: context, projects, people, decisions, goals, results, and sources | In-scope Markdown inside `~/Manager` | Portable OKF bundle and future synchronization source |
+
+Use three questions whenever a new file or rule is proposed:
+
+1. Should every installation behave this way? Put it in the plugin.
+2. Does an agent or this device need it to operate? Put it in runtime.
+3. Is it durable meaning another person or device should understand? Store it
+   as OKF knowledge.
+
+Inside a generated Manager, the Markdown boundary is intentionally strict:
+`AGENTS.md` is runtime; `index.md` and `log.md` are reserved OKF support
+documents; every other in-scope Markdown file is a typed OKF concept. Untyped
+guide Markdown is invalid. This is why generic shelf `README.md` files do not
+belong in `~/Manager`: reusable shelf rules live in the plugin and local routing
+lives in `AGENTS.md`. The root Manager `README.md` and Project Pack `README.md`
+files remain because they are not manuals—they are typed instance knowledge,
+respectively `Manager Overview` and `Project Status`.
+
+The distinction also applies during development: templates in the plugin are
+reusable blueprints, not user knowledge. They become runtime or knowledge only
+when bootstrap materializes them in a particular user's Manager. See
+[`docs/architecture-v0.1.md`](docs/architecture-v0.1.md) for the file-level
+contract.
+
 ## Install And Bootstrap
 
 ```sh
@@ -50,16 +83,16 @@ the full flow.
 ## v0.1 Boundary
 
 ```text
-Developer repository / installed plugin       User runtime
+Developer repository / installed plugin       Generated Manager workspace
 
 plugins/wirenet-manager/                       ~/Manager/
-├── .codex-plugin/plugin.json                  ├── AGENTS.md
-├── skills/                                    ├── index.md and README.md
-├── scripts/                                   ├── TODO.md and agent/
-└── templates/manager/             ───────▶    ├── projects/ and people/
-                                                ├── notes/, docs/, sources/
-                                                ├── ignored outputs/
-external project folders           ◀──────▶    └── .wirenet/
+├── .codex-plugin/plugin.json                  ├── AGENTS.md             runtime
+├── skills/                                    ├── .wirenet/             runtime
+├── scripts/                                   ├── README.md, TODO.md    knowledge
+└── templates/manager/             ───────▶    ├── index.md, log.md     OKF support
+                                                ├── projects/, people/   knowledge
+                                                ├── notes/docs/sources   knowledge
+external project folders           ◀──────▶    └── ignored outputs      local work
 ```
 
 - The plugin owns behavior, schemas, deterministic helpers, and the seed.
@@ -79,22 +112,22 @@ external project folders           ◀──────▶    └── .wirene
 - `$wirenet-manager-sync`: classify external workspaces and reconcile meaningful
   Project Pack changes.
 
-## Read-Only Manager Viewer
+## WireNet Inspector
 
-`$wirenet-manager` can open a small branded viewer for the Manager's portable
-OKF knowledge projection. A non-reserved Markdown file enters that projection
-only when it has a non-empty OKF `type`; `index.md` and `log.md` remain reserved
-navigation and history. `AGENTS.md`, plugin metadata, skills, scripts, hidden
-state, device-local bindings, and ignored outputs stay outside the knowledge
-graph. The Doctor rejects any other in-scope Markdown without an OKF `type`.
+`$wirenet-manager` can open the branded WireNet Inspector for the Manager's
+portable OKF knowledge projection. A non-reserved Markdown file enters that projection
+only when it has a non-empty OKF `type`. `index.md`, `log.md`, `AGENTS.md`,
+plugin metadata, skills, scripts, hidden state, device-local bindings, and
+ignored outputs do not enter the generated Inspector. The Doctor rejects any
+other in-scope Markdown without an OKF `type`.
 
-The viewer follows the graph-and-detail model of Google's official OKF HTML
+The Inspector follows the graph-and-detail model of Google's official OKF HTML
 viewer: typed concepts become nodes, standard Markdown links between concepts
 become directed graph edges, and selecting a concept renders its complete body
-and backlinks. Reserved indexes and logs remain readable through a small Browse
-control but never become graph nodes. A reading view hides the graph without
-creating another content mode. The viewer is read-only and has no synthetic
-routing edges, Node runtime, database, watcher, or edit API.
+and backlinks. WireNet changes only the identity, safe Markdown rendering,
+loopback transport, and the explicit projection boundary above. The Inspector
+is read-only and has no synthetic routing edges, Node runtime, database,
+watcher, or edit API.
 
 For local development:
 
@@ -147,7 +180,7 @@ concept relationships.
 - `plugins/wirenet-manager/templates/manager/`: content-only runtime seed.
 - `plugins/wirenet-manager/scripts/`: deterministic shared Manager helpers,
   including the common OKF projection and read-only viewer generator.
-- `plugins/wirenet-manager/viewer/`: one-file viewer template.
+- `plugins/wirenet-manager/viewer/`: one-file WireNet Inspector template.
 - `docs/architecture-v0.1.md`: file-by-file architecture and routing diagram.
 - `docs/project-pack-contract.md`: Project Pack and OKF profile.
 - `docs/testing-markdown-as-code.md`: contract surfaces, test layers, and
@@ -170,17 +203,16 @@ It preserves the useful plain-file, Git-backed Assistant model while separating
 installable intelligence from personal content and adding portable Project
 Packs, local bindings, global reconciliation, and OKF-compatible navigation.
 
-The root `.codex/`, shelves, and template files remain as a downstream reference
-to Jason's original repository while v0.1 is developed. They are not copied
-into the generated Manager by the plugin. This boundary keeps upstream changes
-mechanically reviewable without making the user's runtime depend on the
-repo-local reference implementation.
+The original scaffold is not duplicated inside this product repository. A
+fetch-only `upstream` remote and the frozen contracts under `docs/routing/` and
+`contracts/routing/` preserve the comparison boundary without mixing upstream
+runtime files into the canonical WireNet implementation.
 
 ## Local Development
 
 ```sh
 python3 scripts/validate_markdown.py .
-python3 /Users/gitt/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py \
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" \
   plugins/wirenet-manager
 pytest -q
 git diff --check

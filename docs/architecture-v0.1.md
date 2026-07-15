@@ -18,6 +18,28 @@ This separation is the guardrail for future synchronization: a database or
 Knowledge Hub may index and exchange the files, but it must not silently become
 the only place where their meaning or relationships exist.
 
+## Canonical Three-Layer Model
+
+| Layer | Responsibility | Filesystem expression |
+| --- | --- | --- |
+| Plugin | Reusable product behavior and its explanation | Skills, scripts, schemas, templates, viewer, and product docs under `plugins/wirenet-manager/` and `docs/` |
+| Runtime | Executable routing and device-local operating state | Root and nested `AGENTS.md`, `.wirenet/`, and ignored working output |
+| Knowledge | Durable portable meaning | Typed Manager concepts plus reserved OKF `index.md` and `log.md` support documents |
+
+The layers may coexist in one workspace but do not exchange authority. Plugin
+templates are product assets until bootstrap materializes them. Runtime may
+route agents to knowledge but is not itself a concept or graph relationship.
+Knowledge may describe work but cannot define hidden executable behavior.
+
+For any proposed addition, route universal behavior to the plugin, local
+operation to runtime, and durable shared meaning to knowledge. In a generated
+Manager, `AGENTS.md` is the only in-scope runtime Markdown convention;
+`index.md` and `log.md` are reserved OKF support documents; every other
+in-scope Markdown file must carry a non-empty OKF `type`. Generic shelf README
+manuals therefore belong in plugin documentation or runtime instructions. Only
+the typed root Manager Overview and typed Project Status READMEs remain as
+instance knowledge.
+
 ## Routing Overview
 
 ```text
@@ -84,26 +106,26 @@ Each skill keeps its `SKILL.md` concise and places detailed contracts under
 - `scripts/create_project_pack.py`: dry-run-first packet and binding creation.
 - `scripts/discover_projects.py`: shallow approved-root discovery.
 - `scripts/okf_projection.py`: the single typed-concept, reserved-file, and
-  Markdown-link projection shared by viewer and future export or sync consumers.
-- `scripts/generate_manager_viewer.py`: one-shot read-only OKF renderer and
+  Markdown-link projection shared by Inspector and future export or sync consumers.
+- `scripts/generate_manager_viewer.py`: one-shot read-only WireNet Inspector and
   optional loopback-only transport for ChatGPT's built-in Browser.
 - Bootstrap and sync skill scripts provide their task-specific entry points.
 
-### Read-Only Viewer
+### WireNet Inspector
 
 `viewer/manager-viewer.html` is a single HTML template based on the official
-Google Cloud OKF graph-and-detail viewer model. The generator embeds the common
-Manager OKF projection without filtering or rewriting concept bodies. A
+Google Cloud OKF graph-and-detail viewer model. The generator embeds typed
+Manager concepts without filtering or rewriting their bodies. A
 non-reserved Markdown file must have a non-empty `type` to enter the projection.
-`AGENTS.md`, technical plugin files, skills, scripts, hidden state, ignored
-outputs, and local binding JSON never enter it. The Doctor rejects any other
-in-scope Markdown without an OKF `type`.
+`index.md`, `log.md`, `AGENTS.md`, technical plugin files, skills, scripts,
+hidden state, ignored outputs, and local binding JSON never enter the generated
+Inspector. The Doctor rejects any other in-scope Markdown without an OKF `type`.
 
-Standard Markdown links between concepts create the only graph edges. Reserved
-`index.md` catalogs and `log.md` histories remain readable through Browse but
-are not graph nodes. The page renders complete Markdown and backlinks, with
-search, type filters, layouts, and a reading view that can hide the graph. The
-viewer adds no packet, folder, agent-routing, or inferred semantic edges and
+Standard Markdown links between concepts create the only graph edges. The page
+renders complete concept Markdown and backlinks, with Google's search, type
+filter, layout, reset, graph, and detail interactions. WireNet adds its identity,
+safe Markdown rendering, link normalization, and loopback-only serving. The
+Inspector adds no packet, folder, agent-routing, or inferred semantic edges and
 offers no editing or filesystem API.
 
 ### Layer Boundary
@@ -123,8 +145,9 @@ it with OKF:
 5. Root `README.md` is a typed `Manager Overview`; Project Pack `README.md`
    files are typed `Project Status`; generic shelf README placeholders do not
    exist.
-6. Viewer, future export, and future sync consumers use that same deterministic
-   projection; runtime routing stays inspectable in the filesystem but separate.
+6. Inspector, future export, and future sync consumers derive from that same
+   deterministic model; the Inspector emits only typed concepts, while runtime
+   routing stays inspectable in the filesystem but separate.
 
 The frozen entity and route definitions under `contracts/routing/` make this
 boundary testable. They distinguish committed placeholders from semantically
@@ -178,5 +201,5 @@ JSON is created. Device-local bindings for already known projects remain in
 - no automatic background filesystem watcher;
 - no raw source, media, or implementation copy;
 - no customer-specific capability shelf inside the generic Manager;
-- no legacy compatibility or automatic migration layer;
+- no translation layer for other workspace layouts;
 - no imposed global folder hierarchy.

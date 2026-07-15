@@ -87,16 +87,16 @@ def validate_contract(contract: dict[str, Any]) -> list[str]:
     for key in ("system_id", "title"):
         if not isinstance(contract.get(key), str) or not contract[key]:
             errors.append(f"{key} must be a non-empty string")
-    for key in ("snapshot", "scope"):
+    for key in ("provenance", "scope"):
         if not isinstance(contract.get(key), dict):
             errors.append(f"{key} must be an object")
-    snapshot = contract.get("snapshot", {})
-    if isinstance(snapshot, dict):
-        commit = snapshot.get("commit")
-        if commit != "uncommitted-review-snapshot" and (
+    provenance = contract.get("provenance", {})
+    if isinstance(provenance, dict):
+        commit = provenance.get("commit")
+        if commit is not None and (
             not isinstance(commit, str) or not SHA_RE.fullmatch(commit)
         ):
-            errors.append("snapshot.commit must be a 40-character Git SHA or review marker")
+            errors.append("provenance.commit must be a 40-character Git SHA when present")
     errors.extend(_validate_rows(contract.get("entities"), row_name="entities", fields=ENTITY_FIELDS))
     errors.extend(_validate_rows(contract.get("routes"), row_name="routes", fields=ROUTE_FIELDS))
     ambiguities = contract.get("known_ambiguities")

@@ -46,7 +46,8 @@ Project Status. Manager `index.md` catalogs the bundle and
 indexes replace AGENTS instructions.
 
 The Manager is one canonical OKF bundle with a transparent runtime overlay.
-Viewer and future sync consumers use typed Markdown concepts plus reserved
-indexes and logs. Runtime `AGENTS.md`, hidden local state, ignored outputs, and
-plugin implementation remain outside that bundle. No untyped guide exception
+Future sync consumers use typed Markdown concepts plus reserved indexes and
+logs. The WireNet Inspector emits only typed concepts; reserved indexes, logs,
+runtime `AGENTS.md`, hidden local state, ignored outputs, and plugin
+implementation do not enter its generated payload. No untyped guide exception
 exists in v0.1.

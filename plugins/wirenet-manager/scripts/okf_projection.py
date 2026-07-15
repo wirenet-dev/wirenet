@@ -71,23 +71,19 @@ class KnowledgeDocument:
     def is_concept(self) -> bool:
         return self.kind == "concept"
 
-    def to_record(self) -> dict[str, Any]:
-        return {
-            "id": self.document_id,
-            "label": self.title,
-            "type": self.concept_type,
-            "kind": self.kind,
-            "description": self.description,
-            "resource": self.resource,
-            "tags": self.tags,
-            "metadata": self.metadata,
-            "path": self.path,
-            "color": TYPE_PALETTE.get(self.concept_type, DEFAULT_NODE_COLOR),
-            "size": 30 + min(54, len(self.body) // 220),
-        }
-
     def to_node(self) -> dict[str, Any]:
-        return {"data": self.to_record()}
+        return {
+            "data": {
+                "id": self.document_id,
+                "label": self.title or self.document_id,
+                "type": self.concept_type,
+                "description": self.description,
+                "resource": self.resource,
+                "tags": self.tags,
+                "color": TYPE_PALETTE.get(self.concept_type, DEFAULT_NODE_COLOR),
+                "size": 30 + min(60, len(self.body) // 200),
+            }
+        }
 
 
 @dataclass
@@ -341,13 +337,7 @@ def build_graph(projection: OKFProjection) -> dict[str, Any]:
     return {
         "nodes": [concept.to_node() for concept in concepts],
         "edges": edges,
-        "documents": {
-            document.document_id: document.to_record() for document in projection.documents
-        },
-        "bodies": {
-            document.document_id: document.body for document in projection.documents
-        },
-        "indexes": [document.document_id for document in projection.indexes],
-        "logs": [document.document_id for document in projection.logs],
+        "bodies": {concept.document_id: concept.body for concept in concepts},
         "types": sorted({concept.concept_type for concept in concepts}),
+        "palette": TYPE_PALETTE,
     }

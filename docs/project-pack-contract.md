@@ -69,7 +69,7 @@ and `log.md` follow OKF's path-scoped formats and carry no concept metadata.
 
 `AGENTS.md` is the required runtime sidecar, not a concept. It carries the same
 `project_id` under `schema: "wirenet-runtime/v0.1"` but deliberately has no
-`type`. Codex reads it as Markdown instructions; the OKF viewer and future
+`type`. Codex reads it as Markdown instructions; the WireNet Inspector and future
 knowledge sync do not reinterpret its routing as a concept relationship.
 
 ## OKF Mapping
@@ -100,7 +100,7 @@ content benefits from progressive disclosure; no empty shelf guide is seeded.
 
 Individual packets do not need another index while their structure is small;
 an agent may add a packet-local index as the packet grows. The Google-derived
-viewer deliberately omits reserved indexes and visualizes concept documents
+Inspector deliberately omits reserved indexes and visualizes concept documents
 instead. OKF indexes still route agents and future synchronization consumers;
 they never replace README or AGENTS documents.
 
@@ -110,12 +110,14 @@ The Project Pack remains useful when it contains only the minimum two documents,
 but only its typed `README.md` enters the OKF graph at that point. Empty optional
 files are not created merely to make the structure look complete.
 
-The viewer, future export, and future Knowledge Hub use the same deterministic
-projection: non-reserved Markdown with non-empty `type` is a concept;
+The Inspector, future export, and future Knowledge Hub derive from the same
+deterministic projection: non-reserved Markdown with non-empty `type` is a concept;
 `index.md` and `log.md` are reserved supporting documents; `AGENTS.md` is the
 runtime overlay. Any other untyped in-scope Markdown is invalid. Standard
-Markdown links between concepts become the only graph edges. Reserved indexes
-and logs remain readable as catalog and history, never nodes.
+Markdown links between concepts become the only graph edges. The generated
+Inspector contains only typed concepts: reserved indexes, logs, and runtime
+instructions remain in Manager for agent navigation and future synchronization
+but do not enter its payload.
 
 Templates, ignored outputs, plugin implementation, device-local bindings, and
 runtime instructions remain outside the knowledge projection.

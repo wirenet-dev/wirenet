@@ -63,7 +63,7 @@ def extract_bundle(html: str) -> dict[str, object]:
     return json.loads(match.group("bundle"))
 
 
-def test_viewer_projects_only_okf_knowledge_and_keeps_reserved_navigation(tmp_path: Path) -> None:
+def test_inspector_matches_google_graph_model_and_excludes_reserved_runtime(tmp_path: Path) -> None:
     manager = tmp_path / "Manager"
     write_runtime(
         manager / "AGENTS.md",
@@ -91,10 +91,10 @@ def test_viewer_projects_only_okf_knowledge_and_keeps_reserved_navigation(tmp_pa
         body="Read the [goal](GOAL.md).",
     )
     (manager / "projects/index.md").write_text(
-        "# Projects\n\n- [Alpha](alpha/README.md)\n", encoding="utf-8"
+        "# Projects\n\nDO_NOT_RENDER_INDEX\n\n- [Alpha](alpha/README.md)\n", encoding="utf-8"
     )
     (manager / "projects/alpha/log.md").write_text(
-        "# Update Log\n\n## 2026-07-15\n\n- **Creation**: Started.\n",
+        "# Update Log\n\nDO_NOT_RENDER_LOG\n\n## 2026-07-15\n\n- **Creation**: Started.\n",
         encoding="utf-8",
     )
     (manager / "notes/private.md").parent.mkdir(parents=True)
@@ -141,15 +141,15 @@ def test_viewer_projects_only_okf_knowledge_and_keeps_reserved_navigation(tmp_pa
         text=True,
     )
 
-    assert "Viewer concepts: 4" in result.stdout
+    assert "Inspector concepts: 4" in result.stdout
     html = output.read_text(encoding="utf-8")
     bundle = extract_bundle(html)
-    nodes = {node["data"]["path"] for node in bundle["nodes"]}
+    nodes = {node["data"]["id"] for node in bundle["nodes"]}
     assert nodes == {
-        "README.md",
-        "notes/decision.md",
-        "projects/alpha/GOAL.md",
-        "projects/alpha/README.md",
+        "README",
+        "notes/decision",
+        "projects/alpha/GOAL",
+        "projects/alpha/README",
     }
     assert "DO_NOT_RENDER_RUNTIME" not in html
     assert "DO_NOT_RENDER_PROJECT_RUNTIME" not in html
@@ -157,26 +157,26 @@ def test_viewer_projects_only_okf_knowledge_and_keeps_reserved_navigation(tmp_pa
     assert "DO_NOT_RENDER_SKILLS" not in html
     assert "DO_NOT_RENDER_HIDDEN_STATE" not in html
     assert "DO_NOT_RENDER_TEMPLATES" not in html
+    assert "DO_NOT_RENDER_INDEX" not in html
+    assert "DO_NOT_RENDER_LOG" not in html
     assert "RENDER_TYPED_DOCUMENTS" in html
     assert str(manager) not in html
-    assert bundle["indexes"] == ["projects/index"]
-    assert bundle["logs"] == ["projects/alpha/log"]
-    assert set(bundle["documents"]) == {
+    assert set(bundle) == {"nodes", "edges", "bodies", "types", "palette"}
+    assert set(bundle["bodies"]) == {
         "README",
         "notes/decision",
         "projects/alpha/GOAL",
         "projects/alpha/README",
-        "projects/alpha/log",
-        "projects/index",
     }
+    assert "WireNet Inspector" in html
     assert 'id="graph"' in html
     assert 'id="detail"' in html
-    assert 'id="browse"' in html
-    assert 'id="show-agent"' not in html
-    assert 'id="reading-mode"' in html
-    assert 'id="document-select"' not in html
-    assert 'id="view-mode"' not in html
-    assert 'id="audience-filter"' not in html
+    assert 'id="search"' in html
+    assert 'id="filter-type"' in html
+    assert 'id="layout"' in html
+    assert 'id="reset"' in html
+    assert 'id="browse"' not in html
+    assert 'id="reading-mode"' not in html
 
     assert bundle["edges"] == [
         {
@@ -229,16 +229,16 @@ def test_fresh_project_keeps_complete_source_documents(tmp_path: Path) -> None:
     )
     bundle = extract_bundle(output.read_text(encoding="utf-8"))
 
-    nodes = {node["data"]["path"]: node["data"] for node in bundle["nodes"]}
-    assert f"Viewer concepts: {len(nodes)}" in result.stdout
-    assert "projects/empty-project/AGENTS.md" not in nodes
-    assert nodes["README.md"]["type"] == "Manager Overview"
-    assert nodes["projects/empty-project/README.md"]["type"] == "Project Status"
-    assert "projects/empty-project/GOAL.md" not in nodes
-    assert "projects/empty-project/RESULT.md" not in nodes
-    assert "projects/empty-project/log.md" not in nodes
-    assert "index" in bundle["indexes"]
-    assert "projects/index" in bundle["indexes"]
+    nodes = {node["data"]["id"]: node["data"] for node in bundle["nodes"]}
+    assert f"Inspector concepts: {len(nodes)}" in result.stdout
+    assert "projects/empty-project/AGENTS" not in nodes
+    assert nodes["README"]["type"] == "Manager Overview"
+    assert nodes["projects/empty-project/README"]["type"] == "Project Status"
+    assert "projects/empty-project/GOAL" not in nodes
+    assert "projects/empty-project/RESULT" not in nodes
+    assert "projects/empty-project/log" not in nodes
+    assert "index" not in bundle["bodies"]
+    assert "projects/index" not in bundle["bodies"]
     bodies = "\n".join(bundle["bodies"].values())
     assert "Describe the latest durable state" in bodies
     assert "Add the smallest useful next action" in bodies
@@ -275,12 +275,13 @@ def test_substantive_project_content_appears_without_metadata_toggle(tmp_path: P
     )
     bundle = extract_bundle(output.read_text(encoding="utf-8"))
 
-    assert {node["data"]["path"] for node in bundle["nodes"]} == {
-        "projects/alpha/README.md",
-        "projects/alpha/RESULT.md",
+    assert {node["data"]["id"] for node in bundle["nodes"]} == {
+        "projects/alpha/README",
+        "projects/alpha/RESULT",
     }
-    assert bundle["logs"] == ["projects/alpha/log"]
-    assert "Prototype approved" in bundle["bodies"]["projects/alpha/log"]
+    assert "projects/alpha/log" not in bundle["bodies"]
+    assert "Prototype approved" not in "\n".join(bundle["bodies"].values())
+    assert "prototype passed the mobile review" in bundle["bodies"]["projects/alpha/RESULT"]
 
 
 def test_viewer_does_not_filter_sections_from_generated_documents(tmp_path: Path) -> None:
@@ -325,12 +326,12 @@ def test_viewer_does_not_filter_sections_from_generated_documents(tmp_path: Path
     bodies = "\n".join(bundle["bodies"].values())
 
     project_paths = {
-        node["data"]["path"]
+        node["data"]["id"]
         for node in bundle["nodes"]
-        if node["data"]["path"].startswith("projects/useful-project/")
+        if node["data"]["id"].startswith("projects/useful-project/")
     }
     assert project_paths == {
-        "projects/useful-project/README.md",
+        "projects/useful-project/README",
     }
     assert "Ship the prototype." in bodies
     assert "Describe the latest durable state" in bodies
@@ -364,9 +365,10 @@ def test_type_frontmatter_is_the_explicit_concept_boundary(tmp_path: Path) -> No
     )
     bundle = extract_bundle(output.read_text(encoding="utf-8"))
 
-    assert [node["data"]["path"] for node in bundle["nodes"]] == ["people/alex.md"]
-    assert bundle["nodes"][0]["data"]["metadata"]["audience"] == "agent"
-    assert "README" not in bundle["documents"]
+    assert [node["data"]["id"] for node in bundle["nodes"]] == ["people/alex"]
+    assert bundle["nodes"][0]["data"]["type"] == "Person"
+    assert bundle["nodes"][0]["data"]["label"] == "Alex"
+    assert "README" not in bundle["bodies"]
 
 
 def test_graph_uses_only_standard_markdown_links_between_concepts(tmp_path: Path) -> None:

@@ -19,8 +19,8 @@ Jason's template remains the reference for the plain-file workspace model:
 - repo-local skills for onboarding and repeatable workspace operations;
 - Git for reviewable history.
 
-WireNet may add deterministic setup, repair, migration, external-workspace
-routing, installable plugins, and an OKF-compatible knowledge profile. Keep
+WireNet adds deterministic bootstrap and health checks, external-workspace
+routing, an installable plugin, and an OKF-compatible knowledge profile. Keep
 those additions separate enough that upstream changes can still be reviewed by
 intent instead of mechanically merged without inspection.
 

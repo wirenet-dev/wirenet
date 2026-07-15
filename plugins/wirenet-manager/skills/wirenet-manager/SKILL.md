@@ -45,7 +45,7 @@ Use the Project Pack contract described in
 Never send messages, change meetings, edit shared cloud documents, configure
 sync, or create automations without explicit approval for that action.
 
-## Inspect Manager
+## Open WireNet Inspector
 
 When the user asks to browse, inspect, or open the Manager memory visually:
 
@@ -53,13 +53,13 @@ When the user asks to browse, inspect, or open the Manager memory visually:
 2. Run `../../scripts/generate_manager_viewer.py --manager-dir <path> --serve`
    from this skill directory.
 3. Open the printed `127.0.0.1` URL in ChatGPT's built-in Browser.
-4. Stop the local server when the viewer is no longer needed.
+4. Stop the local server when the Inspector is no longer needed.
 
-The viewer is read-only and renders the canonical OKF projection: typed concepts
-as graph nodes, real Markdown links as edges, and reserved `index.md` and
-`log.md` documents as readable support pages. Reading view hides the graph for
-focused inspection. Runtime `AGENTS.md`, plugin implementation, local bindings,
-ignored outputs, and hidden Manager state must not enter the projection.
+The Inspector is read-only and follows Google's graph-and-detail interaction:
+typed concepts become graph nodes, real Markdown links become edges, and node
+selection renders the complete concept and backlinks. Reserved `index.md`,
+`log.md`, runtime `AGENTS.md`, plugin implementation, local bindings, ignored
+outputs, and hidden Manager state must not enter the generated payload.
 
 ## Reference
 

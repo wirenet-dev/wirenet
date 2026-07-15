@@ -58,8 +58,6 @@ Portable files must not contain machine-local paths; store those only in
 - Keep each skill focused and validate it with the official skill validator.
 - Keep detailed contracts in skill `references/` and deterministic repeated
   behavior in scripts.
-- The root `.codex/` tree is retained as an upstream/downstream reference. Do
-  not present it as the current distributed plugin structure.
 
 ## Upstream Reference
 
@@ -71,8 +69,7 @@ reset, or push to upstream.
 ## Development Safety
 
 - Use disposable temporary directories for bootstrap and repair tests.
-- Never bootstrap or repair the live `/Users/gitt/Vault` or a live `~/Manager`
-  during automated tests.
+- Never bootstrap or repair a live Manager workspace during automated tests.
 - Bootstrap and repair must be dry-run-first and create-only for existing
   folders.
 - Do not configure remotes, cloud sync, customer workspaces, messages,
@@ -85,7 +82,7 @@ Run before handoff:
 
 ```sh
 python3 scripts/validate_markdown.py .
-python3 /Users/gitt/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py \
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" \
   plugins/wirenet-manager
 pytest -q
 git diff --check

@@ -50,7 +50,7 @@ sentence that intentionally acts as a routing contract.
 | Production | Do generators materialize the contract? | Bootstrap seed, open Project Pack core, optional concepts, canonical project index |
 | Safety | Are previews and repair non-destructive? | Dry-run has no writes, repair is create-only, rejected routes leave no partial packet |
 | Reconciliation | Does an external path resolve predictably? | Longest binding, experiment and ignored routes, untracked classification |
-| Consumption | Can humans inspect the portable knowledge source? | Full Markdown rendering, typed concepts, real link edges, reserved navigation, runtime and hidden-state exclusion |
+| Consumption | Can humans inspect the portable knowledge source? | Full concept rendering, typed nodes, real link edges, and complete exclusion of reserved, runtime, and hidden-state documents |
 | Reference | Did WireNet accidentally erase a useful Jason behavior? | Frozen upstream contract and explicit semantic delta |
 
 ## Core Regression Invariants
@@ -76,7 +76,8 @@ sentence that intentionally acts as a routing contract.
   enabled; disabling the plugin does not block ordinary tasks.
 - The viewer never becomes a source of truth and never exposes hidden bindings,
   runtime `AGENTS.md`, plugin implementation, or ignored outputs.
-- Reserved indexes and logs remain readable but never become graph nodes.
+- Reserved indexes, logs, and runtime `AGENTS.md` never enter the generated
+  WireNet Inspector payload.
 - Every graph edge comes from a standard Markdown link between two typed
   concepts; no runtime, folder, packet, or inferred edge may be synthesized.
 

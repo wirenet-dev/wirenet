@@ -141,23 +141,6 @@ def test_global_guidance_can_remove_only_optional_routing(tmp_path: Path) -> Non
     assert "<!-- wirenet-manager:routing:start -->" not in content
 
 
-def test_global_guidance_rejects_legacy_core_markers(tmp_path: Path) -> None:
-    agents = tmp_path / "AGENTS.md"
-    agents.write_text(
-        "<!-- wirenet-manager:start -->\nOld rule\n<!-- wirenet-manager:end -->\n",
-        encoding="utf-8",
-    )
-
-    result = json.loads(
-        run_script(GUIDANCE, "--agents-file", str(agents), "--apply", check=False).stdout
-    )
-    assert result["ok"] is False
-    assert "unsupported legacy" in result["error"]
-    assert agents.read_text(encoding="utf-8") == (
-        "<!-- wirenet-manager:start -->\nOld rule\n<!-- wirenet-manager:end -->\n"
-    )
-
-
 def test_bootstrap_materializes_content_only_manager_with_local_git(tmp_path: Path) -> None:
     destination = tmp_path / "Manager"
     preview = json.loads(run_script(BOOTSTRAP, "--manager-dir", str(destination)).stdout)
@@ -641,12 +624,12 @@ def test_project_discovery_is_shallow_and_marker_only(tmp_path: Path) -> None:
 def test_workspace_inspection_uses_only_canonical_bindings(tmp_path: Path) -> None:
     manager = tmp_path / "Manager"
     bootstrap(manager)
-    workspace = tmp_path / "legacy-workspace"
+    workspace = tmp_path / "unbound-workspace"
     workspace.mkdir()
     created = json.loads(
         run_script(
             CREATE_PROJECT,
-            "No Legacy Fallback",
+            "Binding Only",
             "--summary",
             "Only bindings may classify a workspace",
             "--manager-dir",

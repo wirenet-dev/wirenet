@@ -163,7 +163,8 @@ overlay:
 5. Packet-local indexes and all `log.md` files remain optional reserved
    supporting documents, not concepts.
 6. Standard Markdown links between concepts create the only graph relationships.
-7. Viewer, future export, and future sync consumers share this one projection.
+7. Inspector, future export, and future sync consumers derive from this one
+   projection; the Inspector emits only typed concepts.
 
 Project Packs are the intended first synchronization units, but the complete
 typed Manager knowledge tree is one OKF bundle. The runtime overlay remains
@@ -180,5 +181,5 @@ WireNet keeps Jason's durable-meaning threshold and makes it deterministic:
 - inferred writes are previewed and approval-gated;
 - recurring reconciliation catches missed handoffs without becoming a watcher.
 
-The viewer is a read-only human projection and never becomes another source of
+The Inspector is a read-only human projection and never becomes another source of
 truth.

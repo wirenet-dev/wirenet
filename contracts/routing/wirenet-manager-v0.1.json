@@ -2,12 +2,11 @@
   "contract_version": "wirenet-routing-contract/v0.1",
   "system_id": "wirenet-manager-v0.1",
   "title": "WireNet Manager v0.1 Routing",
-  "snapshot": {
+  "provenance": {
     "repository": "https://github.com/wirenet-dev/wirenet-manager.git",
-    "ref": "working-tree",
-    "commit": "uncommitted-review-snapshot",
-    "captured_at": "2026-07-15",
-    "capture_rule": "The contract describes the distributed plugin and generated Manager runtime, not the legacy root .codex reference tree."
+    "ref": "main",
+    "lifecycle": "versioned-with-repository",
+    "capture_rule": "The contract describes the distributed plugin and generated canonical Manager runtime."
   },
   "scope": {
     "workspace_model": "An installed plugin owns behavior; a content-only local Manager owns personal memory; implementation work remains in external workspaces connected through device-local bindings.",
@@ -358,7 +357,7 @@
       "presence": "generated-on-demand",
       "authority": "none",
       "audience": "human",
-      "description": "Read-only Google-derived graph-and-detail view of typed OKF concepts and real Markdown-link edges, with reserved catalogs and histories available outside the graph.",
+      "description": "Read-only branded Google-derived graph-and-detail view of typed OKF concepts and real Markdown-link edges; reserved index.md, log.md, and runtime AGENTS.md do not enter the generated payload.",
       "produced_by": ["generate-manager-viewer helper"],
       "consumed_by": ["human in built-in Browser"],
       "evidence": ["plugins/wirenet-manager/scripts/generate_manager_viewer.py", "plugins/wirenet-manager/viewer/manager-viewer.html"]
@@ -440,10 +439,10 @@
     {
       "id": "viewer-projection",
       "trigger": "The user asks to inspect Manager visually.",
-      "reads": ["typed Manager concepts plus reserved index.md and log.md documents"],
+      "reads": ["typed Manager concept documents"],
       "writes": ["temporary single-file HTML projection"],
       "approval": "not-required-for-local-read-only-generation",
-      "description": "Render the shared OKF projection with complete concept bodies, real Markdown-link edges, and readable reserved navigation; exclude the AGENTS.md runtime overlay, implementation, outputs, and local state.",
+      "description": "Render complete typed concept bodies and real Markdown-link edges in the WireNet Inspector; exclude index.md, log.md, AGENTS.md, implementation, outputs, and local state from the generated payload.",
       "evidence": ["plugins/wirenet-manager/skills/wirenet-manager/SKILL.md", "plugins/wirenet-manager/scripts/okf_projection.py", "plugins/wirenet-manager/scripts/generate_manager_viewer.py"]
     }
   ],

@@ -44,7 +44,7 @@ python3 scripts/compare_routing_contracts.py --json
 | Optional `log.md` adds a sparse time axis when useful | OKF history can improve portable handoff and later sync. | It must stay newest-first and semantic, never become mandatory activity logging. |
 | Global managed core block triggers reconciliation outside Manager | Repo-local skill recall cannot update packets from arbitrary workspaces reliably. | The block must be idempotent, minimal, approval-gated, and independent from optional workspace routing. |
 | `docs/`, `outputs/`, and `archive/` receive explicit policies | Jason's placeholders otherwise have no usable routing semantics. | Policies must stay open and must not turn working output into canonical knowledge. |
-| Viewer exposes the OKF bundle without runtime | Humans need a faithful view of portable knowledge without inventing semantic or routing edges. | It must render complete concepts, use only Markdown-link edges, keep indexes/logs readable, and exclude AGENTS/runtime state. |
+| Inspector exposes OKF concepts without support or runtime files | Humans need a faithful view of portable knowledge without inventing semantic or routing edges. | It must render complete concepts, use only Markdown-link edges, and exclude `index.md`, `log.md`, `AGENTS.md`, and hidden state from its payload. |
 | Generic shelf README files are removed | Reusable rules belong to plugin/runtime; instance Markdown should be actual typed knowledge. | The Doctor must reject every untyped non-reserved in-scope Markdown file. |
 
 ## Added
@@ -66,8 +66,8 @@ python3 scripts/compare_routing_contracts.py --json
 - The ambiguous option to treat `projects/<slug>` as both implementation folder
   and packet is removed. Manager holds the packet; the binding points to work.
 
-The original `.codex/` and template trees remain in the product repository only
-as inspectable downstream reference material.
+The original scaffold is represented only by the fetch-only upstream remote and
+the frozen Jason routing contract. It is not duplicated in the product tree.
 
 ## Why Replacing Shelf README Routing Is Safe
 
@@ -107,13 +107,13 @@ subgraphs can still be selected as future synchronization units.
 
 ## Regression Suite
 
-The routing tests must stay network-independent. The Jason contract is a frozen
-snapshot; upstream review is a separate explicit fetch step.
+The routing tests must stay network-independent. The Jason contract is frozen;
+upstream review is a separate explicit fetch step.
 
 The suite checks:
 
 1. both contracts follow the same routing-contract schema and cite evidence;
-2. Jason's snapshot and known ambiguities remain explicit;
+2. Jason's provenance and known ambiguities remain explicit;
 3. WireNet's seed contains every declared runtime entry point;
 4. Project Pack generation produces `README.md` and `AGENTS.md` with stable IDs
    and accepts optional typed concepts;
@@ -122,8 +122,8 @@ The suite checks:
 6. root, collection, and project AGENTS files remain the routing hierarchy;
 7. local bindings contain paths but no project prose or instructions;
 8. the global core block supplies the cross-workspace trigger;
-9. the viewer uses only typed OKF concepts and real Markdown-link edges;
-   `AGENTS.md` remains outside the knowledge projection;
+9. the Inspector uses only typed OKF concepts and real Markdown-link edges;
+   `index.md`, `log.md`, and `AGENTS.md` remain outside its generated payload;
 10. the Doctor rejects untyped non-reserved Markdown anywhere in the in-scope
     knowledge tree;
 11. contract comparison makes added, removed, and changed entities visible.

@@ -83,8 +83,8 @@ WireNet keeps only README files that carry instance knowledge:
 Manager `index.md` declares OKF 0.1 and catalogs the bundle.
 `projects/index.md` is the canonical active-packet catalog. Other shelf or
 packet indexes are created only when real content benefits from progressive
-disclosure. Reserved indexes and logs are readable support documents but not
-graph nodes.
+disclosure. Reserved indexes and logs support agents and future sync, but do
+not enter the WireNet Inspector payload.
 
 ## Canonical Markdown Boundary
 

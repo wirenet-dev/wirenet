@@ -8,8 +8,6 @@ import json
 from pathlib import Path
 
 
-LEGACY_START = "<!-- wirenet-manager:start -->"
-LEGACY_END = "<!-- wirenet-manager:end -->"
 CORE_START = "<!-- wirenet-manager:core:start -->"
 CORE_END = "<!-- wirenet-manager:core:end -->"
 ROUTING_START = "<!-- wirenet-manager:routing:start -->"
@@ -97,13 +95,8 @@ def replace_blocks(
     routing_rules: list[str] | None = None,
     clear_routing: bool = False,
 ) -> tuple[str, str | None, str]:
-    has_legacy = validate_pair(existing, LEGACY_START, LEGACY_END)
-    has_core = validate_pair(existing, CORE_START, CORE_END)
+    validate_pair(existing, CORE_START, CORE_END)
     has_routing = validate_pair(existing, ROUTING_START, ROUTING_END)
-    if has_legacy:
-        raise ValueError(
-            "unsupported legacy WireNet Manager block; remove or review it before installing v0.1"
-        )
 
     updated = replace_managed(existing, CORE_START, CORE_END, CORE_BLOCK)
 

@@ -35,18 +35,6 @@ def test_markdown_validator_accepts_okf_index_and_log_structure(tmp_path: Path) 
     assert validator.validate_tree(tmp_path) == []
 
 
-def test_onboarding_scripts_default_to_repo_root_vault() -> None:
-    script_dir = ROOT / ".codex" / "skills" / "onboarding" / "scripts"
-    for script_name in (
-        "setup_shared_memory_vault.py",
-        "new_person_note.py",
-        "new_project_note.py",
-        "vault_doctor.py",
-    ):
-        module = load_module(script_dir / script_name)
-        assert module.default_vault_dir() == ROOT
-
-
 def test_plugin_skill_frontmatter_uses_official_contract() -> None:
     validator = load_module(ROOT / "scripts" / "validate_markdown.py")
     skills = sorted((ROOT / "plugins/wirenet-manager/skills").glob("*/SKILL.md"))

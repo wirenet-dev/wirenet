@@ -45,7 +45,7 @@ projects/<slug>/
 
 `AGENTS.md` uses `schema: "wirenet-runtime/v0.1"`, retains the packet's
 `project_id`, and deliberately omits OKF `type`. Codex reads its instructions
-normally, while the viewer and future Knowledge Hub exclude it from the
+normally, while the Inspector and future Knowledge Hub exclude it from the
 knowledge projection.
 
 ## Portable And Local State

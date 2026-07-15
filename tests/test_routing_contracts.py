@@ -15,6 +15,54 @@ COMPARE = ROOT / "scripts/compare_routing_contracts.py"
 SEED = ROOT / "plugins/wirenet-manager/templates/manager"
 
 
+def test_repository_root_contains_only_product_scaffold() -> None:
+    removed_reference_roots = (
+        ".codex",
+        "archive",
+        "experiments",
+        "notes",
+        "outputs",
+        "people",
+        "projects",
+        "sources",
+        "templates",
+    )
+    assert not [name for name in removed_reference_roots if (ROOT / name).exists()]
+
+
+def test_current_product_surfaces_use_only_manager_terminology() -> None:
+    historical_files = {
+        ROOT / "docs/routing/jason-liu-original.md",
+        ROOT / "contracts/routing/jason-liu-original.json",
+    }
+    roots = (
+        ROOT / "README.md",
+        ROOT / "AGENTS.md",
+        ROOT / "docs",
+        ROOT / "contracts/routing/wirenet-manager-v0.1.json",
+        ROOT / "plugins",
+        ROOT / "scripts",
+    )
+    files: set[Path] = set()
+    for path in roots:
+        if path.is_file():
+            files.add(path)
+        elif path.is_dir():
+            files.update(
+                candidate
+                for candidate in path.rglob("*")
+                if candidate.is_file() and candidate.suffix in {".md", ".json", ".py", ".html"}
+            )
+
+    deprecated_term = "va" + "ult"
+    violations: list[str] = []
+    for path in sorted(files - historical_files):
+        content = path.read_text(encoding="utf-8")
+        if deprecated_term in content.casefold() or "/Users/gitt/" in content:
+            violations.append(str(path.relative_to(ROOT)))
+    assert violations == []
+
+
 def load_compare_module():
     spec = importlib.util.spec_from_file_location("compare_routing_contracts", COMPARE)
     assert spec is not None
@@ -40,10 +88,19 @@ def test_frozen_routing_contracts_validate_and_have_evidence() -> None:
         assert module.validate_contract(contract) == []
 
     jason = load(JASON)
-    assert jason["snapshot"]["commit"] == "df863768495aaf524a2bf9b5b25ef2622a2591a1"
-    assert jason["snapshot"]["ref"] == "upstream/main"
+    wirenet = load(WIRENET)
+    assert jason["provenance"]["commit"] == "df863768495aaf524a2bf9b5b25ef2622a2591a1"
+    assert jason["provenance"]["ref"] == "upstream/main"
+    assert wirenet["provenance"] == {
+        "repository": "https://github.com/wirenet-dev/wirenet-manager.git",
+        "ref": "main",
+        "lifecycle": "versioned-with-repository",
+        "capture_rule": (
+            "The contract describes the distributed plugin and generated canonical Manager runtime."
+        ),
+    }
 
-    for contract in (jason, load(WIRENET)):
+    for contract in (jason, wirenet):
         for row in [*contract["entities"], *contract["routes"]]:
             assert row["evidence"], row["id"]
 

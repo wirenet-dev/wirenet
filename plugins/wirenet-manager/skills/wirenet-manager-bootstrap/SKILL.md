@@ -52,9 +52,9 @@ personal Manager.
 - Change or remove routing only after explicit approval. Never reorganize a
   user's folders merely because their current system looks inconsistent.
 - Never silently add a Git remote, cloud database, or sync service.
-- v0.1 has no compatibility or migration layer. If an existing folder fails the
-  canonical Doctor contract, leave it untouched and bootstrap a fresh target for
-  explicit review instead of translating legacy structure.
+- Bootstrap accepts only the canonical v0.1 contract. If an existing folder
+  fails the Doctor, leave it untouched and bootstrap a fresh target for explicit
+  review instead of translating another layout.
 
 ## Resources
 

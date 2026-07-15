@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate or serve the read-only WireNet Manager OKF viewer."""
+"""Generate or serve the read-only WireNet Inspector."""
 
 from __future__ import annotations
 
@@ -67,7 +67,7 @@ def serve_html(html: str, port: int) -> None:
             return
 
     server = ThreadingHTTPServer(("127.0.0.1", port), ViewerHandler)
-    print("WireNet Manager Viewer", flush=True)
+    print("WireNet Inspector", flush=True)
     print(f"URL: http://127.0.0.1:{server.server_port}", flush=True)
     print("Press Ctrl+C to stop.", flush=True)
     try:
@@ -80,7 +80,7 @@ def serve_html(html: str, port: int) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Render Manager Markdown as a read-only Google-derived OKF viewer."
+        description="Render Manager concepts in the read-only Google-derived WireNet Inspector."
     )
     parser.add_argument(
         "--manager-dir",
@@ -89,7 +89,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Manager content root (default: WIRENET_MANAGER_DIR or ~/Manager)",
     )
     parser.add_argument("--out", type=Path, help="Write the generated HTML to this path")
-    parser.add_argument("--name", help="Viewer title (default: Manager directory name)")
+    parser.add_argument("--name", help="Bundle title (default: Manager directory name)")
     parser.add_argument("--serve", action="store_true", help="Serve the page on 127.0.0.1")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT, help=f"Local port (default: {DEFAULT_PORT})")
     return parser
@@ -100,7 +100,7 @@ def main() -> int:
     if not 1 <= args.port <= 65535:
         raise SystemExit("--port must be between 1 and 65535")
     html, counts = generate_html(args.manager_dir, bundle_name=args.name)
-    print(f"Viewer concepts: {counts['concepts']}", flush=True)
+    print(f"Inspector concepts: {counts['concepts']}", flush=True)
     print(f"Graph edges: {counts['edges']}", flush=True)
     if args.serve:
         serve_html(html, args.port)
@@ -108,7 +108,7 @@ def main() -> int:
     output_path = (args.out or default_output_path()).expanduser().resolve()
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(html, encoding="utf-8")
-    print(f"Viewer: {output_path}", flush=True)
+    print(f"Inspector: {output_path}", flush=True)
     return 0
 
 
