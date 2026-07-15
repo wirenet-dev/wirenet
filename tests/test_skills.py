@@ -125,7 +125,7 @@ def test_plugin_manifest_and_marketplace_point_to_v02_package() -> None:
         (ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
     )
     assert manifest["name"] == "wirenet-manager"
-    assert manifest["version"] == "0.2.1"
+    assert manifest["version"] == "0.2.3"
     assert manifest["skills"] == "./skills/"
     assert manifest["interface"]["brandColor"] == "#FF5C1A"
     for asset_key in ("composerIcon", "logo", "logoDark"):
@@ -139,3 +139,53 @@ def test_plugin_manifest_and_marketplace_point_to_v02_package() -> None:
             "category": "Productivity",
         }
     ]
+
+
+def test_clean_codex_install_contract_is_complete_and_repo_readable() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    install = (ROOT / "docs/installing-wirenet-manager.md").read_text(
+        encoding="utf-8"
+    )
+    prompt = (
+        "Set me up with wirenet-dev/wirenet-manager as ~/Manager. Read the "
+        "repository README first"
+    )
+
+    for document in (readme, install):
+        assert prompt in document
+        assert "press both Command keys" in document
+        assert (
+            "codex plugin marketplace add wirenet-dev/wirenet-manager --ref main"
+            in document
+        )
+        assert "codex plugin add wirenet-manager@wirenet-manager" in document
+        assert "$wirenet-manager-bootstrap Start my guided first run." in document
+
+    assert "never cloned into `~/Manager`" in readme
+    assert "does not install a plugin by itself" in install
+
+
+def test_guided_first_run_contract_covers_map_sources_and_automation() -> None:
+    skill = (
+        ROOT
+        / "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/SKILL.md"
+    ).read_text(encoding="utf-8")
+    reference = (
+        ROOT
+        / "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/references/first-run-experience.md"
+    ).read_text(encoding="utf-8")
+
+    assert "references/first-run-experience.md" in skill
+    assert "brand new, partial, or established" in skill
+    assert "installation, connection, source reading" in skill
+    assert "current task as the Manager home" in skill
+    assert "What's on your plate right now?" in reference
+    assert "Communication And Work Sources" in reference
+    assert "install or enable a plugin" in reference
+    assert "connect an account or service" in reference
+    assert "read approved sources" in reference
+    assert "Use the scheduled-task or automation tool" in reference
+    assert "current task as destination" in reference
+    assert "Recommend an hourly quiet heartbeat" in reference
+    assert "If local Manager files are part of the check" in reference
+    assert "You can just talk to your Manager" in reference

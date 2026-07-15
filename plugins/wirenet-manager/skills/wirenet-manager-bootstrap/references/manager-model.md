@@ -101,3 +101,17 @@ separate routing block. Add routing only for a convention the user explicitly
 recognizes as stable. The block itself is the v0.2 source of truth: do not copy
 the same routes into Manager JSON or portable Project Packs. Users without a
 stable layout need only individual project bindings.
+
+## QMD Retrieval
+
+QMD is an optional local runtime service derived from the Manager's canonical
+Markdown. Bootstrap detects QMD and, after approval, registers the Manager as
+the `manager` collection. The collection mask includes typed knowledge and
+reserved OKF indexes and logs while excluding `AGENTS.md`, hidden runtime, and
+`outputs/`.
+
+Lexical indexing happens when the collection is created. Semantic embeddings
+are optional because they may download models and consume local compute. The
+Manager remains fully functional through direct reads when QMD is unavailable,
+unhealthy, or stale. QMD configuration and index databases remain outside the
+portable Manager and never become synchronization state.

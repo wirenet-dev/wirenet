@@ -233,10 +233,14 @@ def main() -> int:
             "doctor": diagnosis,
             "next_steps": [
                 "Open the Manager directory as a ChatGPT Work or Codex project.",
+                "Continue the guided first run with a calibrated work map.",
+                "Review relevant communication and work-source capabilities.",
+                "Preview QMD registration of the Manager knowledge collection.",
                 "Choose explicit roots for shallow project discovery.",
                 "Classify candidates before creating Project Packs.",
                 "Preview the global core guidance block before installing it.",
                 "Add optional global routing only if the user wants a stable convention.",
+                "Offer one quiet recurring check-in in the current Manager task.",
             ],
         }
     )

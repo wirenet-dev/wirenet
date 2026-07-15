@@ -86,7 +86,7 @@ External task ends
 ### Marketplace And Manifest
 
 - `.agents/plugins/marketplace.json` exposes the local plugin package.
-- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.2.1,
+- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.2.3,
   bundled skills, interface copy, and starter prompts.
 
 ### Skills
@@ -106,6 +106,8 @@ Each skill keeps its `SKILL.md` concise and places detailed contracts under
 - `scripts/manager_model.py`: schemas, IDs, JSON helpers, and packet renderers.
 - `scripts/manager_doctor.py`: read-only Manager, Project Pack, Experiment Pack,
   binding, and lifecycle validation.
+- `scripts/manager_qmd.py`: dry-run-first QMD health, approved installation,
+  Manager collection registration, retrieval context, and optional embeddings.
 - `scripts/upgrade_manager.py`: dry-run-first version negotiation and supported
   local workspace migrations without template overwrite.
 - `scripts/create_project_pack.py`: dry-run-first Manager-native or externally
@@ -173,6 +175,21 @@ binding, plugin, and viewer additions. The human-readable analysis lives under
 `plugins/wirenet-manager/templates/manager/` is the only runtime seed shipped by
 the plugin. It contains content and operating rules, not copies of plugin
 skills. Bootstrap adds the dynamic `.wirenet/manager.json` file.
+
+### Derived QMD Retrieval
+
+QMD is an optional device-local runtime index outside `~/Manager`. Bootstrap
+registers the Manager as one collection after explicit approval. Its collection
+mask includes portable concept Markdown and reserved OKF indexes and logs, but
+excludes `AGENTS.md`, hidden runtime state, and `outputs/`. The index therefore
+accelerates retrieval without redefining the OKF projection or becoming
+portable state.
+
+Direct reads remain authoritative for known current state. QMD routes broad,
+historical, cross-project, and semantic questions to candidate documents, which
+must then be fetched in full. The Manager degrades cleanly to indexes, links,
+and direct reads if QMD is missing, unhealthy, or stale. No background watcher
+or implicit global QMD update is part of v0.2.
 
 ## Runtime Files
 

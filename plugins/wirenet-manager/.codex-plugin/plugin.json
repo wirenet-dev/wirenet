@@ -1,6 +1,6 @@
 {
   "name": "wirenet-manager",
-  "version": "0.2.1",
+  "version": "0.2.3",
   "description": "Bootstrap and run local work memory with Project Packs, bounded experiments, and explicit persistent goals.",
   "author": {
     "name": "WireNet",
@@ -25,16 +25,18 @@
       "Orient ongoing work",
       "Bootstrap a local Manager",
       "Upgrade existing Manager workspaces safely",
+      "Guide first-time work and communication setup",
       "Route external workspaces",
       "Maintain reviewable Project Packs",
       "Run bounded experiments",
       "Activate persistent goals explicitly",
-      "Inspect local OKF memory"
+      "Inspect local OKF memory",
+      "Search Manager knowledge with optional QMD retrieval"
     ],
     "defaultPrompt": [
       "Use $wirenet-manager to show my current stack.",
       "Use $wirenet-manager to open my Manager viewer.",
-      "Use $wirenet-manager-bootstrap to set up ~/Manager.",
+      "Use $wirenet-manager-bootstrap to start my guided first run in ~/Manager.",
       "Use $wirenet-manager-bootstrap to check and upgrade my existing Manager.",
       "Use $ultragoal to explicitly activate a persistent goal."
     ]

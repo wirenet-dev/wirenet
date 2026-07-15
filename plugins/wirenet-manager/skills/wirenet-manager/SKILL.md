@@ -22,6 +22,27 @@ log.
 7. If the current task is outside the Manager, use `$wirenet-manager-sync` to
    classify or reconcile that workspace.
 
+## Retrieve With QMD
+
+Use the `manager` QMD collection as a derived retrieval layer when the request
+is broad, historical, cross-project, or phrased differently from the stored
+documents. Keep direct reads for known canonical entry points such as
+`TODO.md`, `projects/index.md`, and a named Project Pack.
+
+1. Prefer a structured `qmd query` scoped with `-c manager`; state the intent
+   and supply useful lexical and semantic terms.
+2. Treat search output as candidate routing only. Fetch the complete selected
+   documents with `qmd get` or `qmd multi-get` before answering or writing.
+3. Let the canonical Markdown win when QMD is stale or disagrees with a direct
+   read.
+4. If QMD or the collection is unavailable, continue through indexes, links,
+   and direct file reads. Use `$wirenet-manager-bootstrap` when the user asks to
+   configure or repair retrieval.
+
+Do not run a global `qmd update` implicitly: QMD may own other collections and
+user-configured update commands. Refresh or embed the Manager collection only
+as an explicit maintenance action.
+
 ## Day-To-Day Behavior
 
 - Preserve the user's stated order instead of flattening everything by project.

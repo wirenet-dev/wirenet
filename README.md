@@ -63,20 +63,52 @@ when bootstrap materializes them in a particular user's Manager. See
 [`docs/architecture-v0.2.md`](docs/architecture-v0.2.md) for the file-level
 contract.
 
+## Fast Start From A Clean Codex
+
+Open this GitHub page in ChatGPT's built-in Browser, press both Command keys to
+take an Appshot, and say:
+
+```text
+Set me up with wirenet-dev/wirenet-manager as ~/Manager. Read the repository README first, install WireNet Manager from its marketplace, then run the guided first-time bootstrap. Preview system changes and ask before connected services, global instructions, durable memory, or automations.
+```
+
+A clean Codex has no WireNet skill yet, so the first task is deliberately a
+small installer. It should preview and, after approval, run:
+
+```sh
+codex plugin marketplace add wirenet-dev/wirenet-manager --ref main
+codex plugin add wirenet-manager@wirenet-manager
+```
+
+After installation, restart ChatGPT if requested and begin a fresh task with:
+
+```text
+$wirenet-manager-bootstrap Start my guided first run.
+```
+
+The new task can become the user's long-running Manager task. The product
+repository is never cloned into `~/Manager`; it remains only the marketplace
+and plugin source.
+
 ## Install And Bootstrap
 
 ```sh
 codex plugin marketplace add wirenet-dev/wirenet-manager --ref main
+codex plugin add wirenet-manager@wirenet-manager
 ```
 
-Restart ChatGPT, install **WireNet Manager**, then start a new task with:
+Restart ChatGPT if requested, then start a new task with:
 
 ```text
-$wirenet-manager-bootstrap Set up my WireNet Manager in ~/Manager.
+$wirenet-manager-bootstrap Start my guided first run.
 ```
 
 The bootstrap previews every write, creates no cloud sync, and leaves external
-project folders where they already are. See
+project folders where they already are. Its guided first run then builds a work
+map, offers only relevant communication and work-source connections, explains
+day-to-day use, and offers one quiet recurring Manager check-in. Every install,
+connection, durable write, global instruction, task change, and automation keeps
+an explicit approval gate. See
 [`docs/installing-wirenet-manager.md`](docs/installing-wirenet-manager.md) for
 the full flow.
 
@@ -114,6 +146,25 @@ external project folders           ◀──────▶    └── ignored
   Project or Experiment Pack changes.
 - `$ultragoal`: explicit-only persistent goal execution. It is installed with
   the plugin but cannot be selected implicitly.
+
+## QMD Retrieval
+
+WireNet Manager can register the local Manager as `qmd://manager/`. QMD is a
+derived search index, not another source of truth: typed OKF concepts plus
+reserved indexes and logs remain canonical Markdown, while runtime
+`AGENTS.md`, hidden device state, and `outputs/` stay outside the collection.
+
+During bootstrap, `scripts/manager_qmd.py` detects QMD and previews the exact
+collection operation. Missing or unhealthy installations are repaired only
+after explicit approval with a pinned tested package. Collection creation gives
+immediate lexical retrieval; semantic embeddings remain a separate opt-in
+because they may download models and use local compute.
+
+The Manager uses QMD for broad, historical, cross-project, and differently
+phrased questions. Known current state still comes from direct canonical reads,
+and every search hit is fetched as a complete document before it is used. If
+QMD is absent, stale, or unhealthy, the Manager continues through indexes,
+links, and direct files without losing functionality.
 
 ## WireNet Inspector
 
@@ -188,7 +239,7 @@ concept relationships.
 - `plugins/wirenet-manager/templates/manager/`: content-only runtime seed.
 - `plugins/wirenet-manager/scripts/`: deterministic shared Manager helpers,
   including workspace upgrades, the common OKF projection, and the read-only
-  viewer generator.
+  viewer generator, plus optional QMD setup.
 - `plugins/wirenet-manager/viewer/`: one-file WireNet Inspector template.
 - `docs/architecture-v0.2.md`: file-by-file architecture and routing diagram.
 - `docs/project-pack-contract.md`: Project Pack and OKF profile.
@@ -268,6 +319,7 @@ python3 scripts/compare_routing_contracts.py
 
 ## Release Status
 
-Plugin `0.2.1` is the current implementation of the v0.2 lifecycle architecture
-and its explicit workspace-upgrade path.
+Plugin `0.2.3` is the current implementation of the v0.2 lifecycle architecture,
+its explicit workspace-upgrade path, optional QMD retrieval setup, and guided
+first-run experience.
 The repository's `main` branch is the canonical installation source.

@@ -1,4 +1,4 @@
 interface:
   display_name: "WireNet Manager Setup"
   short_description: "Richtet den Manager sicher ein und aktualisiert ihn"
-  default_prompt: "Use $wirenet-manager-bootstrap to set up, upgrade, or repair my local Manager."
+  default_prompt: "Use $wirenet-manager-bootstrap to start my guided first run or safely upgrade or repair my local Manager."

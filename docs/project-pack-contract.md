@@ -149,9 +149,16 @@ chronology is independently useful.
 
 ## Retrieval Boundary
 
-QMD indexes these files as normal Markdown; reserved filenames do not receive
-special ranking. Indexes improve orientation and search vocabulary. Logs help
-chronological retrieval only while entries remain sparse and semantic.
+The optional `manager` QMD collection indexes typed Manager knowledge plus
+reserved `index.md` and `log.md` support documents as normal Markdown. Runtime
+`AGENTS.md`, hidden device state, and `outputs/` are excluded by the collection
+mask. Reserved filenames receive no special ranking: indexes improve
+orientation and search vocabulary, while logs help chronological retrieval only
+when entries remain sparse and semantic.
+
+QMD results route the agent to candidates; they never replace the canonical
+files. Fetch complete documents before using a result, and prefer direct reads
+for known current state.
 
 ## Local Binding
 
