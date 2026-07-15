@@ -32,10 +32,11 @@ folder only through the bootstrap flow.
 
 ## Project Pack Contract
 
-Generated Project Packs must contain `GOAL.md`, `README.md`, `RESULT.md`, and
-`AGENTS.md`. All four share one stable `project_id`. Portable files must not
-contain machine-local paths; store those only in
-`.wirenet/project-bindings.json`.
+Generated Project Packs must contain `GOAL.md`, `README.md`, `RESULT.md`,
+`AGENTS.md`, and the reserved OKF history file `log.md`. The four concept
+documents share one stable `project_id`; `log.md` is scoped by the packet path
+and carries no concept frontmatter. Portable files must not contain
+machine-local paths; store those only in `.wirenet/project-bindings.json`.
 
 ## Skills And Plugins
 

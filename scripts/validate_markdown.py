@@ -4,11 +4,13 @@
 from __future__ import annotations
 
 import argparse
+import re
 from datetime import date
 from pathlib import Path
 
 
 IGNORED_PARTS = {".git", ".pytest_cache", ".ruff_cache", ".venv", "dist", "__pycache__"}
+OKF_RESERVED_FILES = {"index.md", "log.md"}
 
 
 def frontmatter(path: Path) -> dict[str, str]:
@@ -62,6 +64,32 @@ def validate_markdown(
     return errors
 
 
+def validate_okf_reserved(path: Path) -> list[str]:
+    text = path.read_text(encoding="utf-8")
+    if path.name == "index.md":
+        if text.startswith("---\n"):
+            try:
+                data = frontmatter(path)
+            except ValueError as error:
+                return [f"{path}: {error}"]
+            if set(data) != {"okf_version"}:
+                return [f"{path}: OKF index frontmatter may contain only okf_version"]
+        if not re.search(r"(?m)^# .+", text):
+            return [f"{path}: OKF index must contain a section heading"]
+        return []
+
+    if text.startswith("---\n"):
+        return [f"{path}: OKF log is a reserved history file, not a concept document"]
+    if not text.startswith("# "):
+        return [f"{path}: OKF log must start with a level-one title"]
+    dates = re.findall(r"(?m)^## (\d{4}-\d{2}-\d{2})$", text)
+    if not dates:
+        return [f"{path}: OKF log must contain at least one ISO-date heading"]
+    if dates != sorted(dates, reverse=True):
+        return [f"{path}: OKF log date headings must be newest first"]
+    return []
+
+
 def validate_tree(root: Path) -> list[str]:
     markdown = [
         path
@@ -72,6 +100,9 @@ def validate_tree(root: Path) -> list[str]:
         return [f"{root}: no Markdown files found"]
     errors: list[str] = []
     for path in markdown:
+        if path.name in OKF_RESERVED_FILES:
+            errors.extend(validate_okf_reserved(path))
+            continue
         is_skill = path.name == "SKILL.md" and ".codex" in path.parts and "skills" in path.parts
         is_plugin_skill = path.name == "SKILL.md" and "plugins" in path.parts and "skills" in path.parts
         errors.extend(validate_markdown(path, skill=is_skill, plugin_skill=is_plugin_skill))

@@ -16,9 +16,9 @@ reviewable, and useful to the next task.
 ## Read Order
 
 1. `TODO.md` for the immediate stack.
-2. `projects/README.md` for active workstreams.
+2. `projects/index.md` for active workstreams.
 3. The relevant Project Pack's `GOAL.md`, `README.md`, `RESULT.md`, and
-   `AGENTS.md` in that order.
+   `AGENTS.md`; read `log.md` only when chronology matters.
 4. People, notes, sources, and external workspaces only when the task needs them.
 
 ## Durable State
@@ -27,6 +27,7 @@ reviewable, and useful to the next task.
 - Stable outcomes and completion criteria belong in `GOAL.md`.
 - Completed work and verification belong in `RESULT.md`.
 - Recurring source routes and project-specific agent rules belong in `AGENTS.md`.
+- Meaningful dated state transitions belong in `log.md`; routine activity does not.
 - Cross-project priorities belong in `TODO.md`.
 - Human collaboration notes belong in `people/`.
 

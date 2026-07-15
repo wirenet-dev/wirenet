@@ -22,13 +22,16 @@ last_edited: 2026-07-15
 | `README.md` | Status, next move, owners, decisions, blockers | `Project Status` |
 | `RESULT.md` | Completed outcomes and verification | `Project Result` |
 | `AGENTS.md` | Read order, sources, rules, safety | `Runtime Adapter` |
+| `log.md` | Meaningful dated state transitions | reserved OKF history |
 
-All four files share one stable `project_id`. Local filesystem paths stay in
-`.wirenet/project-bindings.json` so portable Project Packs can later move
+The four concept documents share one stable `project_id`; `log.md` is scoped by
+the packet path and carries no concept frontmatter. Local filesystem paths stay
+in `.wirenet/project-bindings.json` so portable Project Packs can later move
 between devices.
 
 ## Update Boundary
 
 Update a Project Pack after a meaningful handoff or state transition. Do not
 mirror every edit, command, test, or temporary experiment. A recurring Manager
-task reconciles missed updates; it is not a filesystem watcher.
+task reconciles missed updates; it is not a filesystem watcher. Record one
+compact `log.md` entry alongside a meaningful canonical-state change.

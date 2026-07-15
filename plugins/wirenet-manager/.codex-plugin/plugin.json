@@ -1,6 +1,6 @@
 {
   "name": "wirenet-manager",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Bootstrap and run a local work-memory Manager with portable, reviewable Project Packs.",
   "author": {
     "name": "WireNet",
@@ -12,7 +12,7 @@
   "interface": {
     "displayName": "WireNet Manager",
     "shortDescription": "Local work memory and Project Pack routing",
-    "longDescription": "Bootstrap a content-only local Manager, keep external projects connected through local bindings, and maintain portable four-file Project Packs without copying source code, media, or raw data.",
+    "longDescription": "Bootstrap a content-only local Manager, keep external projects connected through local bindings, and maintain portable Project Packs with four state documents plus an OKF update log.",
     "developerName": "WireNet",
     "category": "Productivity",
     "capabilities": [

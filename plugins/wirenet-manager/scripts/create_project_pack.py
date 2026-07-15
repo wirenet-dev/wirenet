@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Preview or create a four-file WireNet Manager Project Pack."""
+"""Preview or create a WireNet Manager Project Pack with an OKF update log."""
 
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ from manager_model import (
     project_packet_for_id,
     render_project_agents,
     render_project_goal,
+    render_project_log,
     render_project_readme,
     render_project_result,
     write_json,
@@ -41,7 +42,10 @@ def main() -> int:
     project_id = args.project_id or new_project_id()
     packet = manager_dir / "projects" / slug
     workspaces = [str(Path(item).expanduser().resolve(strict=False)) for item in args.workspace]
-    files = [packet / name for name in ("README.md", "AGENTS.md", "GOAL.md", "RESULT.md")]
+    files = [
+        packet / name
+        for name in ("README.md", "AGENTS.md", "GOAL.md", "RESULT.md", "log.md")
+    ]
     result: dict[str, object] = {
         "ok": True,
         "dry_run": not args.apply,
@@ -70,11 +74,11 @@ def main() -> int:
         print(json.dumps(result, indent=2))
         return 2
 
-    index_path = manager_dir / "projects/README.md"
+    index_path = manager_dir / "projects/index.md"
     stamp = now()
     try:
         updated_index = insert_project_index(
-            index_path.read_text(encoding="utf-8"), slug, args.name, stamp
+            index_path.read_text(encoding="utf-8"), slug, args.name, args.summary
         )
         bindings = load_bindings(manager_dir)
         manager_metadata = load_json(manager_dir / ".wirenet/manager.json")
@@ -107,6 +111,7 @@ def main() -> int:
         render_project_goal(args.name, args.summary, project_id, stamp), encoding="utf-8"
     )
     (packet / "RESULT.md").write_text(render_project_result(args.name, project_id, stamp), encoding="utf-8")
+    (packet / "log.md").write_text(render_project_log(args.name, stamp), encoding="utf-8")
 
     index_path.write_text(updated_index, encoding="utf-8")
 

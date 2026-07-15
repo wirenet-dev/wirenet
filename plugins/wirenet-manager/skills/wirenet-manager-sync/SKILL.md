@@ -14,24 +14,28 @@ reliable cross-project trigger.
 1. Run `scripts/inspect_workspace.py` for the current workspace and Manager.
 2. Follow its classification:
    - `manager`: update only the canonical Manager file relevant to the task.
-   - `tracked`: read `GOAL.md`, `README.md`, `RESULT.md`, and `AGENTS.md`, then
-     inspect the smallest useful external evidence.
+   - `tracked`: read `GOAL.md`, `README.md`, `RESULT.md`, and `AGENTS.md`; read
+     `log.md` only when chronology matters, then inspect the smallest useful
+     external evidence.
    - `experiment` or `ignored`: stay quiet and do not create a packet.
    - `untracked`: ask once whether the folder is a project, experiment, or
      ignored.
 3. For a new project, preview the plugin-root `scripts/create_project_pack.py`.
-   Apply it only after approval. It writes the four-file packet and a local
-   binding in `.wirenet/project-bindings.json`.
+   Apply it only after approval. It writes the four state documents, an OKF
+   `log.md`, and a local binding in `.wirenet/project-bindings.json`.
 4. For a tracked project, propose only the smallest durable diff:
    - `GOAL.md` for outcome or completion-contract changes;
    - `README.md` for status, owner, decision, blocker, deadline, source, or next move;
    - `RESULT.md` for completed outcomes with verification;
    - `AGENTS.md` for read order, recurring sources, safety, or routing changes.
-5. Show the intended diff and ask before writing unless the user already
+5. Add one concise entry under the newest ISO-date heading in `log.md` when the
+   proposed write represents a meaningful state transition. Link the changed
+   canonical file; do not duplicate its content or record routine activity.
+6. Show the intended diff and ask before writing unless the user already
    approved that exact update.
-6. Preserve `project_id`, unknown frontmatter fields, and the local/portable
+7. Preserve `project_id`, unknown frontmatter fields, and the local/portable
    boundary.
-7. Record experiment or ignored routes with `scripts/record_routing.py` after
+8. Record experiment or ignored routes with `scripts/record_routing.py` after
    approval so future tasks stay quiet.
 
 ## Update Threshold

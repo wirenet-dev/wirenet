@@ -6,9 +6,10 @@ last_edited: 2026-07-15
 
 ## Distribution
 
-WireNet Manager is distributed through a Codex plugin marketplace. The public
-repository may be hosted on GitHub, but users do not clone it into `~/Manager`
-and do not need to work with GitHub themselves.
+WireNet Manager is distributed through a Codex plugin marketplace from
+[`wirenet-dev/wirenet-manager`](https://github.com/wirenet-dev/wirenet-manager).
+Users do not clone the product repository into `~/Manager` and do not need to
+work with GitHub themselves.
 
 During local development, the repository marketplace is
 `.agents/plugins/marketplace.json`. After publication, add it with:
@@ -17,9 +18,8 @@ During local development, the repository marketplace is
 codex plugin marketplace add wirenet-dev/wirenet-manager --ref main
 ```
 
-This command becomes valid only after the repository is published under that
-name. Restart the ChatGPT desktop app, choose the WireNet Manager marketplace,
-and install the plugin.
+Restart the ChatGPT desktop app, choose the WireNet Manager marketplace, and
+install the plugin.
 
 ## Bootstrap The Local Manager
 
@@ -49,7 +49,8 @@ folder names plus lightweight markers such as `.git`, `package.json`,
 
 The user classifies candidates as:
 
-- `project`: create a four-file Project Pack and a local binding;
+- `project`: create a Project Pack with four state documents, an OKF log, and a
+  local binding;
 - `experiment`: remember the path without creating a full packet;
 - `ignored`: remember the path and do not ask again.
 

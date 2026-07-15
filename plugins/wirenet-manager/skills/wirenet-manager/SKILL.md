@@ -13,7 +13,7 @@ log.
 
 1. Resolve the Manager from `WIRENET_MANAGER_DIR`, then `~/Manager`.
 2. If it is missing or unhealthy, use `$wirenet-manager-bootstrap`.
-3. Read root `AGENTS.md`, `TODO.md`, and `projects/README.md`.
+3. Read root `AGENTS.md`, `TODO.md`, and `projects/index.md`.
 4. Read only the Project Packs and recurring sources relevant to the request.
 5. If the current task is outside the Manager, use `$wirenet-manager-sync` to
    classify or reconcile that workspace.
@@ -34,7 +34,7 @@ log.
 Write only when future work would otherwise misunderstand a project, person,
 decision, blocker, deadline, source, or next step. Preview inferred durable
 updates and obtain approval unless the user already approved that exact change.
-Use the four-file Project Pack contract described in
+Use the Project Pack contract described in
 `references/system-model.md`.
 
 Never send messages, change meetings, edit shared cloud documents, configure

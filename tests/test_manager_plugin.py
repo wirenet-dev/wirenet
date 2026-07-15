@@ -185,6 +185,7 @@ def test_bootstrap_materializes_content_only_manager_with_local_git(tmp_path: Pa
     metadata = json.loads((destination / ".wirenet/manager.json").read_text(encoding="utf-8"))
     assert metadata["schema_version"] == "wirenet-manager/v0.1"
     assert metadata["project_pack_profile"] == "wirenet-project-pack/v0.1"
+    assert metadata["plugin_version"] == "0.1.1"
     assert metadata["manager_id"].startswith("mgr_")
 
     repeated = json.loads(run_script(BOOTSTRAP, "--manager-dir", str(destination)).stdout)
@@ -213,7 +214,7 @@ def test_repair_fills_an_empty_existing_manager_without_overwrite(tmp_path: Path
     assert not (manager / ".git").exists()
 
 
-def test_project_pack_is_portable_four_file_bundle_and_routes_locally(tmp_path: Path) -> None:
+def test_project_pack_has_four_concepts_an_okf_log_and_local_routing(tmp_path: Path) -> None:
     manager = tmp_path / "Manager"
     bootstrap(manager)
     parent = tmp_path / "projects/client"
@@ -254,6 +255,7 @@ def test_project_pack_is_portable_four_file_bundle_and_routes_locally(tmp_path: 
             "AGENTS.md",
             "GOAL.md",
             "RESULT.md",
+            "log.md",
         }
         project_ids = {frontmatter_value(packet / name, "project_id") for name in (
             "README.md",
@@ -266,9 +268,18 @@ def test_project_pack_is_portable_four_file_bundle_and_routes_locally(tmp_path: 
         assert frontmatter_value(packet / "README.md", "type") == "Project Status"
         assert frontmatter_value(packet / "RESULT.md", "type") == "Project Result"
         assert frontmatter_value(packet / "AGENTS.md", "type") == "Runtime Adapter"
+        log = (packet / "log.md").read_text(encoding="utf-8")
+        assert not log.startswith("---")
+        assert re.search(r"(?m)^## \d{4}-\d{2}-\d{2}$", log)
+        assert "**Creation**" in log
 
     campaign_readme = Path(str(child_result["packet"])) / "README.md"
     assert str(child.resolve()) not in campaign_readme.read_text(encoding="utf-8")
+    index = (manager / "projects/index.md").read_text(encoding="utf-8")
+    assert not index.startswith("---")
+    assert index.endswith("\n")
+    assert "[Client](client/README.md) — Parent packet" in index
+    assert "[Campaign](campaign/README.md) — Nested packet" in index
     registry = json.loads(
         (manager / ".wirenet/project-bindings.json").read_text(encoding="utf-8")
     )

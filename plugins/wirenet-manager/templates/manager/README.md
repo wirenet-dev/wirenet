@@ -15,7 +15,7 @@ large data stay in their existing external workspaces.
 ## Start Here
 
 1. Read `TODO.md` for the current stack.
-2. Read `projects/README.md` for active Project Packs.
+2. Read `projects/index.md` for active Project Packs.
 3. Open the relevant `projects/<slug>/` packet only when needed.
 4. Use recurring sources listed in the packet's `AGENTS.md` selectively.
 
@@ -23,7 +23,7 @@ large data stay in their existing external workspaces.
 
 - `agent/`: durable user and working-context notes.
 - `people/`: evidence-backed collaborator notes.
-- `projects/`: four-file Project Packs.
+- `projects/`: Project Packs with four state documents and an OKF log.
 - `notes/`: durable scratch notes without a better canonical home.
 - `sources/`: retained evidence; read-only by default.
 - `experiments/`: short-lived spikes that may later become projects.
@@ -33,16 +33,17 @@ large data stay in their existing external workspaces.
 
 ## Project Pack Contract
 
-Each Project Pack uses four files:
+Each Project Pack uses four stable state documents and one time axis:
 
 - `GOAL.md`: stable outcome, constraints, and completion criteria.
 - `README.md`: current status, next move, owners, decisions, and blockers.
 - `RESULT.md`: completed outcomes and verification evidence.
 - `AGENTS.md`: read order, recurring sources, safety gates, and update rules.
+- `log.md`: concise meaningful changes under ISO-date headings, newest first.
 
-The filenames preserve Jason Liu's practical monorepo model. Their frontmatter
-maps them to a small WireNet OKF profile so a future Knowledge Hub can transform
-them without changing the local reading experience.
+The four state filenames preserve Jason Liu's practical monorepo model. Their
+frontmatter maps them to a small WireNet OKF profile; the additional `log.md`
+provides portable chronology without changing the local reading experience.
 
 ## Boundaries
 

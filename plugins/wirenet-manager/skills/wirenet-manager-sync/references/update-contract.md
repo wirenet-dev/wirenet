@@ -21,17 +21,19 @@ last_edited: 2026-07-15
 - secrets, credentials, build output, generated files, or caches;
 - implementation detail that will not matter in the next work session.
 
-## Four-File Routing
+## Project Pack Routing
 
 - `GOAL.md`: stable intent and completion contract.
 - `README.md`: current operational handoff.
 - `RESULT.md`: completed evidence.
 - `AGENTS.md`: recurring routing and local rules.
+- `log.md`: one concise dated entry for a meaningful state transition; never a
+  command-by-command worklog or duplicate status page.
 
 ## Workspace Classification
 
-- `project`: create a four-file packet after approval and bind its `project_id`
-  to the local path.
+- `project`: create a packet after approval and bind its `project_id` to the
+  local path.
 - `experiment`: store the local route without creating a full packet.
 - `ignored`: store the local route and do not ask again.
 

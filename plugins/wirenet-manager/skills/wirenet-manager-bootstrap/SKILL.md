@@ -25,7 +25,8 @@ personal Manager.
    experiment, or ignored.
 9. For approved projects, preview then apply the plugin-root
    `scripts/create_project_pack.py`. It creates `GOAL.md`, `README.md`,
-   `RESULT.md`, and `AGENTS.md` with one stable `project_id`.
+   `RESULT.md`, and `AGENTS.md` with one stable `project_id`, plus the reserved
+   OKF history file `log.md`.
 10. Preview `scripts/install_global_guidance.py`; ask before applying the core
     managed block to the user's global `AGENTS.md`.
 11. Ask one optional routing question: does the user already have a stable

@@ -14,7 +14,7 @@ MANAGER_SCHEMA = "wirenet-manager/v0.1"
 PROJECT_PACK_SCHEMA = "wirenet-project-pack/v0.1"
 BINDINGS_SCHEMA = "wirenet-project-bindings/v0.1"
 OKF_PROFILE = "wirenet-okf-project-pack/v0.1"
-PLUGIN_VERSION = "0.1.0"
+PLUGIN_VERSION = "0.1.1"
 
 
 def now() -> datetime:
@@ -162,10 +162,6 @@ def render_project_readme(title: str, summary: str, project_id: str, stamp: date
             "- Add canonical documents, repositories, conversations, or datasets.",
             "- Device-local workspace paths belong in `.wirenet/project-bindings.json`.",
             "",
-            "## Update History",
-            "",
-            f"- `{iso_date(stamp)}`: Project Pack created.",
-            "",
         ]
     )
     return "\n".join(lines)
@@ -193,7 +189,8 @@ def render_project_agents(title: str, project_id: str, stamp: datetime) -> str:
             "1. `GOAL.md` for the stable outcome and completion contract.",
             "2. `README.md` for current status, next move, decisions, and blockers.",
             "3. `RESULT.md` for completed outcomes and verification.",
-            "4. Revisit the canonical sources listed below only when needed.",
+            "4. `log.md` only when the chronology of meaningful changes matters.",
+            "5. Revisit the canonical sources listed below only when needed.",
             "",
             "## Recurring Sources",
             "",
@@ -204,8 +201,10 @@ def render_project_agents(title: str, project_id: str, stamp: datetime) -> str:
             "- Update `README.md` only when future work would otherwise misunderstand the project.",
             "- Update `GOAL.md` only when the desired outcome, constraints, or completion criteria change.",
             "- Update `RESULT.md` only for completed outcomes with evidence or verification.",
+            "- Add one concise `log.md` entry for each meaningful state transition written to the packet.",
             "- Update this file only when read order, recurring sources, safety gates, or routing changes.",
-            "- Do not record routine edits, command logs, raw source material, secrets, or generated files.",
+            "- Keep `log.md` semantic: no routine edits, command logs, raw transcripts, or duplicated status.",
+            "- Do not record raw source material, secrets, or generated files.",
             "",
             "## Safety Gates",
             "",
@@ -282,6 +281,19 @@ def render_project_result(title: str, project_id: str, stamp: datetime) -> str:
     return "\n".join(lines)
 
 
+def render_project_log(title: str, stamp: datetime) -> str:
+    return "\n".join(
+        [
+            f"# {title} Update Log",
+            "",
+            f"## {iso_date(stamp)}",
+            "",
+            "- **Creation**: Created the Project Pack; see [current status](README.md).",
+            "",
+        ]
+    )
+
+
 def project_id_from_readme(path: Path) -> str | None:
     if not path.is_file():
         return None
@@ -300,12 +312,15 @@ def insert_project_index(
     content: str,
     slug: str,
     title: str,
-    stamp: datetime | None = None,
+    summary: str,
 ) -> str:
     heading = "## Active Project Packs"
     if heading not in content:
         raise ValueError(f"project index is missing {heading!r}")
-    entry = f"- [[projects/{slug}/README|{title}]]"
+    description = " ".join(summary.split())
+    entry = f"- [{title}]({slug}/README.md)"
+    if description:
+        entry += f" — {description}"
     if entry in content.splitlines():
         updated = content
     else:
@@ -314,10 +329,6 @@ def insert_project_index(
         if line_end < 0:
             updated = content + f"\n\n{entry}\n"
         else:
-            updated = content[: line_end + 1] + f"\n{entry}" + content[line_end + 1 :]
-    return re.sub(
-        r"(?m)^last_edited:\s*.*$",
-        f"last_edited: {iso_date(stamp)}",
-        updated,
-        count=1,
-    )
+            remainder = content[line_end + 1 :].lstrip("\n")
+            updated = content[: line_end + 1] + f"\n{entry}\n" + remainder
+    return updated

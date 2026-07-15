@@ -53,6 +53,8 @@ def assert_valid_generated_markdown(vault: Path) -> None:
     assert markdown
     for path in markdown:
         relative = path.relative_to(vault)
+        if path.name in {"index.md", "log.md"}:
+            continue
         if path.name == "SKILL.md" and "plugins" in relative.parts and "skills" in relative.parts:
             continue
         value = frontmatter(path).get("last_edited")

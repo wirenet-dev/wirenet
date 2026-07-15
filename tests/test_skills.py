@@ -22,6 +22,19 @@ def test_repository_markdown_uses_ci_metadata_contract() -> None:
     assert validator.validate_tree(ROOT) == []
 
 
+def test_markdown_validator_accepts_okf_index_and_log_structure(tmp_path: Path) -> None:
+    validator = load_module(ROOT / "scripts" / "validate_markdown.py")
+    (tmp_path / "index.md").write_text(
+        "# Projects\n\n## Active Project Packs\n", encoding="utf-8"
+    )
+    (tmp_path / "log.md").write_text(
+        "# Update Log\n\n## 2026-07-15\n\n- **Creation**: Started.\n",
+        encoding="utf-8",
+    )
+
+    assert validator.validate_tree(tmp_path) == []
+
+
 def test_onboarding_scripts_default_to_repo_root_vault() -> None:
     script_dir = ROOT / ".codex" / "skills" / "onboarding" / "scripts"
     for script_name in (
@@ -51,6 +64,8 @@ def test_manager_seed_contains_content_but_no_embedded_skills() -> None:
     seed = ROOT / "plugins/wirenet-manager/templates/manager"
     assert (seed / "AGENTS.md").is_file()
     assert (seed / "projects/AGENTS.md").is_file()
+    assert (seed / "projects/index.md").is_file()
+    assert not (seed / "projects/README.md").exists()
     assert (seed / ".wirenet/project-bindings.json").is_file()
     assert not (seed / ".agents").exists()
     assert not (seed / ".codex").exists()
@@ -64,7 +79,7 @@ def test_plugin_manifest_and_marketplace_point_to_v01_package() -> None:
         (ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
     )
     assert manifest["name"] == "wirenet-manager"
-    assert manifest["version"] == "0.1.0"
+    assert manifest["version"] == "0.1.1"
     assert manifest["skills"] == "./skills/"
     assert marketplace["plugins"] == [
         {

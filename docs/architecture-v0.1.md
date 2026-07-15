@@ -42,7 +42,7 @@ External task ends
           │
       user approval
           ▼
-     update one canonical file
+     update canonical state and compact log
 ```
 
 ## Product Files
@@ -50,7 +50,7 @@ External task ends
 ### Marketplace And Manifest
 
 - `.agents/plugins/marketplace.json` exposes the local plugin package.
-- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.1.0,
+- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.1.1,
   bundled skills, interface copy, and starter prompts.
 
 ### Skills
@@ -65,7 +65,7 @@ Each skill keeps its `SKILL.md` concise and places detailed contracts under
 
 ### Deterministic Scripts
 
-- `scripts/manager_model.py`: schemas, IDs, JSON helpers, and four-file renderers.
+- `scripts/manager_model.py`: schemas, IDs, JSON helpers, and Project Pack renderers.
 - `scripts/manager_doctor.py`: read-only Manager and Project Pack validation.
 - `scripts/create_project_pack.py`: dry-run-first packet and binding creation.
 - `scripts/discover_projects.py`: shallow approved-root discovery.
@@ -83,7 +83,8 @@ skills. Bootstrap adds the dynamic `.wirenet/manager.json` file.
 - `README.md`: human explanation of the local workspace.
 - `TODO.md`: cross-project current stack.
 - `agent/USER_CONTEXT.md`: durable user working context.
-- `projects/`: portable Project Packs and index.
+- `projects/index.md`: compact catalog for progressive disclosure and search.
+- `projects/<slug>/`: four portable state documents plus one OKF `log.md`.
 - `people/`: recurring collaborator notes.
 - `notes/`: durable scratch material without a canonical home.
 - `sources/`: retained evidence, read-only by default.

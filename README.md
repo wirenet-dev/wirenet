@@ -7,12 +7,24 @@ last_edited: 2026-07-15
 WireNet Manager is an installable ChatGPT Work and Codex plugin for local,
 reviewable work memory. It bootstraps a content-only `~/Manager`, connects
 external workspaces through device-local bindings, and maintains portable
-four-file Project Packs.
+Project Packs with four stable state documents and a concise OKF update log.
 
-The project is based on Jason Liu's
-[`personal-monorepo-template`](https://github.com/jxnl/personal-monorepo-template).
-WireNet keeps its plain-file, Git-backed Assistant model while separating the
-installable intelligence from each user's personal content.
+## Install And Bootstrap
+
+```sh
+codex plugin marketplace add wirenet-dev/wirenet-manager --ref main
+```
+
+Restart ChatGPT, install **WireNet Manager**, then start a new task with:
+
+```text
+$wirenet-manager-bootstrap Set up my WireNet Manager in ~/Manager.
+```
+
+The bootstrap previews every write, creates no cloud sync, and leaves external
+project folders where they already are. See
+[`docs/installing-wirenet-manager.md`](docs/installing-wirenet-manager.md) for
+the full flow.
 
 ## v0.1 Boundary
 
@@ -60,8 +72,11 @@ Every v0.1 Project Pack contains:
 | `README.md` | Current status and next move | `Project Status` |
 | `RESULT.md` | Completed outcomes and verification | `Project Result` |
 | `AGENTS.md` | Read order, sources, safety, update rules | `Runtime Adapter` |
+| `log.md` | Meaningful changes, newest first | reserved OKF update log |
 
-All four files share a stable `project_id`. Machine-local paths live only in
+The four concept documents share a stable `project_id`. The reserved `log.md`
+is identified by its packet path and deliberately carries no duplicate concept
+metadata. Machine-local paths live only in
 `~/Manager/.wirenet/project-bindings.json`. The mapping is a small WireNet OKF
 profile, not a claim that v0.1 implements the complete OKF mirror system.
 
@@ -80,6 +95,14 @@ Codex configuration.
 - `docs/installing-wirenet-manager.md`: installation and bootstrap path.
 - `scripts/compare_upstream.py`: read-only comparison with Jason's upstream.
 - `tests/`: plugin, bootstrap, routing, template, and legacy-reference checks.
+
+## Upstream Reference
+
+WireNet Manager is a deliberate downstream of Jason Liu's
+[`personal-monorepo-template`](https://github.com/jxnl/personal-monorepo-template).
+It preserves the useful plain-file, Git-backed Assistant model while separating
+installable intelligence from personal content and adding portable Project
+Packs, local bindings, global reconciliation, and OKF-compatible navigation.
 
 The root `.codex/`, shelves, and template files remain as a downstream reference
 to Jason's original repository while v0.1 is developed. They are not copied
@@ -118,9 +141,7 @@ Compare with upstream without merging:
 python3 scripts/compare_upstream.py --fetch
 ```
 
-## Installation Status
+## Release Status
 
-The private GitHub repository is `wirenet-dev/wirenet-manager`. The reviewed
-v0.1 implementation is published on `codex/wirenet-manager-v1`; merge it to
-`main` before using the default installation command in
-`docs/installing-wirenet-manager.md` without an explicit `--ref`.
+Plugin `0.1.1` is the current reviewed implementation of the v0.1 architecture.
+The repository's `main` branch is the canonical installation source.
