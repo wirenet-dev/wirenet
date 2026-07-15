@@ -14,7 +14,7 @@ MANAGER_SCHEMA = "wirenet-manager/v0.1"
 PROJECT_PACK_SCHEMA = "wirenet-project-pack/v0.1"
 BINDINGS_SCHEMA = "wirenet-project-bindings/v0.1"
 OKF_PROFILE = "wirenet-okf-project-pack/v0.1"
-PLUGIN_VERSION = "0.1.1"
+PLUGIN_VERSION = "0.1.2"
 
 
 def now() -> datetime:

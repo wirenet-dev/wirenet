@@ -58,6 +58,30 @@ external project folders           ◀──────▶    ├── notes/ 
 - `$wirenet-manager-sync`: classify external workspaces and reconcile meaningful
   Project Pack changes.
 
+## Read-Only Manager Viewer
+
+`$wirenet-manager` can open a small branded viewer for the Manager's local OKF
+memory. It shows only typed OKF Markdown concepts plus the `index.md` and
+`log.md` files that belong to those concept trees. Plugin metadata, skills,
+scripts, hidden state, and device-local bindings are excluded.
+
+The viewer follows the graph-and-detail model of Google's official OKF HTML
+viewer: Markdown links become graph relationships, Project Pack documents are
+grouped by their stable `project_id`, and selecting a concept renders its
+Markdown and backlinks. It is read-only and has no Node runtime, database,
+watcher, or edit API.
+
+For local development:
+
+```sh
+python3 plugins/wirenet-manager/scripts/generate_manager_viewer.py \
+  --manager-dir /path/to/Manager --serve
+```
+
+The script binds only to `127.0.0.1` so ChatGPT's built-in Browser can open the
+page. Without `--serve`, it writes a single generated HTML file to the system
+temporary directory by default.
+
 Skills use the current installable plugin structure. The repo marketplace is at
 `.agents/plugins/marketplace.json`; the plugin manifest is at
 `plugins/wirenet-manager/.codex-plugin/plugin.json`.
@@ -89,7 +113,9 @@ Codex configuration.
 - `.agents/plugins/marketplace.json`: local and future public marketplace.
 - `plugins/wirenet-manager/`: installable plugin package.
 - `plugins/wirenet-manager/templates/manager/`: content-only runtime seed.
-- `plugins/wirenet-manager/scripts/`: deterministic shared Manager helpers.
+- `plugins/wirenet-manager/scripts/`: deterministic shared Manager helpers,
+  including the read-only OKF viewer generator.
+- `plugins/wirenet-manager/viewer/`: one-file viewer template.
 - `docs/architecture-v0.1.md`: file-by-file architecture and routing diagram.
 - `docs/project-pack-contract.md`: Project Pack and OKF profile.
 - `docs/installing-wirenet-manager.md`: installation and bootstrap path.
@@ -143,5 +169,5 @@ python3 scripts/compare_upstream.py --fetch
 
 ## Release Status
 
-Plugin `0.1.1` is the current reviewed implementation of the v0.1 architecture.
+Plugin `0.1.2` is the current reviewed implementation of the v0.1 architecture.
 The repository's `main` branch is the canonical installation source.

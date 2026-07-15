@@ -40,6 +40,21 @@ Use the Project Pack contract described in
 Never send messages, change meetings, edit shared cloud documents, configure
 sync, or create automations without explicit approval for that action.
 
+## Inspect Manager
+
+When the user asks to browse, inspect, or open the Manager memory visually:
+
+1. Resolve the Manager directory as above.
+2. Run `../../scripts/generate_manager_viewer.py --manager-dir <path> --serve`
+   from this skill directory.
+3. Open the printed `127.0.0.1` URL in ChatGPT's built-in Browser.
+4. Stop the local server when the viewer is no longer needed.
+
+The viewer is read-only. It renders only typed OKF Markdown concepts and the
+reserved `index.md` and `log.md` files that belong to those concept trees. It
+must not expose plugin metadata, skills, scripts, local bindings, or hidden
+Manager state.
+
 ## Reference
 
 Read `references/system-model.md` when explaining the architecture, deciding

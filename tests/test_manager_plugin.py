@@ -185,7 +185,7 @@ def test_bootstrap_materializes_content_only_manager_with_local_git(tmp_path: Pa
     metadata = json.loads((destination / ".wirenet/manager.json").read_text(encoding="utf-8"))
     assert metadata["schema_version"] == "wirenet-manager/v0.1"
     assert metadata["project_pack_profile"] == "wirenet-project-pack/v0.1"
-    assert metadata["plugin_version"] == "0.1.1"
+    assert metadata["plugin_version"] == "0.1.2"
     assert metadata["manager_id"].startswith("mgr_")
 
     repeated = json.loads(run_script(BOOTSTRAP, "--manager-dir", str(destination)).stdout)

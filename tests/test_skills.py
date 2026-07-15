@@ -79,8 +79,12 @@ def test_plugin_manifest_and_marketplace_point_to_v01_package() -> None:
         (ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
     )
     assert manifest["name"] == "wirenet-manager"
-    assert manifest["version"] == "0.1.1"
+    assert manifest["version"] == "0.1.2"
     assert manifest["skills"] == "./skills/"
+    assert manifest["interface"]["brandColor"] == "#FF5C1A"
+    for asset_key in ("composerIcon", "logo", "logoDark"):
+        asset = ROOT / "plugins/wirenet-manager" / manifest["interface"][asset_key]
+        assert asset.is_file()
     assert marketplace["plugins"] == [
         {
             "name": "wirenet-manager",

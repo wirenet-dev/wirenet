@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<!--
+  Based on the Google Cloud Open Knowledge Format viewer (Apache-2.0).
+  Modified by WireNet for a read-only local Manager view.
+  See LICENSES/Apache-2.0.txt and THIRD_PARTY_NOTICES.md in the plugin.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; object-src 'none'; form-action 'none'">
+<title>WireNet Manager</title>
+<script referrerpolicy="no-referrer" src="https://cdn.jsdelivr.net/npm/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
+<script referrerpolicy="no-referrer" src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+<style>
+:root {
+  --ink: #262626;
+  --muted: #737373;
+  --line: #e7e7e7;
+  --soft: #f6f6f4;
+  --accent: #ff5c1a;
+  --white: #ffffff;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--white);
+  font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+}
+button, input, select { font: inherit; }
+.app-header {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--line);
+  background: var(--white);
+  flex-shrink: 0;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 210px;
+}
+.brand-mark { width: 21px; height: 21px; flex: 0 0 auto; }
+.wordmark {
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: .01em;
+}
+.product-name {
+  color: var(--muted);
+  border-left: 1px solid var(--line);
+  padding-left: 10px;
+  white-space: nowrap;
+}
+.controls { display: flex; align-items: center; justify-content: flex-end; gap: 7px; flex-wrap: wrap; }
+.controls input, .controls select, .controls button {
+  height: 34px;
+  border: 1px solid #d2d2d2;
+  border-radius: 4px;
+  color: var(--ink);
+  background: var(--white);
+  padding: 0 9px;
+  outline: none;
+}
+.controls input { width: min(260px, 28vw); }
+.controls input:focus, .controls select:focus, .controls button:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 92, 26, .12);
+}
+.controls button { cursor: pointer; background: var(--ink); color: var(--white); border-color: var(--ink); }
+.controls button:hover { background: #3c3c3c; }
+.read-only {
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+}
+main { display: flex; flex: 1; min-height: 0; }
+#graph {
+  flex: 1 1 58%;
+  min-width: 0;
+  position: relative;
+  border-right: 1px solid var(--line);
+  background:
+    linear-gradient(rgba(38,38,38,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(38,38,38,.025) 1px, transparent 1px),
+    var(--white);
+  background-size: 28px 28px;
+}
+#detail {
+  flex: 0 0 42%;
+  overflow-y: auto;
+  padding: 24px 30px 40px;
+  background: var(--white);
+}
+#detail-empty, #load-error {
+  max-width: 390px;
+  margin: 18vh auto 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+#load-error { color: #9b2c2c; }
+.detail-header { display: block; padding: 0; border: 0; margin: 0 0 18px; }
+.detail-kicker { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.type-chip {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 3px 8px;
+  color: var(--white);
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: .04em;
+}
+.detail-header h1 { margin: 0 0 5px; font-size: clamp(24px, 3vw, 38px); line-height: 1.08; font-weight: 600; }
+.detail-path {
+  color: var(--muted);
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 11px;
+  word-break: break-word;
+}
+.frontmatter {
+  display: grid;
+  grid-template-columns: minmax(72px, 105px) 1fr;
+  row-gap: 6px;
+  column-gap: 14px;
+  padding: 13px 0;
+  margin: 0 0 18px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+.frontmatter dt { color: var(--muted); }
+.frontmatter dd { margin: 0; min-width: 0; word-break: break-word; }
+.frontmatter a { color: var(--ink); text-decoration-color: var(--accent); }
+.tag {
+  display: inline-block;
+  margin: 0 5px 4px 0;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: #555;
+  background: var(--soft);
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 10px;
+}
+#detail-body { max-width: 76ch; font-size: 14px; line-height: 1.62; }
+#detail-body h1, #detail-body h2, #detail-body h3, #detail-body h4 { color: var(--ink); line-height: 1.2; }
+#detail-body h1 { margin: 28px 0 10px; font-size: 24px; }
+#detail-body h2 { margin: 25px 0 8px; font-size: 18px; }
+#detail-body h3 { margin: 20px 0 7px; font-size: 15px; }
+#detail-body h4 { margin: 18px 0 6px; font-size: 14px; }
+#detail-body p { margin: 8px 0 12px; }
+#detail-body ul, #detail-body ol { margin: 8px 0 14px; padding-left: 24px; }
+#detail-body li { margin: 4px 0; }
+#detail-body blockquote { margin: 14px 0; padding: 2px 0 2px 14px; border-left: 3px solid var(--accent); color: #555; }
+#detail-body code {
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: var(--soft);
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: .88em;
+}
+#detail-body pre {
+  overflow-x: auto;
+  padding: 13px 15px;
+  border-radius: 4px;
+  background: var(--ink);
+  color: #f5f5f5;
+}
+#detail-body pre code { padding: 0; background: transparent; color: inherit; }
+#detail-body table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 12px; }
+#detail-body th, #detail-body td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+#detail-body th { font-weight: 600; background: var(--soft); }
+#detail-body a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: 2px; }
+#detail-body a.internal { cursor: pointer; }
+#detail-body hr { border: 0; border-top: 1px solid var(--line); margin: 24px 0; }
+#detail-body input[type="checkbox"] { accent-color: var(--accent); }
+#detail-backlinks { margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
+#detail-backlinks h2 { margin: 0 0 9px; color: var(--muted); font-size: 12px; font-weight: 500; }
+#detail-backlinks ul { margin: 0; padding: 0; list-style: none; }
+#detail-backlinks li { margin: 5px 0; }
+#detail-backlinks a { color: var(--ink); cursor: pointer; text-decoration-color: var(--accent); }
+.muted { color: var(--muted); font-size: 11px; }
+.viewer-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 18px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 9px;
+  letter-spacing: .03em;
+}
+.viewer-footer a { color: inherit; }
+@media (max-width: 900px) {
+  .app-header { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .controls { width: 100%; justify-content: flex-start; }
+  .controls input { flex: 1 1 180px; width: auto; }
+  main { flex-direction: column; }
+  #graph { flex: 0 0 44vh; border-right: 0; border-bottom: 1px solid var(--line); }
+  #detail { flex: 1 1 auto; padding: 22px 20px 36px; }
+  .viewer-footer { display: none; }
+}
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="brand" aria-label="WireNet Manager">
+    <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="#262626" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9.5"></circle>
+      <ellipse cx="12" cy="12" rx="4" ry="9.5"></ellipse>
+      <ellipse cx="12" cy="12" rx="9.5" ry="4"></ellipse>
+    </svg>
+    <span class="wordmark">wirenet</span>
+    <span class="product-name" id="bundle-name"></span>
+    <span class="read-only">read only</span>
+  </div>
+  <div class="controls" aria-label="Viewer controls">
+    <input id="search" type="search" placeholder="Search concepts" aria-label="Search concepts">
+    <select id="filter-type" aria-label="Filter by type">
+      <option value="">All types</option>
+    </select>
+    <select id="layout" aria-label="Graph layout">
+      <option value="cose">Connected</option>
+      <option value="concentric">Concentric</option>
+      <option value="breadthfirst">Hierarchy</option>
+      <option value="circle">Circle</option>
+      <option value="grid">Grid</option>
+    </select>
+    <button id="reset" type="button">Reset</button>
+  </div>
+</header>
+
+<main>
+  <section id="graph" aria-label="OKF knowledge graph"></section>
+  <section id="detail" aria-live="polite">
+    <div id="load-error" hidden></div>
+    <div id="detail-empty">Select an OKF concept to read its Markdown and inspect its links.</div>
+    <article id="detail-content" hidden>
+      <header class="detail-header">
+        <div class="detail-kicker"><span class="type-chip" id="detail-type"></span></div>
+        <h1 id="detail-title"></h1>
+        <div class="detail-path" id="detail-id"></div>
+      </header>
+      <dl class="frontmatter" id="detail-meta"></dl>
+      <div id="detail-body"></div>
+      <section id="detail-backlinks" hidden>
+        <h2>Backlinks</h2>
+        <ul id="backlinks-list"></ul>
+      </section>
+    </article>
+  </section>
+</main>
+
+<footer class="viewer-footer">
+  <span>WireNet Manager · local OKF memory</span>
+  <span>Viewer based on Google Cloud OKF · Apache-2.0</span>
+</footer>
+
+<script>
+window.BUNDLE_NAME = __BUNDLE_NAME__;
+window.BUNDLE = __BUNDLE_DATA__;
+</script>
+<script>
+(function () {
+  "use strict";
+
+  const bundle = window.BUNDLE || { nodes: [], edges: [], bodies: {}, types: [] };
+  const bundleName = window.BUNDLE_NAME || "Manager";
+  document.title = `WireNet Manager — ${bundleName}`;
+  document.getElementById("bundle-name").textContent = bundleName;
+
+  if (!window.cytoscape || !window.marked) {
+    const error = document.getElementById("load-error");
+    error.hidden = false;
+    error.textContent = "The graph libraries could not be loaded. Check the network connection and reload this page.";
+    document.getElementById("detail-empty").hidden = true;
+    return;
+  }
+
+  const typeSelect = document.getElementById("filter-type");
+  for (const type of bundle.types) {
+    const option = document.createElement("option");
+    option.value = type;
+    option.textContent = type;
+    typeSelect.appendChild(option);
+  }
+
+  const backlinks = {};
+  for (const edge of bundle.edges) {
+    if (edge.data.kind !== "link") continue;
+    const { source, target } = edge.data;
+    (backlinks[target] ||= []).push(source);
+  }
+
+  const nodeIndex = {};
+  for (const node of bundle.nodes) nodeIndex[node.data.id] = node.data;
+
+  const cy = cytoscape({
+    container: document.getElementById("graph"),
+    elements: [...bundle.nodes, ...bundle.edges],
+    style: [
+      {
+        selector: "node",
+        style: {
+          "background-color": "data(color)",
+          "label": "data(graphLabel)",
+          "color": "#262626",
+          "font-family": "IBM Plex Sans, Helvetica Neue, Arial, sans-serif",
+          "font-size": 9,
+          "font-weight": 500,
+          "text-valign": "bottom",
+          "text-margin-y": 5,
+          "text-wrap": "wrap",
+          "text-max-width": 104,
+          "text-background-color": "#ffffff",
+          "text-background-opacity": .82,
+          "text-background-padding": 2,
+          "width": "data(size)",
+          "height": "data(size)",
+          "border-width": 1,
+          "border-color": "#262626"
+        }
+      },
+      {
+        selector: "node:selected",
+        style: { "border-width": 4, "border-color": "#ff5c1a" }
+      },
+      {
+        selector: "edge",
+        style: {
+          "width": 1.25,
+          "line-color": "#c7c7c7",
+          "target-arrow-color": "#c7c7c7",
+          "target-arrow-shape": "triangle",
+          "curve-style": "bezier",
+          "arrow-scale": .75
+        }
+      },
+      {
+        selector: 'edge[kind = "packet"]',
+        style: {
+          "line-style": "dashed",
+          "line-color": "#dedede",
+          "target-arrow-color": "#dedede",
+          "target-arrow-shape": "none"
+        }
+      },
+      {
+        selector: "edge:selected",
+        style: { "line-color": "#ff5c1a", "target-arrow-color": "#ff5c1a", "width": 2.3 }
+      },
+      { selector: ".dim", style: { "opacity": .12 } }
+    ],
+    layout: {
+      name: "cose",
+      animate: false,
+      padding: 42,
+      randomize: true,
+      nodeRepulsion: 180000,
+      idealEdgeLength: 125,
+      nodeOverlap: 36,
+      componentSpacing: 120,
+      gravity: .12,
+      numIter: 1400
+    },
+    wheelSensitivity: .2
+  });
+
+  cy.on("tap", "node", (event) => showDetail(event.target.id()));
+  cy.on("tap", (event) => { if (event.target === cy) clearSelection(); });
+
+  document.getElementById("layout").addEventListener("change", (event) => {
+    const layoutName = event.target.value;
+    const options = { name: layoutName, animate: false, padding: 42 };
+    if (layoutName === "cose") Object.assign(options, {
+      randomize: true,
+      nodeRepulsion: 180000,
+      idealEdgeLength: 125,
+      nodeOverlap: 36,
+      componentSpacing: 120,
+      gravity: .12,
+      numIter: 1400
+    });
+    cy.layout(options).run();
+  });
+
+  document.getElementById("reset").addEventListener("click", () => {
+    cy.elements().removeClass("dim");
+    document.getElementById("search").value = "";
+    document.getElementById("filter-type").value = "";
+    cy.fit(null, 38);
+    clearSelection();
+  });
+
+  document.getElementById("search").addEventListener("input", (event) => {
+    applyFilter(event.target.value, typeSelect.value);
+  });
+
+  typeSelect.addEventListener("change", (event) => {
+    applyFilter(document.getElementById("search").value, event.target.value);
+  });
+
+  function applyFilter(queryValue, typeValue) {
+    const query = queryValue.trim().toLowerCase();
+    cy.nodes().forEach((node) => {
+      const data = node.data();
+      const haystack = [data.label, data.id, data.type, ...(data.tags || [])].join(" ").toLowerCase();
+      const visible = (!query || haystack.includes(query)) && (!typeValue || data.type === typeValue);
+      node.toggleClass("dim", !visible);
+    });
+    cy.edges().forEach((edge) => {
+      edge.toggleClass("dim", edge.source().hasClass("dim") || edge.target().hasClass("dim"));
+    });
+  }
+
+  function clearSelection() {
+    cy.elements().unselect();
+    document.getElementById("detail-empty").hidden = false;
+    document.getElementById("detail-content").hidden = true;
+  }
+
+  function showDetail(conceptId) {
+    const data = nodeIndex[conceptId];
+    if (!data) return;
+    cy.elements().unselect();
+    const node = cy.getElementById(conceptId);
+    if (node) node.select();
+
+    document.getElementById("detail-empty").hidden = true;
+    document.getElementById("detail-content").hidden = false;
+
+    const chip = document.getElementById("detail-type");
+    chip.textContent = data.type;
+    chip.style.background = data.color;
+    document.getElementById("detail-title").textContent = data.label;
+    document.getElementById("detail-id").textContent = data.path || conceptId;
+
+    const meta = document.getElementById("detail-meta");
+    meta.innerHTML = "";
+    addMeta(meta, "Status", data.status);
+    addMeta(meta, "Updated", data.updated);
+    addMeta(meta, "Project ID", data.projectId);
+    addMeta(meta, "Description", data.description);
+    addResource(meta, data.resource);
+    addTags(meta, data.tags);
+    if (!meta.children.length) meta.hidden = true;
+    else meta.hidden = false;
+
+    const rawBody = bundle.bodies[conceptId] || "";
+    const rendered = marked.parse(rawBody, { breaks: false, gfm: true });
+    const body = document.getElementById("detail-body");
+    body.innerHTML = sanitizeHtml(rendered);
+    rewriteLinks(body);
+
+    const sources = backlinks[conceptId] || [];
+    const section = document.getElementById("detail-backlinks");
+    const list = document.getElementById("backlinks-list");
+    list.innerHTML = "";
+    section.hidden = sources.length === 0;
+    for (const source of sources) {
+      const item = document.createElement("li");
+      const link = document.createElement("a");
+      link.textContent = nodeIndex[source]?.label || source;
+      link.addEventListener("click", () => showDetail(source));
+      item.appendChild(link);
+      const path = document.createElement("span");
+      path.className = "muted";
+      path.textContent = ` · ${nodeIndex[source]?.path || source}`;
+      item.appendChild(path);
+      list.appendChild(item);
+    }
+
+    document.getElementById("detail").scrollTop = 0;
+  }
+
+  function addMeta(list, label, value) {
+    if (!value) return;
+    const term = document.createElement("dt");
+    const detail = document.createElement("dd");
+    term.textContent = label;
+    detail.textContent = value;
+    list.append(term, detail);
+  }
+
+  function addResource(list, value) {
+    if (!value || !/^https?:\/\//i.test(value)) return;
+    const term = document.createElement("dt");
+    const detail = document.createElement("dd");
+    const link = document.createElement("a");
+    term.textContent = "Resource";
+    link.href = value;
+    link.textContent = value;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    detail.appendChild(link);
+    list.append(term, detail);
+  }
+
+  function addTags(list, tags) {
+    if (!tags || !tags.length) return;
+    const term = document.createElement("dt");
+    const detail = document.createElement("dd");
+    term.textContent = "Tags";
+    for (const value of tags) {
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = value;
+      detail.appendChild(tag);
+    }
+    list.append(term, detail);
+  }
+
+  function sanitizeHtml(html) {
+    const template = document.createElement("template");
+    template.innerHTML = html;
+    template.content.querySelectorAll("script, style, iframe, object, embed, form, button, input, textarea, select, meta, link, base, audio, video, source, picture, svg, math").forEach((element) => element.remove());
+    template.content.querySelectorAll("*").forEach((element) => {
+      for (const attribute of [...element.attributes]) {
+        if (attribute.name.toLowerCase().startsWith("on") || attribute.name.toLowerCase() === "style") {
+          element.removeAttribute(attribute.name);
+        }
+      }
+    });
+    return template.innerHTML;
+  }
+
+  function rewriteLinks(root) {
+    root.querySelectorAll("a[href]").forEach((link) => {
+      const href = link.getAttribute("href") || "";
+      if (href.startsWith("/") && href.includes(".md")) {
+        const target = href.slice(1).split("#", 1)[0].replace(/\.(md|markdown)$/i, "");
+        if (nodeIndex[target]) {
+          link.className = "internal";
+          link.setAttribute("href", "#");
+          link.addEventListener("click", (event) => {
+            event.preventDefault();
+            showDetail(target);
+          });
+          return;
+        }
+      }
+      if (/^(https?:|mailto:)/i.test(href)) {
+        link.className = "external";
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+      } else if (href.startsWith("#")) {
+        link.className = "internal-anchor";
+      } else {
+        link.removeAttribute("href");
+      }
+    });
+  }
+
+  const initial =
+    bundle.nodes.find((node) => node.data.type === "OKF Index") ||
+    bundle.nodes.find((node) => node.data.type === "Project Status") ||
+    bundle.nodes[0];
+  if (initial) showDetail(initial.data.id);
+  else document.getElementById("detail-empty").textContent = "No OKF concepts were found in this Manager.";
+})();
+</script>
+</body>
+</html>

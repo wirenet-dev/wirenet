@@ -1,11 +1,12 @@
 {
   "name": "wirenet-manager",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Bootstrap and run a local work-memory Manager with portable, reviewable Project Packs.",
   "author": {
     "name": "WireNet",
     "url": "https://wirenet.dev"
   },
+  "homepage": "https://wirenet.dev",
   "repository": "https://github.com/wirenet-dev/wirenet-manager",
   "keywords": ["manager", "project-packs", "work-memory", "okf"],
   "skills": "./skills/",
@@ -15,16 +16,22 @@
     "longDescription": "Bootstrap a content-only local Manager, keep external projects connected through local bindings, and maintain portable Project Packs with four state documents plus an OKF update log.",
     "developerName": "WireNet",
     "category": "Productivity",
+    "websiteURL": "https://wirenet.dev",
+    "brandColor": "#FF5C1A",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/logo.svg",
+    "logoDark": "./assets/logo-dark.svg",
     "capabilities": [
       "Orient ongoing work",
       "Bootstrap a local Manager",
       "Route external workspaces",
-      "Maintain reviewable Project Packs"
+      "Maintain reviewable Project Packs",
+      "Inspect local OKF memory"
     ],
     "defaultPrompt": [
       "Use $wirenet-manager to show my current stack.",
-      "Use $wirenet-manager-bootstrap to set up ~/Manager.",
-      "Use $wirenet-manager-sync to update this project."
+      "Use $wirenet-manager to open my Manager viewer.",
+      "Use $wirenet-manager-bootstrap to set up ~/Manager."
     ]
   }
 }

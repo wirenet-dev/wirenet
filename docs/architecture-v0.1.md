@@ -50,7 +50,7 @@ External task ends
 ### Marketplace And Manifest
 
 - `.agents/plugins/marketplace.json` exposes the local plugin package.
-- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.1.1,
+- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.1.2,
   bundled skills, interface copy, and starter prompts.
 
 ### Skills
@@ -69,7 +69,22 @@ Each skill keeps its `SKILL.md` concise and places detailed contracts under
 - `scripts/manager_doctor.py`: read-only Manager and Project Pack validation.
 - `scripts/create_project_pack.py`: dry-run-first packet and binding creation.
 - `scripts/discover_projects.py`: shallow approved-root discovery.
+- `scripts/generate_manager_viewer.py`: one-shot read-only OKF renderer and
+  optional loopback-only transport for ChatGPT's built-in Browser.
 - Bootstrap and sync skill scripts provide their task-specific entry points.
+
+### Read-Only Viewer
+
+`viewer/manager-viewer.html` is a single HTML template based on the official
+Google Cloud OKF graph-and-detail viewer model. The generator embeds only
+Markdown documents with a non-empty OKF `type`, plus reserved `index.md` and
+`log.md` files inside those concept trees. Technical plugin files, skills,
+scripts, hidden state, and local binding JSON never enter the generated page.
+
+Markdown links create graph edges. Documents sharing a Project Pack
+`project_id` receive a separate dashed packet relationship. The page renders
+Markdown, backlinks, search, type filters, and layouts, but offers no editing or
+filesystem API.
 
 ### Seed
 
