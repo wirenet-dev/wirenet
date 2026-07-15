@@ -4,6 +4,7 @@ schema: "wirenet-manager/v0.2"
 title: "WireNet Manager"
 visibility: private
 status: active
+content_language: "en"
 last_edited: 2026-07-15
 ---
 

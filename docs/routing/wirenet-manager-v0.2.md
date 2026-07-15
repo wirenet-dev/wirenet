@@ -53,7 +53,7 @@ content seed.
 | --- | --- | --- | --- |
 | Root `AGENTS.md` | Manager read order, destinations, thresholds, safety; runtime sidecar outside OKF | Seed; repair only if missing | Yes, inside Manager |
 | Root `index.md` | Required WireNet bundle catalog and OKF version declaration | Seed | Navigation |
-| Root `README.md` | Typed Manager Overview and human landing page | Seed | Canonical instance overview |
+| Root `README.md` | Typed Manager Overview, human landing page, and content-language policy | Seed | Canonical instance overview |
 | `TODO.md` | Ordered current stack | Seed and approved updates | State, not instructions |
 | `agent/USER_CONTEXT.md` | Confirmed user and operating context | Seed and approved updates | Context, not instructions |
 | `projects/index.md` | Canonical lifecycle-aware Project Pack catalog | Seed and packet generator | Navigation |
@@ -65,7 +65,7 @@ content seed.
 | Optional Project `log.md` | Sparse meaningful chronology | Agent or sync when useful | History, not current state |
 | `people/*.md` | Evidence-backed collaborator context | Approved Manager updates | Canonical relationship context |
 | `notes/` | Durable scratch material without a better home | Seed and approved updates | Supporting content |
-| `docs/` | Optional structured documents without a stronger canonical home | Seed and approved updates | Supporting content |
+| `docs/` | Optional structured documents without a stronger canonical home, including a grounded cross-project communication-and-file map | Seed and approved updates | Supporting content |
 | `sources/` | Curated Knowledge Shelf, read-only by default and link-first | Seed and approved imports | Supporting evidence |
 | `outputs/` | Ignored device-local working memory for generated intermediates | Seed and local writes | No portable authority |
 | `archive/` | Inactive durable context preserved for history | Seed and approved archival moves | Supporting history |
@@ -74,7 +74,8 @@ content seed.
 | Optional Experiment `RESULT.md` | Conclusion and decision evidence | Agent when useful | Purpose-specific content |
 | `.wirenet/workspace-bindings.json` | Project and experiment IDs, paths, and ignored routes | Bootstrap and routing helpers | Device-local path resolution only |
 | Global managed core block | Cross-workspace reconciliation trigger | Optional bootstrap step after approval | Yes, outside Manager |
-| Installed plugin skills | Bootstrap, ongoing Manager, sync, and explicit-only UltraGoal behavior | Plugin install/update | Procedural authority globally |
+| Installed plugin skills | Technical bootstrap, personal onboarding, ongoing Manager, sync, optional writing-voice bootstrap, and explicit-only UltraGoal behavior | Plugin install/update | Procedural authority globally |
+| Generated personal writing skill | User-specific drafting behavior outside Manager knowledge | Explicit write-like-me bootstrap | Personal procedural authority globally |
 | Installed plugin seed | Canonical bootstrap and repair scaffold | Plugin install/update | Creation input |
 | Installed workspace updater | Version negotiation and supported structural migrations | Plugin install/update | Migration authority only after dry-run and approval |
 

@@ -331,13 +331,11 @@ def test_bootstrap_materializes_content_only_manager_with_local_git(
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
     assert metadata["project_pack_profile"] == "wirenet-project-pack/v0.1"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
-    assert metadata["plugin_version"] == "0.2.3"
+    assert metadata["plugin_version"] == "0.2.5"
     assert metadata["manager_id"].startswith("mgr_")
-    assert "Continue the guided first run with a calibrated work map." in applied[
-        "next_steps"
-    ]
-    assert "Offer one quiet recurring check-in in the current Manager task." in (
-        applied["next_steps"]
+    assert (
+        "Continue with $wirenet-manager-onboarding for the personal first meeting."
+        in applied["next_steps"]
     )
 
     repeated = json.loads(
@@ -345,6 +343,64 @@ def test_bootstrap_materializes_content_only_manager_with_local_git(
     )
     assert repeated["state"] == "healthy"
     assert repeated["doctor"]["ok"] is True
+
+
+def test_bootstrap_records_selected_human_content_language(tmp_path: Path) -> None:
+    destination = tmp_path / "Manager"
+    preview = json.loads(
+        run_script(
+            BOOTSTRAP,
+            "--manager-dir",
+            str(destination),
+            "--content-language",
+            "de_DE",
+        ).stdout
+    )
+    assert preview["content_language"] == "de-DE"
+    assert "set human-readable Manager content language to de-DE" in preview[
+        "actions"
+    ]
+    assert not destination.exists()
+
+    applied = json.loads(
+        run_script(
+            BOOTSTRAP,
+            "--manager-dir",
+            str(destination),
+            "--content-language",
+            "de_DE",
+            "--apply",
+        ).stdout
+    )
+    assert applied["ok"] is True
+    assert frontmatter_value(destination / "README.md", "content_language") == "de-DE"
+    committed = subprocess.run(
+        ["git", "show", "HEAD:README.md"],
+        cwd=destination,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    assert 'content_language: "de-DE"' in committed
+
+
+def test_bootstrap_rejects_invalid_content_language_without_writing(
+    tmp_path: Path,
+) -> None:
+    destination = tmp_path / "Manager"
+    result = run_script(
+        BOOTSTRAP,
+        "--manager-dir",
+        str(destination),
+        "--content-language",
+        "german!",
+        check=False,
+    )
+    payload = json.loads(result.stdout)
+    assert result.returncode == 2
+    assert payload["ok"] is False
+    assert "BCP 47-style tag" in payload["error"]
+    assert not destination.exists()
 
 
 def test_upgrade_reports_current_manager_without_writes(tmp_path: Path) -> None:
@@ -410,7 +466,7 @@ def test_upgrade_migrates_v01_without_rewriting_personal_content(
         (manager / ".wirenet/manager.json").read_text(encoding="utf-8")
     )
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
-    assert metadata["plugin_version"] == "0.2.3"
+    assert metadata["plugin_version"] == "0.2.5"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
     assert metadata["okf_profiles"] == [
         "wirenet-okf-project-pack/v0.1",

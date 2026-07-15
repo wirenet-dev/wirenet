@@ -86,20 +86,28 @@ External task ends
 ### Marketplace And Manifest
 
 - `.agents/plugins/marketplace.json` exposes the local plugin package.
-- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.2.3,
+- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.2.5,
   bundled skills, interface copy, and starter prompts.
 
 ### Skills
 
 - `skills/wirenet-manager/`: ongoing Manager task and orientation behavior.
-- `skills/wirenet-manager-bootstrap/`: seed, repair, discovery, and global rule.
+- `skills/wirenet-manager-bootstrap/`: technical seed, repair, QMD, discovery
+  helpers, and global rules.
+- `skills/wirenet-manager-onboarding/`: first map, interview, approved source
+  orientation, continuity setup, and personal handoff.
 - `skills/wirenet-manager-sync/`: cross-workspace classification and durable
   reconciliation.
+- `skills/write-like-me-bootstrap/`: optional generation of a global personal
+  writing behavior skill from approved authored messages.
 - `skills/ultragoal/`: explicitly invoked persistent goal execution. Its
   `agents/openai.yaml` disables implicit invocation.
 
 Each skill keeps its `SKILL.md` concise and places detailed contracts under
 `references/`. UI metadata lives in `agents/openai.yaml`.
+
+A generated `~/.agents/skills/write-like-me/` is personal global behavior. It
+does not enter the Manager OKF bundle and is not copied into `~/Manager`.
 
 ### Deterministic Scripts
 
@@ -194,7 +202,8 @@ or implicit global QMD update is part of v0.2.
 ## Runtime Files
 
 - `AGENTS.md`: Manager-wide read order, durable-state rules, and safety; runtime only.
-- `README.md`: typed `Manager Overview` and human landing page for this instance.
+- `README.md`: typed `Manager Overview`, human landing page, and portable
+  `content_language` policy for this instance.
 - `index.md`: required WireNet bundle catalog and OKF version declaration.
 - `TODO.md`: cross-project current stack.
 - `agent/USER_CONTEXT.md`: durable user working context.
@@ -206,7 +215,8 @@ or implicit global QMD update is part of v0.2.
   `AGENTS.md`, optional result, and promotion lineage.
 - `people/`: recurring collaborator notes.
 - `notes/`: durable scratch material without a canonical home.
-- `docs/`: optional structured documents without a stronger canonical home.
+- `docs/`: optional structured documents without a stronger canonical home,
+  including a grounded cross-project communication-and-file map when useful.
 - `sources/`: curated Knowledge Shelf, read-only by default and link-first.
 - `archive/`: inactive durable supporting knowledge retained rather than deleted.
 - `outputs/`: ignored device-local working memory for generated intermediates.

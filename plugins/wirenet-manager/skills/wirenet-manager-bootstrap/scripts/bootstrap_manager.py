@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -33,6 +34,38 @@ CANONICAL_DIRECTORIES = (
     "projects",
     "sources",
 )
+
+
+def normalize_content_language(value: str) -> str:
+    """Validate and normalize a compact BCP 47-style language tag."""
+    candidate = value.strip().replace("_", "-")
+    if not re.fullmatch(r"[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*", candidate):
+        raise ValueError(
+            "content language must be a BCP 47-style tag such as en, de, or en-US"
+        )
+    parts = candidate.split("-")
+    normalized = [parts[0].lower()]
+    for part in parts[1:]:
+        normalized.append(part.upper() if len(part) == 2 and part.isalpha() else part)
+    return "-".join(normalized)
+
+
+def set_content_language(readme: Path, language: str) -> None:
+    """Set portable content language policy in the Manager overview."""
+    content = readme.read_text(encoding="utf-8")
+    replacement = f'content_language: "{language}"'
+    if re.search(r"(?m)^content_language:\s*.+$", content):
+        updated = re.sub(
+            r"(?m)^content_language:\s*.+$", replacement, content, count=1
+        )
+    elif content.startswith("---\n"):
+        closing = content.find("\n---\n", 4)
+        if closing < 0:
+            raise ValueError("Manager README.md has invalid YAML frontmatter")
+        updated = content[:closing] + f"\n{replacement}" + content[closing:]
+    else:
+        raise ValueError("Manager README.md is missing YAML frontmatter")
+    readme.write_text(updated, encoding="utf-8")
 
 
 def run(
@@ -115,6 +148,14 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manager-dir", default="~/Manager")
     parser.add_argument("--template-dir", default=str(DEFAULT_TEMPLATE))
+    parser.add_argument(
+        "--content-language",
+        default="en",
+        help=(
+            "Language for human-readable Manager content, using a BCP 47-style "
+            "tag. Stable file names, schemas, metadata keys, and enum values remain English."
+        ),
+    )
     parser.add_argument("--repair", action="store_true")
     parser.add_argument("--apply", action="store_true")
     return parser.parse_args()
@@ -122,6 +163,11 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    try:
+        content_language = normalize_content_language(args.content_language)
+    except ValueError as error:
+        print(json.dumps({"ok": False, "error": str(error)}, indent=2))
+        return 2
     manager_dir = Path(args.manager_dir).expanduser().resolve(strict=False)
     template_dir = Path(args.template_dir).expanduser().resolve(strict=False)
     exists = manager_dir.exists()
@@ -131,6 +177,7 @@ def main() -> int:
         "manager_dir": str(manager_dir),
         "template_dir": str(template_dir),
         "state": "existing" if exists else "new",
+        "content_language": content_language,
         "actions": [],
     }
 
@@ -187,6 +234,7 @@ def main() -> int:
     else:
         result["actions"] = [
             "copy the bundled content-only Manager template",
+            f"set human-readable Manager content language to {content_language}",
             "write local Manager metadata and bindings",
             "initialize a local Git repository on main",
             "create an initial local commit without configuring a remote",
@@ -203,6 +251,8 @@ def main() -> int:
     try:
         created_paths = create_missing_directories(manager_dir)
         created_paths.extend(copy_missing(template_dir, manager_dir))
+        if created_new or "README.md" in created_paths:
+            set_content_language(manager_dir / "README.md", content_language)
         metadata_path = manager_dir / ".wirenet/manager.json"
         if not metadata_path.exists():
             write_json(metadata_path, manager_metadata())
@@ -233,14 +283,8 @@ def main() -> int:
             "doctor": diagnosis,
             "next_steps": [
                 "Open the Manager directory as a ChatGPT Work or Codex project.",
-                "Continue the guided first run with a calibrated work map.",
-                "Review relevant communication and work-source capabilities.",
                 "Preview QMD registration of the Manager knowledge collection.",
-                "Choose explicit roots for shallow project discovery.",
-                "Classify candidates before creating Project Packs.",
-                "Preview the global core guidance block before installing it.",
-                "Add optional global routing only if the user wants a stable convention.",
-                "Offer one quiet recurring check-in in the current Manager task.",
+                "Continue with $wirenet-manager-onboarding for the personal first meeting.",
             ],
         }
     )

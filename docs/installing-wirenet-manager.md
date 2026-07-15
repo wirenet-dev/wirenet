@@ -7,11 +7,16 @@ last_edited: 2026-07-15
 ## Fast Start With An Appshot
 
 The public README is also the clean-install contract. Open the repository page,
-press both Command keys to attach an Appshot to a new Codex task, and say:
+keep its Fast Start section visible, press both Command keys to attach an
+Appshot to a new Codex task, and say only:
 
 ```text
-Set me up with wirenet-dev/wirenet-manager as ~/Manager. Read the repository README first, install WireNet Manager from its marketplace, then run the guided first-time bootstrap. Preview system changes and ask before connected services, global instructions, durable memory, or automations.
+Set me up.
 ```
+
+Use `Richte das für mich ein.` to begin in German. The request language selects
+conversation and new human-readable Manager prose; stable system structure and
+metadata remain English. If the language is ambiguous, bootstrap asks once.
 
 This works from a task with no selected project and an empty global `AGENTS.md`.
 It does not assume an existing WireNet skill. The first task reads the public
@@ -20,7 +25,7 @@ approval. Because newly installed plugins become available to fresh tasks,
 restart ChatGPT if requested and continue in a new task with:
 
 ```text
-$wirenet-manager-bootstrap Start my guided first run.
+$wirenet-manager-bootstrap Set up my local Manager, then continue with onboarding.
 ```
 
 The restart boundary is intentional. An Appshot can carry the visible GitHub
@@ -41,7 +46,8 @@ codex plugin marketplace add wirenet-dev/wirenet-manager --ref main
 codex plugin add wirenet-manager@wirenet-manager
 ```
 
-Restart the ChatGPT desktop app when requested, then start the guided first run.
+Restart the ChatGPT desktop app when requested, then start the technical setup
+and personal first meeting.
 
 ## Bootstrap The Local Manager
 
@@ -74,24 +80,41 @@ retrieval is unavailable.
 Plugin code is not copied into the Manager. Reinstalling or upgrading the
 plugin therefore cannot overwrite personal Project Packs.
 
-## Guided First Run
+When this technical baseline is healthy, bootstrap hands the same task to
+`$wirenet-manager-onboarding`. It does not treat a Doctor report as completed
+personal onboarding.
 
-The first run should feel like a useful first conversation, not a filesystem
-wizard. After the deterministic workspace checks, the Manager:
+## Personal First Meeting
 
-1. asks what is currently on the user's plate and returns a compact work map;
-2. asks for corrections before proposing any durable Manager content;
-3. inspects which communication and work-source plugins are already available;
-4. recommends only sources that match the user's actual work, such as email,
-   messages, calendar, files, or repositories;
-5. asks separately before installing or connecting a service, reading it for
-   onboarding, or writing inferred durable context;
-6. discovers only explicitly approved project roots and classifies relevant
+The onboarding should feel like a useful first conversation, not a filesystem
+wizard. It follows Jason Liu's sequence as closely as WireNet's explicit source
+approvals allow:
+
+1. opens with `Hi, I'm your Manager.` or its selected-language equivalent;
+2. reads existing local Manager and task context and shows a first map when
+   grounded context exists;
+3. when context is thin, asks what is currently on the user's plate;
+4. interviews one open question at a time for corrections, active work,
+   near-term importance, dropped-ball patterns, important people, project
+   locations, and missing source capabilities;
+5. after each answer, explains and requests any useful targeted connected-source
+   read, then updates the map rather than producing a generic digest;
+6. asks separately before installing or connecting a service, reading a named
+   scope, or writing inferred durable context;
+7. starts source discovery with a small recent high-signal window and widens
+   selectively, using roughly 90 days only when recurring durable evidence
+   warrants it rather than importing a fixed mailbox period;
+8. optionally proposes a typed `docs/communication-and-files.md` when confirmed
+   cross-project accounts, file surfaces, or source boundaries deserve a durable
+   map; it never seeds an empty placeholder or raw mail archive;
+9. discovers only explicitly approved project roots and classifies relevant
    folders as projects, experiments, or ignored;
-7. explains how Manager work, external project work, global reconciliation,
-   QMD retrieval, and the Inspector fit together;
-8. offers to keep the current task as the Manager home and create one quiet
-   recurring check-in there.
+10. proposes one core Manager check-in, then optional project, people, or daily
+    monitor tasks with 09:00 and 16:00 suggested checkpoints;
+11. offers `$write-like-me-bootstrap` when approved sent-message evidence is
+    sufficient;
+12. explains shared memory and daily use, offers to rename or pin the Manager
+    task, and closes with `You can just talk to your Manager now.`
 
 The default check-in recommendation is hourly and silent unless a meaningful
 new ask, deadline, blocker, decision, or dropped follow-up appears. It reads the
@@ -102,7 +125,7 @@ requires the computer and ChatGPT desktop app to be running.
 
 ## Connect Existing Projects
 
-The bootstrap asks which roots may be inspected. Discovery is shallow and uses
+Onboarding asks which roots may be inspected. Discovery is shallow and uses
 folder names plus lightweight markers such as `.git`, `package.json`,
 `pyproject.toml`, and `README.md`. It does not inspect raw media or file bodies.
 
@@ -126,7 +149,8 @@ only then may it create or update `WORKLOG.md`.
 
 ## Install Global Guidance
 
-After approval, the bootstrap adds a core managed block to the user's global
+During approved onboarding setup, the bootstrap helper adds a core managed
+block to the user's global
 Codex `AGENTS.md`. It invokes `$wirenet-manager-sync` only when a future task
 would otherwise misunderstand durable project state.
 

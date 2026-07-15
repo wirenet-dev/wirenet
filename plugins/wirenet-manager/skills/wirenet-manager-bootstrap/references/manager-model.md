@@ -29,6 +29,8 @@ The local Markdown boundary is canonical: `AGENTS.md` is runtime; `index.md`
 and `log.md` are reserved OKF support files; every other in-scope Markdown file
 is a typed OKF concept. Root `README.md` is the instance's `Manager Overview`.
 Generic shelf documentation and canonical templates stay in the plugin.
+Its `content_language` field governs new human-readable prose; stable system
+names, metadata keys, schemas, IDs, and controlled values remain English.
 
 ## Project Packs
 

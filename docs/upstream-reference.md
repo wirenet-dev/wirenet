@@ -24,6 +24,29 @@ routing, an installable plugin, and an OKF-compatible knowledge profile. Keep
 those additions separate enough that upstream changes can still be reviewed by
 intent instead of mechanically merged without inspection.
 
+## Original Bootstrap And Communication Model
+
+At upstream commit `df863768495aaf524a2bf9b5b25ef2622a2591a1`, Jason's fast
+start still tells the user to press `Cmd+Cmd` and say
+`Set me up with jxnl/personal-monorepo-template as ~/vault`. Codex clones that
+repository, opens it as the vault, and then uses its repo-local `onboarding`
+skill. There is no separate upstream skill named `bootstrap`.
+
+The onboarding skill builds a first map, interviews the user, checks useful
+connectors, proposes people and project files, offers a core check-in, and may
+offer `write-like-me-bootstrap` from user-authored sent email and Slack. Its
+memory guidance may use recurring evidence from roughly the last 90 days when
+sources support it, but it defines no fixed mailbox import window and stores no
+raw communication archive.
+
+Jason's template also has no canonical `communication-and-files.md`, mail
+bridge, or email bridge. Communication awareness is distributed across
+connected sources, `agent/USER_CONTEXT.md`, `people/*.md`, project `README.md`
+state, project `AGENTS.md` source routes, optional writing-style memory, and the
+approved recurring Assistant check-in. WireNet preserves that behavior while
+allowing an optional typed `docs/communication-and-files.md` instance concept
+when a real cross-project source map deserves one.
+
 ## Mechanical Comparison
 
 Refresh the upstream reference and print the current delta:

@@ -57,7 +57,8 @@ python3 scripts/compare_routing_contracts.py --json
 - device-local `.wirenet/` metadata and path bindings;
 - project and route classification;
 - dry-run-first bootstrap, workspace upgrade, repair, doctor, and deterministic packet generator;
-- a globally installable Manager, bootstrap, sync, and explicit-only UltraGoal skill set;
+- a globally installable Manager, technical bootstrap, personal onboarding,
+  sync, optional writing-voice bootstrap, and explicit-only UltraGoal skill set;
 - OKF concept metadata, reserved index and log behavior, links, and graph view;
 - a formal distinction between external implementation work and portable memory;
 - machine-readable routing contracts and contract-delta tests.

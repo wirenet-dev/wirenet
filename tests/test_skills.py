@@ -40,8 +40,10 @@ def test_plugin_skill_frontmatter_uses_official_contract() -> None:
     skills = sorted((ROOT / "plugins/wirenet-manager/skills").glob("*/SKILL.md"))
     assert {skill.parent.name for skill in skills} == {
         "ultragoal",
+        "write-like-me-bootstrap",
         "wirenet-manager",
         "wirenet-manager-bootstrap",
+        "wirenet-manager-onboarding",
         "wirenet-manager-sync",
     }
     for skill in skills:
@@ -90,7 +92,7 @@ def test_manager_skills_share_one_content_routing_contract() -> None:
 
     assert "references/content-routing.md" in manager
     assert "../wirenet-manager/references/content-routing.md" in sync
-    assert "README.md" in bootstrap and "AGENTS.md" in bootstrap
+    assert "$wirenet-manager-onboarding" in bootstrap
     assert (
         "Keep this shared reference instead of creating a separate routing skill"
         in contract
@@ -125,7 +127,7 @@ def test_plugin_manifest_and_marketplace_point_to_v02_package() -> None:
         (ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
     )
     assert manifest["name"] == "wirenet-manager"
-    assert manifest["version"] == "0.2.3"
+    assert manifest["version"] == "0.2.5"
     assert manifest["skills"] == "./skills/"
     assert manifest["interface"]["brandColor"] == "#FF5C1A"
     for asset_key in ("composerIcon", "logo", "logoDark"):
@@ -146,46 +148,97 @@ def test_clean_codex_install_contract_is_complete_and_repo_readable() -> None:
     install = (ROOT / "docs/installing-wirenet-manager.md").read_text(
         encoding="utf-8"
     )
-    prompt = (
-        "Set me up with wirenet-dev/wirenet-manager as ~/Manager. Read the "
-        "repository README first"
-    )
-
     for document in (readme, install):
-        assert prompt in document
+        assert "Set me up." in document
+        assert "Richte das für mich ein." in document
         assert "press both Command keys" in document
         assert (
             "codex plugin marketplace add wirenet-dev/wirenet-manager --ref main"
             in document
         )
         assert "codex plugin add wirenet-manager@wirenet-manager" in document
-        assert "$wirenet-manager-bootstrap Start my guided first run." in document
+        assert (
+            "$wirenet-manager-bootstrap Set up my local Manager, then continue "
+            "with onboarding." in document
+        )
 
     assert "never cloned into `~/Manager`" in readme
     assert "does not install a plugin by itself" in install
 
 
-def test_guided_first_run_contract_covers_map_sources_and_automation() -> None:
-    skill = (
+def test_personal_onboarding_preserves_jason_sequence_with_explicit_gates() -> None:
+    bootstrap = (
         ROOT
         / "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/SKILL.md"
     ).read_text(encoding="utf-8")
+    skill = (
+        ROOT
+        / "plugins/wirenet-manager/skills/wirenet-manager-onboarding/SKILL.md"
+    ).read_text(encoding="utf-8")
     reference = (
         ROOT
-        / "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/references/first-run-experience.md"
+        / "plugins/wirenet-manager/skills/wirenet-manager-onboarding/references/first-meeting-flow.md"
     ).read_text(encoding="utf-8")
 
-    assert "references/first-run-experience.md" in skill
-    assert "brand new, partial, or established" in skill
-    assert "installation, connection, source reading" in skill
-    assert "current task as the Manager home" in skill
+    assert "$wirenet-manager-onboarding" in bootstrap
+    assert "personal first meeting" in bootstrap
+    assert "references/first-meeting-flow.md" in skill
+    for state in ("`brand_new`", "`partial`", "`established`"):
+        assert state in skill
+    assert "Hi, I'm your Manager." in reference
+    assert "Hi, ich bin dein Manager." in reference
     assert "What's on your plate right now?" in reference
-    assert "Communication And Work Sources" in reference
+    assert "before its first connected-source scan" in reference
+    assert "Interview And Targeted Rereads" in reference
     assert "install or enable a plugin" in reference
     assert "connect an account or service" in reference
-    assert "read approved sources" in reference
-    assert "Use the scheduled-task or automation tool" in reference
+    assert "the last 90 days" in reference
+    assert "docs/communication-and-files.md" in reference
     assert "current task as destination" in reference
-    assert "Recommend an hourly quiet heartbeat" in reference
-    assert "If local Manager files are part of the check" in reference
+    assert "09:00 and 16:00" in reference
+    assert "$write-like-me-bootstrap" in reference
     assert "You can just talk to your Manager" in reference
+
+    headings = (
+        "## 1. Hello",
+        "## 3. First Map",
+        "## 4. Interview And Targeted Rereads",
+        "## 5. Source Pass And Durable Proposals",
+        "## 6. Core Check-In",
+        "## 7. Optional Monitor Tasks",
+        "## 8. Write Like Me",
+        "## 9. Shared Memory And Daily Use",
+        "## 10. Close",
+    )
+    positions = [reference.index(heading) for heading in headings]
+    assert positions == sorted(positions)
+
+
+def test_write_like_me_bootstrap_generates_behavior_outside_manager() -> None:
+    skill = (
+        ROOT / "plugins/wirenet-manager/skills/write-like-me-bootstrap/SKILL.md"
+    ).read_text(encoding="utf-8")
+    assert "~/.agents/skills/write-like-me/" in skill
+    assert "Never place it inside `~/Manager`" in skill
+    assert "last 90–180 days" in skill
+    assert "Never store raw Slack or email excerpts" in skill
+    assert "separate approvals" in skill
+
+
+def test_language_and_communication_policy_stays_in_the_right_layers() -> None:
+    seed_readme = (
+        ROOT / "plugins/wirenet-manager/templates/manager/README.md"
+    ).read_text(encoding="utf-8")
+    seed_agents = (
+        ROOT / "plugins/wirenet-manager/templates/manager/AGENTS.md"
+    ).read_text(encoding="utf-8")
+    routing = (
+        ROOT
+        / "plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md"
+    ).read_text(encoding="utf-8")
+    seed_docs = ROOT / "plugins/wirenet-manager/templates/manager/docs"
+
+    assert 'content_language: "en"' in seed_readme
+    assert "Read `content_language` from the root `README.md`" in seed_agents
+    assert "docs/communication-and-files.md" in routing
+    assert not (seed_docs / "communication-and-files.md").exists()

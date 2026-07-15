@@ -34,6 +34,7 @@ def test_current_product_surfaces_use_only_manager_terminology() -> None:
     historical_files = {
         ROOT / "docs/routing/jason-liu-original.md",
         ROOT / "contracts/routing/jason-liu-original.json",
+        ROOT / "docs/upstream-reference.md",
     }
     roots = (
         ROOT / "README.md",
@@ -236,6 +237,17 @@ def test_contract_delta_exposes_wirenet_additions_and_changed_roles() -> None:
     assert "presence" in changed_entities["project-goal"]
     assert "project-result" in changed_entities
     assert "presence" in changed_entities["project-result"]
+
+    routes = by_id(load(WIRENET)["routes"])
+    assert "technical-bootstrap" in routes
+    assert "personal-onboarding" in routes
+    assert "writing-voice-bootstrap" in routes
+    assert "onboarding" not in routes
+
+    entities = by_id(load(WIRENET)["entities"])
+    assert entities["personal-writing-skill"]["path"] == (
+        "~/.agents/skills/write-like-me/"
+    )
 
     added_routes = set(report["routes"]["added"])
     assert {

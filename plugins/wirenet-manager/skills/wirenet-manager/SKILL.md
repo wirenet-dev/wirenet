@@ -13,7 +13,9 @@ log.
 
 1. Resolve the Manager from `WIRENET_MANAGER_DIR`, then `~/Manager`.
 2. If it is missing or unhealthy, use `$wirenet-manager-bootstrap`.
-3. Read root `AGENTS.md`, `index.md`, `README.md`, and `TODO.md`.
+3. Read root `AGENTS.md`, `index.md`, `README.md`, and `TODO.md`. Read
+   `content_language` from `README.md`; use it for conversation and new
+   human-readable prose while keeping stable system fields in English.
 4. Read `projects/index.md` for active packets.
 5. Read `experiments/index.md` only when it exists and the task concerns a
    bounded spike.

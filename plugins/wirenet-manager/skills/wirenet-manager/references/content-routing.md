@@ -49,6 +49,15 @@ README files into an instance.
 | `outputs/` | Ignored device-local working memory for generated intermediates | Canonical knowledge or synchronized artifacts |
 | `archive/` | Inactive durable context that should remain reviewable | A dumping ground for unresolved active work |
 
+One useful optional `docs/` concept is `docs/communication-and-files.md`. Create
+it only when the user has a real cross-project map of accounts, communication
+surfaces, file systems, source priorities, or action boundaries worth carrying
+between tasks. Give it an OKF `type` such as `Communication And File Context`,
+store confirmed routing and approval rules rather than raw messages, and keep
+project-specific recurring threads or source routes in the nearest Project Pack
+`AGENTS.md`. A simple setup with no durable cross-project routing does not need
+this file.
+
 ## File-World Heuristic
 
 Treat this as a gentle judgment call, not a rigid classifier:

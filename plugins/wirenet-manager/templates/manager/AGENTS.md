@@ -13,6 +13,15 @@ last_edited: 2026-07-15
 Use this repository as the user's local work-memory layer. Keep it concise,
 reviewable, and useful to the next task.
 
+## Language Contract
+
+- Read `content_language` from the root `README.md` and use that language for
+  conversation and new human-readable Manager prose.
+- Keep file and folder names, frontmatter keys, schemas, IDs, enum values,
+  plugin commands, and these runtime instructions in English.
+- Preserve the language of established documents unless the user explicitly
+  asks to translate them. Do not translate metadata keys or controlled values.
+
 ## Read Order
 
 1. `README.md` and `index.md` for the human overview and knowledge catalog.

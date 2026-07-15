@@ -351,6 +351,18 @@
       "evidence": ["plugins/wirenet-manager/.codex-plugin/plugin.json", "plugins/wirenet-manager/skills/"]
     },
     {
+      "id": "personal-writing-skill",
+      "path": "~/.agents/skills/write-like-me/",
+      "kind": "capability",
+      "presence": "optional-generated",
+      "authority": "personal-writing-procedure",
+      "audience": "agent",
+      "description": "User-specific writing behavior generated from approved authored-message evidence. It remains outside Manager knowledge and contains no raw source messages.",
+      "produced_by": ["write-like-me-bootstrap after explicit approval"],
+      "consumed_by": ["Codex global skill discovery"],
+      "evidence": ["plugins/wirenet-manager/skills/write-like-me-bootstrap/SKILL.md"]
+    },
+    {
       "id": "template-shelf",
       "path": "installed WireNet Manager plugin/templates/manager/",
       "kind": "scaffold",
@@ -485,13 +497,31 @@
       "evidence": ["plugins/wirenet-manager/skills/ultragoal/SKILL.md", "plugins/wirenet-manager/skills/ultragoal/agents/openai.yaml"]
     },
     {
-      "id": "onboarding",
-      "trigger": "WireNet Manager is installed, missing, unhealthy, or being repaired.",
-      "reads": ["installed plugin seed", "approved project roots", "existing Manager when repairing"],
-      "writes": ["content-only Manager", ".wirenet/manager.json", ".wirenet/workspace-bindings.json", "optional global managed blocks"],
-      "approval": "dry-run first; approval before apply, project-root inspection, or global guidance",
-      "description": "Bootstrap content separately from behavior, discover only approved roots, and never overwrite personalized files during repair.",
+      "id": "technical-bootstrap",
+      "trigger": "WireNet Manager is installed, missing, unhealthy, outdated, or being repaired.",
+      "reads": ["installed plugin seed", "existing Manager when repairing or upgrading", "QMD health"],
+      "writes": ["content-only Manager", ".wirenet/manager.json", ".wirenet/workspace-bindings.json", "optional QMD collection configuration"],
+      "approval": "dry-run first; approval before apply, upgrade, QMD installation, or QMD collection changes",
+      "description": "Create or repair the technical local baseline separately from the personal first meeting and never overwrite personalized files during repair.",
       "evidence": ["plugins/wirenet-manager/skills/wirenet-manager-bootstrap/SKILL.md", "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py"]
+    },
+    {
+      "id": "personal-onboarding",
+      "trigger": "A healthy Manager is brand new or its personal first meeting is incomplete.",
+      "reads": ["current task context", "local Manager context", "installed source capability state", "explicitly approved connected-source scopes", "approved project roots"],
+      "writes": ["approved Manager concepts", "approved Project or Experiment Packs", "optional communication-and-files concept", "optional global managed blocks", "approved tasks and check-ins"],
+      "approval": "separate approval for connection, source read, durable write, global instruction, task change, and automation",
+      "description": "Mirror Jason Liu's first-meeting sequence: greet, show a grounded map, interview one question at a time, perform targeted rereads, propose continuity, and close with a clear handoff.",
+      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager-onboarding/SKILL.md", "plugins/wirenet-manager/skills/wirenet-manager-onboarding/references/first-meeting-flow.md"]
+    },
+    {
+      "id": "writing-voice-bootstrap",
+      "trigger": "The user approves learning their writing voice from authored sent messages.",
+      "reads": ["explicitly approved user-authored sent email or Slack scope"],
+      "writes": ["previewed global personal write-like-me skill"],
+      "approval": "separate source-read and generated-skill-write approvals",
+      "description": "Infer channel-specific writing postures without preserving raw private messages in durable behavior files.",
+      "evidence": ["plugins/wirenet-manager/skills/write-like-me-bootstrap/SKILL.md", "plugins/wirenet-manager/skills/write-like-me-bootstrap/references/style-profile-template.md"]
     },
     {
       "id": "workspace-upgrade",

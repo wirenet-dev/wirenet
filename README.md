@@ -65,12 +65,32 @@ contract.
 
 ## Fast Start From A Clean Codex
 
-Open this GitHub page in ChatGPT's built-in Browser, press both Command keys to
-take an Appshot, and say:
+Open this GitHub page in ChatGPT's built-in Browser. Keep this section visible,
+press both Command keys to take an Appshot, and say only:
 
 ```text
-Set me up with wirenet-dev/wirenet-manager as ~/Manager. Read the repository README first, install WireNet Manager from its marketplace, then run the guided first-time bootstrap. Preview system changes and ask before connected services, global instructions, durable memory, or automations.
+Set me up.
 ```
+
+Or start in German:
+
+```text
+Richte das für mich ein.
+```
+
+The language of that request becomes the language for conversation and new
+human-readable Manager content. Stable file names, schemas, metadata keys, IDs,
+statuses, commands, and runtime instructions remain English.
+
+> **Codex setup instruction:** When the user attaches an Appshot of this section
+> and asks to be set up, read this repository README first. Preview and ask
+> before installing the `wirenet-dev/wirenet-manager` marketplace and its
+> `wirenet-manager` plugin. After installation, restart ChatGPT if requested and
+> create the technical local baseline with `$wirenet-manager-bootstrap`, then
+> continue the personal first meeting with `$wirenet-manager-onboarding`. Infer
+> the content language from the user's request, preview system changes, and keep
+> connected services, source reading, global instructions, durable memory, task
+> changes, and automations behind separate approval gates.
 
 A clean Codex has no WireNet skill yet, so the first task is deliberately a
 small installer. It should preview and, after approval, run:
@@ -83,7 +103,7 @@ codex plugin add wirenet-manager@wirenet-manager
 After installation, restart ChatGPT if requested and begin a fresh task with:
 
 ```text
-$wirenet-manager-bootstrap Start my guided first run.
+$wirenet-manager-bootstrap Set up my local Manager, then continue with onboarding.
 ```
 
 The new task can become the user's long-running Manager task. The product
@@ -100,15 +120,16 @@ codex plugin add wirenet-manager@wirenet-manager
 Restart ChatGPT if requested, then start a new task with:
 
 ```text
-$wirenet-manager-bootstrap Start my guided first run.
+$wirenet-manager-bootstrap Set up my local Manager, then continue with onboarding.
 ```
 
 The bootstrap previews every write, creates no cloud sync, and leaves external
-project folders where they already are. Its guided first run then builds a work
-map, offers only relevant communication and work-source connections, explains
-day-to-day use, and offers one quiet recurring Manager check-in. Every install,
-connection, durable write, global instruction, task change, and automation keeps
-an explicit approval gate. See
+project folders where they already are. Once Doctor and optional QMD setup are
+healthy, `$wirenet-manager-onboarding` runs the personal first meeting: first
+map, one-question-at-a-time interview, targeted source reads, durable context
+proposals, check-ins, optional monitors, and optional writing-voice setup. Every
+install, connection, source read, durable write, global instruction, task
+change, generated skill, and automation keeps an explicit approval gate. See
 [`docs/installing-wirenet-manager.md`](docs/installing-wirenet-manager.md) for
 the full flow.
 
@@ -139,11 +160,14 @@ external project folders           ◀──────▶    └── ignored
 ## Plugin Skills
 
 - `$wirenet-manager`: ongoing orientation, current stack, and Manager task.
-- `$wirenet-manager-bootstrap`: setup, schema-aware upgrades, health checks,
-  repair, project discovery, installation of the global reconciliation rule,
-  and optional user-approved workspace routing.
+- `$wirenet-manager-bootstrap`: technical setup, schema-aware upgrades, health
+  checks, repair, QMD, project discovery helpers, and managed global guidance.
+- `$wirenet-manager-onboarding`: Jason-inspired first meeting, work map,
+  interview, targeted source orientation, continuity offers, and handoff.
 - `$wirenet-manager-sync`: classify external workspaces and reconcile meaningful
   Project or Experiment Pack changes.
+- `$write-like-me-bootstrap`: optional personal writing-style skill generation
+  from approved user-authored sent messages.
 - `$ultragoal`: explicit-only persistent goal execution. It is installed with
   the plugin but cannot be selected implicitly.
 
@@ -319,7 +343,7 @@ python3 scripts/compare_routing_contracts.py
 
 ## Release Status
 
-Plugin `0.2.3` is the current implementation of the v0.2 lifecycle architecture,
-its explicit workspace-upgrade path, optional QMD retrieval setup, and guided
-first-run experience.
+Plugin `0.2.5` is the current implementation of the v0.2 lifecycle architecture,
+its explicit workspace-upgrade path, optional QMD retrieval setup, Jason-inspired
+personal onboarding, and optional personal writing-voice bootstrap.
 The repository's `main` branch is the canonical installation source.
