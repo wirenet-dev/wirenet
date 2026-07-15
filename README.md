@@ -120,7 +120,7 @@ python3 scripts/compare_upstream.py --fetch
 
 ## Installation Status
 
-The repo marketplace is prepared for local development. Publishing and adding
-`wirenet-dev/wirenet-manager` as a remote marketplace happen only after v0.1 is
-reviewed, committed, and the repository remote is corrected from the earlier
-`wirenet-vault` name.
+The private GitHub repository is `wirenet-dev/wirenet-manager`. The reviewed
+v0.1 implementation is published on `codex/wirenet-manager-v1`; merge it to
+`main` before using the default installation command in
+`docs/installing-wirenet-manager.md` without an explicit `--ref`.
