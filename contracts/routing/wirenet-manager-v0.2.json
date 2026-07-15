@@ -382,9 +382,9 @@
       "authority": "runtime-identity",
       "audience": "agent",
       "description": "Manager ID, schema, plugin version, Project Pack profile, and OKF profile.",
-      "produced_by": ["bootstrap"],
-      "consumed_by": ["manager doctor", "future sync tooling"],
-      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py", "plugins/wirenet-manager/scripts/manager_model.py"]
+      "produced_by": ["bootstrap", "supported workspace migration"],
+      "consumed_by": ["bootstrap", "workspace updater", "manager doctor", "future sync tooling"],
+      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py", "plugins/wirenet-manager/scripts/manager_model.py", "plugins/wirenet-manager/scripts/upgrade_manager.py"]
     },
     {
       "id": "external-workspace",
@@ -492,6 +492,15 @@
       "approval": "dry-run first; approval before apply, project-root inspection, or global guidance",
       "description": "Bootstrap content separately from behavior, discover only approved roots, and never overwrite personalized files during repair.",
       "evidence": ["plugins/wirenet-manager/skills/wirenet-manager-bootstrap/SKILL.md", "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py"]
+    },
+    {
+      "id": "workspace-upgrade",
+      "trigger": "An existing Manager schema is older than the schema supported by the installed plugin.",
+      "reads": [".wirenet/manager.json", "supported migration contract", "clean local Git status", "legacy runtime metadata"],
+      "writes": ["known structural runtime transformation", "reversible migration backup", "updated Manager metadata"],
+      "approval": "dry-run preview, explicit approval, clean local Git checkpoint, then post-migration Doctor validation",
+      "description": "Apply only a supported schema migration while preserving personal concepts and runtime instructions; a plugin update never silently rewrites the workspace.",
+      "evidence": ["plugins/wirenet-manager/scripts/upgrade_manager.py", "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/SKILL.md", "docs/installing-wirenet-manager.md"]
     },
     {
       "id": "capability-recall",

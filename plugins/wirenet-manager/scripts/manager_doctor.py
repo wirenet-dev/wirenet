@@ -19,6 +19,7 @@ from manager_model import (
     experiment_id_from_readme,
     frontmatter,
     load_json,
+    manager_schema_version,
     project_id_from_readme,
 )
 from okf_projection import iter_markdown, parse_frontmatter
@@ -51,6 +52,16 @@ REQUIRED_DIRECTORIES = (
 FORBIDDEN_PATHS = ("templates", ".wirenet/project-bindings.json")
 REQUIRED_PACK_FILES = ("README.md", "AGENTS.md")
 RESERVED_OKF_FILES = {"index.md", "log.md"}
+
+
+def manager_version_state(workspace_schema: str) -> str:
+    if workspace_schema == MANAGER_SCHEMA:
+        return "current"
+    workspace = manager_schema_version(workspace_schema)
+    supported = manager_schema_version(MANAGER_SCHEMA)
+    if workspace is None or supported is None:
+        return "unsupported"
+    return "plugin-too-old" if workspace > supported else "upgrade-required"
 
 
 def validate_update_log(path: Path) -> list[str]:
@@ -96,7 +107,9 @@ def inspect_packets(
         return reports, identities, errors
     index = index_path.read_text(encoding="utf-8") if index_path.is_file() else ""
     for packet in sorted(path for path in root.iterdir() if path.is_dir()):
-        missing = [name for name in REQUIRED_PACK_FILES if not (packet / name).is_file()]
+        missing = [
+            name for name in REQUIRED_PACK_FILES if not (packet / name).is_file()
+        ]
         identity = identity_reader(packet / "README.md")
         packet_errors: list[str] = []
         if not identity:
@@ -118,11 +131,15 @@ def inspect_packets(
             if path.is_file()
         }
         if identity and any(value != identity for value in file_identities.values()):
-            packet_errors.append(f"all {collection} packet files must share one {identity_key}")
+            packet_errors.append(
+                f"all {collection} packet files must share one {identity_key}"
+            )
         for path in concept_files:
             metadata = frontmatter(path)
             if metadata.get("schema") != schema:
-                packet_errors.append(f"{path.name} is not on the expected packet schema")
+                packet_errors.append(
+                    f"{path.name} is not on the expected packet schema"
+                )
             if not metadata.get("type"):
                 packet_errors.append(f"{path.name} is missing a non-empty OKF type")
             if path.name == "WORKLOG.md":
@@ -138,7 +155,9 @@ def inspect_packets(
         readme_metadata = frontmatter(packet / "README.md")
         status = readme_metadata.get("status", "")
         if status not in statuses:
-            packet_errors.append(f"README.md has unsupported status: {status or '<missing>'}")
+            packet_errors.append(
+                f"README.md has unsupported status: {status or '<missing>'}"
+            )
         if not readme_metadata.get("name"):
             packet_errors.append("README.md is missing name")
         if "summary" not in readme_metadata:
@@ -163,10 +182,14 @@ def inspect_packets(
 
 def inspect(manager_dir: Path) -> dict[str, object]:
     missing = [item for item in REQUIRED_FILES if not (manager_dir / item).is_file()]
-    missing.extend(f"{item}/" for item in REQUIRED_DIRECTORIES if not (manager_dir / item).is_dir())
+    missing.extend(
+        f"{item}/" for item in REQUIRED_DIRECTORIES if not (manager_dir / item).is_dir()
+    )
     errors: list[str] = []
     manager_meta: dict[str, object] = {}
     bindings: dict[str, object] = {}
+    version_state = "unknown"
+    workspace_schema = ""
 
     for relative in FORBIDDEN_PATHS:
         if (manager_dir / relative).exists():
@@ -180,25 +203,37 @@ def inspect(manager_dir: Path) -> dict[str, object]:
         if path.name == "WORKLOG.md":
             parts = Path(relative).parts
             if len(parts) != 3 or parts[0] != "projects":
-                errors.append(f"{relative} is reserved for UltraGoal state in a Project Pack")
+                errors.append(
+                    f"{relative} is reserved for UltraGoal state in a Project Pack"
+                )
         if name == "agents.md":
             if metadata.get("schema") != RUNTIME_SCHEMA:
                 errors.append(f"{relative} is not on the v0.1 runtime schema")
             if str(metadata.get("type") or "").strip():
-                errors.append(f"{relative} must remain outside the OKF concept projection")
+                errors.append(
+                    f"{relative} must remain outside the OKF concept projection"
+                )
             continue
         if name in RESERVED_OKF_FILES:
             if str(metadata.get("type") or "").strip():
-                errors.append(f"{relative} is reserved and must not declare an OKF type")
+                errors.append(
+                    f"{relative} is reserved and must not declare an OKF type"
+                )
             if name == "index.md":
                 if set(metadata) - {"okf_version"}:
-                    errors.append(f"{relative} index frontmatter may contain only okf_version")
+                    errors.append(
+                        f"{relative} index frontmatter may contain only okf_version"
+                    )
                 if not re.search(r"(?m)^#\s+\S", content):
                     errors.append(f"{relative} must contain a section heading")
             else:
                 if content.startswith("---\n"):
-                    errors.append(f"{relative} is reserved history and must not use frontmatter")
-                errors.extend(f"{relative}: {item}" for item in validate_update_log(path))
+                    errors.append(
+                        f"{relative} is reserved history and must not use frontmatter"
+                    )
+                errors.extend(
+                    f"{relative}: {item}" for item in validate_update_log(path)
+                )
             continue
         if not str(metadata.get("type") or "").strip():
             errors.append(f"{relative} is missing a non-empty OKF type")
@@ -213,7 +248,9 @@ def inspect(manager_dir: Path) -> dict[str, object]:
 
     root_index = manager_dir / "index.md"
     if root_index.is_file():
-        root_index_metadata, _ = parse_frontmatter(root_index.read_text(encoding="utf-8"))
+        root_index_metadata, _ = parse_frontmatter(
+            root_index.read_text(encoding="utf-8")
+        )
         if root_index_metadata.get("okf_version") != "0.1":
             errors.append("index.md must declare okf_version 0.1")
 
@@ -221,7 +258,17 @@ def inspect(manager_dir: Path) -> dict[str, object]:
     if metadata_path.is_file():
         try:
             manager_meta = load_json(metadata_path)
-            if manager_meta.get("schema_version") != MANAGER_SCHEMA:
+            workspace_schema = str(manager_meta.get("schema_version") or "")
+            version_state = manager_version_state(workspace_schema)
+            if version_state == "upgrade-required":
+                errors.append(
+                    f"manager.json requires upgrade from {workspace_schema} to {MANAGER_SCHEMA}"
+                )
+            elif version_state == "plugin-too-old":
+                errors.append(
+                    f"Manager requires {workspace_schema}; update the plugin beyond {MANAGER_SCHEMA}"
+                )
+            elif version_state == "unsupported":
                 errors.append("manager.json has an unsupported schema_version")
             if not manager_meta.get("manager_id"):
                 errors.append("manager.json is missing manager_id")
@@ -237,7 +284,9 @@ def inspect(manager_dir: Path) -> dict[str, object]:
         try:
             bindings = load_json(bindings_path)
             if bindings.get("schema_version") != BINDINGS_SCHEMA:
-                errors.append("workspace-bindings.json has an unsupported schema_version")
+                errors.append(
+                    "workspace-bindings.json has an unsupported schema_version"
+                )
             for name in ("projects", "experiments", "ignored"):
                 rows = bindings.get(name, [])
                 if not isinstance(rows, list):
@@ -261,7 +310,9 @@ def inspect(manager_dir: Path) -> dict[str, object]:
                     if identity_key:
                         identity = row.get(identity_key)
                         if not isinstance(identity, str) or not identity:
-                            errors.append(f"{label} must contain a non-empty {identity_key}")
+                            errors.append(
+                                f"{label} must contain a non-empty {identity_key}"
+                            )
         except ValueError as error:
             errors.append(str(error))
 
@@ -329,11 +380,15 @@ def inspect(manager_dir: Path) -> dict[str, object]:
         if isinstance(row, dict) and row.get("experiment_id")
     }
     unknown_projects = sorted(str(item) for item in binding_project_ids - project_ids)
-    unknown_experiments = sorted(str(item) for item in binding_experiment_ids - experiment_ids)
+    unknown_experiments = sorted(
+        str(item) for item in binding_experiment_ids - experiment_ids
+    )
     if unknown_projects:
         errors.append(f"bindings reference unknown project ids: {unknown_projects}")
     if unknown_experiments:
-        errors.append(f"bindings reference unknown experiment ids: {unknown_experiments}")
+        errors.append(
+            f"bindings reference unknown experiment ids: {unknown_experiments}"
+        )
     paths: list[str] = []
     for name in ("projects", "experiments", "ignored"):
         paths.extend(
@@ -352,6 +407,9 @@ def inspect(manager_dir: Path) -> dict[str, object]:
         "missing": missing,
         "errors": errors,
         "manager_id": manager_meta.get("manager_id"),
+        "workspace_schema": workspace_schema or None,
+        "supported_schema": MANAGER_SCHEMA,
+        "version_state": version_state,
         "project_packs": project_reports,
         "experiment_packs": experiment_reports,
     }

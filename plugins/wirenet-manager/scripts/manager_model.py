@@ -17,10 +17,15 @@ BINDINGS_SCHEMA = "wirenet-workspace-bindings/v0.2"
 PROJECT_OKF_PROFILE = "wirenet-okf-project-pack/v0.1"
 EXPERIMENT_OKF_PROFILE = "wirenet-okf-experiment-pack/v0.1"
 RUNTIME_SCHEMA = "wirenet-runtime/v0.1"
-PLUGIN_VERSION = "0.2.0"
+PLUGIN_VERSION = "0.2.1"
 
 PROJECT_STATUSES = ("active", "waiting", "blocked", "completed", "archived")
 EXPERIMENT_STATUSES = ("active", "concluded", "promoted", "archived")
+
+
+def manager_schema_version(value: str) -> tuple[int, int] | None:
+    match = re.fullmatch(r"wirenet-manager/v(\d+)\.(\d+)", value)
+    return (int(match.group(1)), int(match.group(2))) if match else None
 
 
 def now() -> datetime:
@@ -336,7 +341,9 @@ def render_project_agents(title: str, project_id: str, stamp: datetime) -> str:
     return "\n".join(lines)
 
 
-def render_project_goal(title: str, summary: str, project_id: str, stamp: datetime) -> str:
+def render_project_goal(
+    title: str, summary: str, project_id: str, stamp: datetime
+) -> str:
     lines = project_frontmatter(
         concept_type="Project Brief",
         name=title,
@@ -352,7 +359,8 @@ def render_project_goal(title: str, summary: str, project_id: str, stamp: dateti
             "",
             "## Outcome",
             "",
-            summary or "Describe the observable outcome that means this project succeeded.",
+            summary
+            or "Describe the observable outcome that means this project succeeded.",
             "",
             "## Baseline",
             "",
@@ -568,14 +576,19 @@ def update_frontmatter(content: str, updates: dict[str, str]) -> str:
         if ":" in line and not line.startswith((" ", "-"))
     }
     for key, value in updates.items():
-        rendered = f"{key}: {yaml_string(value)}" if key in {
-            "name",
-            "title",
-            "summary",
-            "producer",
-            "promoted_to_project_id",
-            "source_experiment_id",
-        } else f"{key}: {value}"
+        rendered = (
+            f"{key}: {yaml_string(value)}"
+            if key
+            in {
+                "name",
+                "title",
+                "summary",
+                "producer",
+                "promoted_to_project_id",
+                "source_experiment_id",
+            }
+            else f"{key}: {value}"
+        )
         if key in positions:
             lines[positions[key]] = rendered
         else:
@@ -626,7 +639,9 @@ def render_projects_index(manager_dir: Path) -> str:
         "completed": "Completed Project Packs",
         "archived": "Archived Project Packs",
     }
-    grouped: dict[str, list[str]] = {heading: [] for heading in dict.fromkeys(sections.values())}
+    grouped: dict[str, list[str]] = {
+        heading: [] for heading in dict.fromkeys(sections.values())
+    }
     for readme in sorted((manager_dir / "projects").glob("*/README.md")):
         metadata = frontmatter(readme)
         status = metadata.get("status", "active")

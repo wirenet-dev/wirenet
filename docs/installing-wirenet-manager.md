@@ -85,6 +85,25 @@ same rules are not mirrored into Manager JSON. Existing instructions outside
 the managed blocks are preserved, and an equivalent manual routing section is
 removed only after the user approves the replacement.
 
+## Update Plugin And Manager Separately
+
+Updating the marketplace or plugin installs newer reusable skills, scripts,
+templates, and checks. It does not mutate an already materialized `~/Manager`.
+The local workspace records its own schema in `.wirenet/manager.json`.
+
+After a plugin update, invoke `$wirenet-manager-bootstrap`. It previews
+`scripts/upgrade_manager.py` before the ordinary health check. A current schema
+needs no local write. A supported older schema receives an explicit migration
+plan; apply requires approval and a clean local Git checkpoint. The updater
+preserves personal Markdown bodies and agent instructions, moves superseded
+runtime data into `.wirenet/migrations/`, writes the new deterministic shape,
+and requires Doctor `ok: true`. The resulting diff is committed only after it
+has been reviewed as the planned structural migration.
+
+If the Manager schema is newer than the installed plugin, update the plugin
+first. Unsupported layouts and ambiguous legacy experiment routes stop for
+manual review rather than being guessed.
+
 ## Business Workspace Boundary
 
 Workspace admins may control plugin installation and sharing. WireNet Manager

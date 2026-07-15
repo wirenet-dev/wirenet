@@ -85,6 +85,17 @@ and creates a linked Project Pack.
 
 There is no hidden filesystem watcher in v0.2.
 
+## Plugin Updates And Workspace Migrations
+
+The installed plugin and local Manager have separate version axes. Plugin
+updates replace reusable behavior; they never silently rewrite `~/Manager`.
+`.wirenet/manager.json` records the materialized workspace schema. When that
+schema is older than the installed plugin supports, use the dry-run-first
+upgrade helper, require a clean local Git checkpoint, preserve personal prose
+and runtime rules, validate the result with Doctor, and commit the structural
+migration locally. A newer workspace schema means the plugin itself must be
+updated first.
+
 The global instruction has an always-on core managed block and may have a
 separate routing block. Add routing only for a convention the user explicitly
 recognizes as stable. The block itself is the v0.2 source of truth: do not copy

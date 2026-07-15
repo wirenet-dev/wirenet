@@ -1,6 +1,6 @@
 {
   "name": "wirenet-manager",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Bootstrap and run local work memory with Project Packs, bounded experiments, and explicit persistent goals.",
   "author": {
     "name": "WireNet",
@@ -24,6 +24,7 @@
     "capabilities": [
       "Orient ongoing work",
       "Bootstrap a local Manager",
+      "Upgrade existing Manager workspaces safely",
       "Route external workspaces",
       "Maintain reviewable Project Packs",
       "Run bounded experiments",
@@ -34,6 +35,7 @@
       "Use $wirenet-manager to show my current stack.",
       "Use $wirenet-manager to open my Manager viewer.",
       "Use $wirenet-manager-bootstrap to set up ~/Manager.",
+      "Use $wirenet-manager-bootstrap to check and upgrade my existing Manager.",
       "Use $ultragoal to explicitly activate a persistent goal."
     ]
   }

@@ -11,7 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins/wirenet-manager"
 PLUGIN_SCRIPTS = PLUGIN / "scripts"
 BOOTSTRAP = PLUGIN / "skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py"
-GUIDANCE = PLUGIN / "skills/wirenet-manager-bootstrap/scripts/install_global_guidance.py"
+GUIDANCE = (
+    PLUGIN / "skills/wirenet-manager-bootstrap/scripts/install_global_guidance.py"
+)
 INSPECT = PLUGIN / "skills/wirenet-manager-sync/scripts/inspect_workspace.py"
 IGNORE = PLUGIN / "skills/wirenet-manager-sync/scripts/record_ignored_workspace.py"
 CREATE_PROJECT = PLUGIN_SCRIPTS / "create_project_pack.py"
@@ -20,9 +22,12 @@ PROMOTE_EXPERIMENT = PLUGIN_SCRIPTS / "promote_experiment.py"
 TRANSITION = PLUGIN_SCRIPTS / "transition_packet.py"
 DISCOVER = PLUGIN_SCRIPTS / "discover_projects.py"
 DOCTOR = PLUGIN_SCRIPTS / "manager_doctor.py"
+UPGRADE = PLUGIN_SCRIPTS / "upgrade_manager.py"
 
 
-def run_script(script: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
+def run_script(
+    script: Path, *args: str, check: bool = True
+) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [sys.executable, str(script), *args],
         cwd=ROOT,
@@ -33,7 +38,9 @@ def run_script(script: Path, *args: str, check: bool = True) -> subprocess.Compl
 
 
 def bootstrap(manager: Path) -> dict[str, object]:
-    return json.loads(run_script(BOOTSTRAP, "--manager-dir", str(manager), "--apply").stdout)
+    return json.loads(
+        run_script(BOOTSTRAP, "--manager-dir", str(manager), "--apply").stdout
+    )
 
 
 def frontmatter_value(path: Path, key: str) -> str | None:
@@ -44,6 +51,121 @@ def frontmatter_value(path: Path, key: str) -> str | None:
     return match.group("value").strip() if match else None
 
 
+def commit_manager(manager: Path, message: str) -> None:
+    subprocess.run(["git", "add", "."], cwd=manager, check=True)
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=WireNet Test",
+            "-c",
+            "user.email=test@wirenet.invalid",
+            "-c",
+            "commit.gpgsign=false",
+            "commit",
+            "-m",
+            message,
+        ],
+        cwd=manager,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+
+def make_legacy_v01_manager(
+    manager: Path,
+    *,
+    experiment_route: Path | None = None,
+) -> None:
+    metadata_path = manager / ".wirenet/manager.json"
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    metadata["schema_version"] = "wirenet-manager/v0.1"
+    metadata["plugin_version"] = "0.1.2"
+    metadata["okf_profile"] = "wirenet-okf-project-pack/v0.1"
+    metadata.pop("experiment_pack_profile", None)
+    metadata.pop("okf_profiles", None)
+    metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
+
+    current_path = manager / ".wirenet/workspace-bindings.json"
+    current = json.loads(current_path.read_text(encoding="utf-8"))
+    legacy_path = manager / ".wirenet/project-bindings.json"
+    current_path.replace(legacy_path)
+    routes = [
+        {"path": row["path"], "classification": "ignored"}
+        for row in current.get("ignored", [])
+    ]
+    if experiment_route is not None:
+        routes.append(
+            {"path": str(experiment_route.resolve()), "classification": "experiment"}
+        )
+    legacy = {
+        "schema_version": "wirenet-project-bindings/v0.1",
+        "updated_at": current["updated_at"],
+        "bindings": current.get("projects", []),
+        "routes": routes,
+    }
+    legacy_path.write_text(json.dumps(legacy, indent=2) + "\n", encoding="utf-8")
+
+    for relative in ("README.md", "TODO.md", "agent/USER_CONTEXT.md"):
+        path = manager / relative
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(
+                'schema: "wirenet-manager/v0.2"',
+                'schema: "wirenet-manager/v0.1"',
+            ),
+            encoding="utf-8",
+        )
+
+    for readme in sorted((manager / "projects").glob("*/README.md")):
+        content = readme.read_text(encoding="utf-8")
+        lines = content.splitlines()
+        filtered = [
+            line
+            for line in lines
+            if not line.startswith("name:") and not line.startswith("summary:")
+        ]
+        readme.write_text("\n".join(filtered) + "\n", encoding="utf-8")
+
+    for agents in (
+        manager / "AGENTS.md",
+        manager / "projects/AGENTS.md",
+        *sorted((manager / "projects").glob("*/AGENTS.md")),
+    ):
+        content = agents.read_text(encoding="utf-8")
+        content = content.replace(
+            "- Only an explicitly invoked UltraGoal may create or update `WORKLOG.md` for\n"
+            "  detailed attempts and recovery state.",
+            "- Detailed UltraGoal attempts belong in optional `WORKLOG.md`.",
+        )
+        content = content.replace(
+            "- Update `projects/index.md` after every packet creation or lifecycle transition.",
+            "- Update `projects/index.md` when creating or archiving a packet.",
+        )
+        content = content.replace(
+            "- Only an explicitly invoked UltraGoal may create or update `WORKLOG.md`.\n"
+            "- Create or update `log.md` only when sparse chronology materially improves navigation or synchronization.\n"
+            "- Never mirror detailed UltraGoal WORKLOG entries into `log.md`.",
+            "- Let an active UltraGoal use `WORKLOG.md` for detailed attempts; do not mirror that detail into `log.md`.\n"
+            "- Create or update `log.md` only when a sparse OKF chronology materially improves navigation or synchronization.",
+        )
+        agents.write_text(content, encoding="utf-8")
+
+    index_path = manager / "projects/index.md"
+    packet_entries = [
+        line
+        for line in index_path.read_text(encoding="utf-8").splitlines()
+        if line.startswith("- [")
+    ]
+    index_path.write_text(
+        "# Projects\n\n"
+        "This index links active Project Packs.\n\n"
+        "## Active Project Packs\n\n" + "\n".join(packet_entries) + "\n",
+        encoding="utf-8",
+    )
+    commit_manager(manager, "test: create legacy v0.1 fixture")
+
+
 def test_global_guidance_preserves_content_and_is_idempotent(tmp_path: Path) -> None:
     agents = tmp_path / "AGENTS.md"
     agents.write_text("# Existing rules\n\nKeep this.\n", encoding="utf-8")
@@ -52,9 +174,13 @@ def test_global_guidance_preserves_content_and_is_idempotent(tmp_path: Path) -> 
     assert preview["dry_run"] is True
     assert agents.read_text(encoding="utf-8") == "# Existing rules\n\nKeep this.\n"
 
-    first = json.loads(run_script(GUIDANCE, "--agents-file", str(agents), "--apply").stdout)
+    first = json.loads(
+        run_script(GUIDANCE, "--agents-file", str(agents), "--apply").stdout
+    )
     first_content = agents.read_text(encoding="utf-8")
-    second = json.loads(run_script(GUIDANCE, "--agents-file", str(agents), "--apply").stdout)
+    second = json.loads(
+        run_script(GUIDANCE, "--agents-file", str(agents), "--apply").stdout
+    )
 
     assert first["changed"] is True
     assert second["changed"] is False
@@ -144,9 +270,13 @@ def test_global_guidance_can_remove_only_optional_routing(tmp_path: Path) -> Non
     assert "<!-- wirenet-manager:routing:start -->" not in content
 
 
-def test_bootstrap_materializes_content_only_manager_with_local_git(tmp_path: Path) -> None:
+def test_bootstrap_materializes_content_only_manager_with_local_git(
+    tmp_path: Path,
+) -> None:
     destination = tmp_path / "Manager"
-    preview = json.loads(run_script(BOOTSTRAP, "--manager-dir", str(destination)).stdout)
+    preview = json.loads(
+        run_script(BOOTSTRAP, "--manager-dir", str(destination)).stdout
+    )
     assert preview["dry_run"] is True
     assert preview["state"] == "new"
     assert not destination.exists()
@@ -160,34 +290,254 @@ def test_bootstrap_materializes_content_only_manager_with_local_git(tmp_path: Pa
     assert not (destination / ".agents").exists()
     assert not (destination / "plugins").exists()
     assert not (destination / "scripts").exists()
-    for shelf in ("agent", "archive", "docs", "experiments", "notes", "outputs", "people", "projects", "sources"):
+    for shelf in (
+        "agent",
+        "archive",
+        "docs",
+        "experiments",
+        "notes",
+        "outputs",
+        "people",
+        "projects",
+        "sources",
+    ):
         assert (destination / shelf).is_dir()
     assert not (destination / "templates").exists()
     assert frontmatter_value(destination / "README.md", "type") == "Manager Overview"
-    assert subprocess.run(
-        ["git", "remote"], cwd=destination, check=True, capture_output=True, text=True
-    ).stdout.strip() == ""
-    assert subprocess.run(
-        ["git", "rev-list", "--count", "HEAD"],
-        cwd=destination,
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout.strip() == "1"
+    assert (
+        subprocess.run(
+            ["git", "remote"],
+            cwd=destination,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        == ""
+    )
+    assert (
+        subprocess.run(
+            ["git", "rev-list", "--count", "HEAD"],
+            cwd=destination,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        == "1"
+    )
 
-    metadata = json.loads((destination / ".wirenet/manager.json").read_text(encoding="utf-8"))
+    metadata = json.loads(
+        (destination / ".wirenet/manager.json").read_text(encoding="utf-8")
+    )
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
     assert metadata["project_pack_profile"] == "wirenet-project-pack/v0.1"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
-    assert metadata["plugin_version"] == "0.2.0"
+    assert metadata["plugin_version"] == "0.2.1"
     assert metadata["manager_id"].startswith("mgr_")
 
-    repeated = json.loads(run_script(BOOTSTRAP, "--manager-dir", str(destination)).stdout)
+    repeated = json.loads(
+        run_script(BOOTSTRAP, "--manager-dir", str(destination)).stdout
+    )
     assert repeated["state"] == "healthy"
     assert repeated["doctor"]["ok"] is True
 
 
-def test_repair_fills_an_empty_existing_manager_without_overwrite(tmp_path: Path) -> None:
+def test_upgrade_reports_current_manager_without_writes(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    metadata_path = manager / ".wirenet/manager.json"
+    before = metadata_path.read_bytes()
+
+    result = json.loads(run_script(UPGRADE, "--manager-dir", str(manager)).stdout)
+
+    assert result["ok"] is True
+    assert result["dry_run"] is True
+    assert result["state"] == "current"
+    assert result["actions"] == []
+    assert metadata_path.read_bytes() == before
+
+
+def test_upgrade_migrates_v01_without_rewriting_personal_content(
+    tmp_path: Path,
+) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    workspace = tmp_path / "client-project"
+    ignored = tmp_path / "scratch"
+    workspace.mkdir()
+    ignored.mkdir()
+    project = json.loads(
+        run_script(
+            CREATE_PROJECT,
+            "Migration Fixture",
+            "--summary",
+            "Preserve this packet",
+            "--workspace",
+            str(workspace),
+            "--manager-dir",
+            str(manager),
+            "--apply",
+        ).stdout
+    )
+    run_script(IGNORE, str(ignored), "--manager-dir", str(manager), "--apply")
+    readme = manager / "README.md"
+    readme.write_text(
+        readme.read_text(encoding="utf-8") + "\nPersonal migration marker.\n",
+        encoding="utf-8",
+    )
+    make_legacy_v01_manager(manager)
+
+    preview = json.loads(run_script(UPGRADE, "--manager-dir", str(manager)).stdout)
+    assert preview["ok"] is True
+    assert preview["state"] == "upgrade-available"
+    assert preview["git_clean"] is True
+    assert not (manager / ".wirenet/workspace-bindings.json").exists()
+
+    applied = json.loads(
+        run_script(UPGRADE, "--manager-dir", str(manager), "--apply").stdout
+    )
+    assert applied["ok"] is True
+    assert applied["state"] == "upgraded"
+    assert applied["doctor"]["ok"] is True
+    assert applied["next_action"] == "review and commit the local Manager migration"
+
+    metadata = json.loads(
+        (manager / ".wirenet/manager.json").read_text(encoding="utf-8")
+    )
+    assert metadata["schema_version"] == "wirenet-manager/v0.2"
+    assert metadata["plugin_version"] == "0.2.1"
+    assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
+    assert metadata["okf_profiles"] == [
+        "wirenet-okf-project-pack/v0.1",
+        "wirenet-okf-experiment-pack/v0.1",
+    ]
+    assert "okf_profile" not in metadata
+
+    registry = json.loads(
+        (manager / ".wirenet/workspace-bindings.json").read_text(encoding="utf-8")
+    )
+    assert registry["projects"] == [
+        {"project_id": project["project_id"], "path": str(workspace.resolve())}
+    ]
+    assert registry["experiments"] == []
+    assert registry["ignored"] == [{"path": str(ignored.resolve())}]
+    assert not (manager / ".wirenet/project-bindings.json").exists()
+    assert (
+        manager / ".wirenet/migrations/wirenet-manager-v0.1/project-bindings.json"
+    ).is_file()
+    assert "Personal migration marker." in readme.read_text(encoding="utf-8")
+    packet_readme = Path(str(project["packet"])) / "README.md"
+    assert frontmatter_value(packet_readme, "name") == "Migration Fixture"
+    assert frontmatter_value(packet_readme, "summary") == "Preserve this packet"
+    assert "Only an explicitly invoked UltraGoal" in (
+        Path(str(project["packet"])) / "AGENTS.md"
+    ).read_text(encoding="utf-8")
+    index = (manager / "projects/index.md").read_text(encoding="utf-8")
+    for heading in (
+        "## Active Project Packs",
+        "## Waiting And Blocked",
+        "## Completed Project Packs",
+        "## Archived Project Packs",
+    ):
+        assert heading in index
+    assert (
+        json.loads(run_script(DOCTOR, "--manager-dir", str(manager)).stdout)["ok"]
+        is True
+    )
+    assert subprocess.run(
+        ["git", "status", "--porcelain=v1"],
+        cwd=manager,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
+def test_upgrade_stops_before_ambiguous_legacy_experiment_route(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    experiment = tmp_path / "legacy-spike"
+    experiment.mkdir()
+    make_legacy_v01_manager(manager, experiment_route=experiment)
+    metadata_path = manager / ".wirenet/manager.json"
+    legacy_path = manager / ".wirenet/project-bindings.json"
+    before = {
+        metadata_path: metadata_path.read_bytes(),
+        legacy_path: legacy_path.read_bytes(),
+    }
+
+    rejected = run_script(
+        UPGRADE,
+        "--manager-dir",
+        str(manager),
+        "--apply",
+        check=False,
+    )
+    result = json.loads(rejected.stdout)
+
+    assert rejected.returncode == 2
+    assert result["state"] == "manual-review"
+    assert result["manual_paths"] == [str(experiment.resolve())]
+    assert {path: path.read_bytes() for path in before} == before
+    assert not (manager / ".wirenet/workspace-bindings.json").exists()
+
+
+def test_bootstrap_routes_legacy_manager_to_clean_checkpoint_gate(
+    tmp_path: Path,
+) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    make_legacy_v01_manager(manager)
+    todo = manager / "TODO.md"
+    todo.write_text(
+        todo.read_text(encoding="utf-8") + "\n- [ ] Uncommitted personal task.\n",
+        encoding="utf-8",
+    )
+
+    bootstrap_result = run_script(
+        BOOTSTRAP,
+        "--manager-dir",
+        str(manager),
+        check=False,
+    )
+    routed = json.loads(bootstrap_result.stdout)
+    assert bootstrap_result.returncode == 2
+    assert routed["state"] == "upgrade-available"
+    assert routed["upgrade"]["git_clean"] is False
+
+    rejected = run_script(
+        UPGRADE,
+        "--manager-dir",
+        str(manager),
+        "--apply",
+        check=False,
+    )
+    result = json.loads(rejected.stdout)
+    assert rejected.returncode == 2
+    assert result["state"] == "checkpoint-required"
+    assert "Uncommitted personal task." in todo.read_text(encoding="utf-8")
+    assert not (manager / ".wirenet/workspace-bindings.json").exists()
+
+
+def test_upgrade_requires_newer_plugin_for_newer_workspace_schema(
+    tmp_path: Path,
+) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    metadata_path = manager / ".wirenet/manager.json"
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    metadata["schema_version"] = "wirenet-manager/v0.3"
+    metadata_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
+
+    rejected = run_script(UPGRADE, "--manager-dir", str(manager), check=False)
+    result = json.loads(rejected.stdout)
+    assert rejected.returncode == 2
+    assert result["state"] == "plugin-too-old"
+    assert "update WireNet Manager" in result["error"]
+
+
+def test_repair_fills_an_empty_existing_manager_without_overwrite(
+    tmp_path: Path,
+) -> None:
     manager = tmp_path / "Manager"
     manager.mkdir()
     existing = manager / "custom.txt"
@@ -200,7 +550,9 @@ def test_repair_fills_an_empty_existing_manager_without_overwrite(tmp_path: Path
     assert not (manager / "README.md").exists()
 
     repaired = json.loads(
-        run_script(BOOTSTRAP, "--manager-dir", str(manager), "--repair", "--apply").stdout
+        run_script(
+            BOOTSTRAP, "--manager-dir", str(manager), "--repair", "--apply"
+        ).stdout
     )
     assert repaired["state"] == "repaired"
     assert repaired["doctor"]["ok"] is True
@@ -208,7 +560,9 @@ def test_repair_fills_an_empty_existing_manager_without_overwrite(tmp_path: Path
     assert not (manager / ".git").exists()
 
 
-def test_project_pack_is_open_and_supports_optional_concepts_and_local_routing(tmp_path: Path) -> None:
+def test_project_pack_is_open_and_supports_optional_concepts_and_local_routing(
+    tmp_path: Path,
+) -> None:
     manager = tmp_path / "Manager"
     bootstrap(manager)
     parent = tmp_path / "projects/client"
@@ -268,7 +622,10 @@ def test_project_pack_is_open_and_supports_optional_concepts_and_local_routing(t
     assert frontmatter_value(child_packet / "README.md", "type") == "Project Status"
     assert frontmatter_value(child_packet / "RESULT.md", "type") == "Project Result"
     assert frontmatter_value(child_packet / "AGENTS.md", "type") is None
-    assert frontmatter_value(child_packet / "AGENTS.md", "schema") == "wirenet-runtime/v0.1"
+    assert (
+        frontmatter_value(child_packet / "AGENTS.md", "schema")
+        == "wirenet-runtime/v0.1"
+    )
     assert frontmatter_value(child_packet / "AGENTS.md", "audience") == "agent"
     log = (child_packet / "log.md").read_text(encoding="utf-8")
     assert not log.startswith("---")
@@ -310,7 +667,9 @@ def test_project_pack_is_open_and_supports_optional_concepts_and_local_routing(t
     }
 
     result = json.loads(
-        run_script(INSPECT, "--manager-dir", str(manager), "--workspace", str(child / "edit")).stdout
+        run_script(
+            INSPECT, "--manager-dir", str(manager), "--workspace", str(child / "edit")
+        ).stdout
     )
     assert result["classification"] == "tracked"
     assert result["project_id"] == child_result["project_id"]
@@ -336,7 +695,9 @@ def test_project_pack_is_open_and_supports_optional_concepts_and_local_routing(t
     )
     assert repeated_route["changed"] is False
     routed = json.loads(
-        run_script(INSPECT, "--manager-dir", str(manager), "--workspace", str(ignored)).stdout
+        run_script(
+            INSPECT, "--manager-dir", str(manager), "--workspace", str(ignored)
+        ).stdout
     )
     assert routed["classification"] == "ignored"
 
@@ -379,13 +740,20 @@ def test_manager_doctor_rejects_an_untyped_project_concept(tmp_path: Path) -> No
         run_script(DOCTOR, "--manager-dir", str(manager), check=False).stdout
     )
     assert diagnosis["ok"] is False
-    assert any("NOTE.md is missing a non-empty OKF type" in error for error in diagnosis["errors"])
+    assert any(
+        "NOTE.md is missing a non-empty OKF type" in error
+        for error in diagnosis["errors"]
+    )
 
 
-def test_manager_doctor_rejects_untyped_markdown_in_any_knowledge_shelf(tmp_path: Path) -> None:
+def test_manager_doctor_rejects_untyped_markdown_in_any_knowledge_shelf(
+    tmp_path: Path,
+) -> None:
     manager = tmp_path / "Manager"
     bootstrap(manager)
-    (manager / "notes/idea.md").write_text("# Idea\n\nUntyped drift.\n", encoding="utf-8")
+    (manager / "notes/idea.md").write_text(
+        "# Idea\n\nUntyped drift.\n", encoding="utf-8"
+    )
 
     diagnosis = json.loads(
         run_script(DOCTOR, "--manager-dir", str(manager), check=False).stdout
@@ -420,7 +788,9 @@ def test_manager_doctor_rejects_local_template_shelf(tmp_path: Path) -> None:
         run_script(DOCTOR, "--manager-dir", str(manager), check=False).stdout
     )
     assert diagnosis["ok"] is False
-    assert "templates is not part of the canonical v0.2 workspace" in diagnosis["errors"]
+    assert (
+        "templates is not part of the canonical v0.2 workspace" in diagnosis["errors"]
+    )
 
 
 def test_manager_doctor_rejects_typed_runtime_instructions(tmp_path: Path) -> None:
@@ -439,10 +809,15 @@ def test_manager_doctor_rejects_typed_runtime_instructions(tmp_path: Path) -> No
         run_script(DOCTOR, "--manager-dir", str(manager), check=False).stdout
     )
     assert diagnosis["ok"] is False
-    assert "AGENTS.md must remain outside the OKF concept projection" in diagnosis["errors"]
+    assert (
+        "AGENTS.md must remain outside the OKF concept projection"
+        in diagnosis["errors"]
+    )
 
 
-def test_project_preview_and_rejected_overlap_are_side_effect_free(tmp_path: Path) -> None:
+def test_project_preview_and_rejected_overlap_are_side_effect_free(
+    tmp_path: Path,
+) -> None:
     manager = tmp_path / "Manager"
     bootstrap(manager)
     workspace = tmp_path / "workspace"
@@ -537,7 +912,9 @@ def test_manager_native_project_needs_no_device_binding(tmp_path: Path) -> None:
     assert inspection["project_id"] == created["project_id"]
 
 
-def test_experiment_can_be_bound_promoted_and_completed_as_project(tmp_path: Path) -> None:
+def test_experiment_can_be_bound_promoted_and_completed_as_project(
+    tmp_path: Path,
+) -> None:
     manager = tmp_path / "Manager"
     bootstrap(manager)
     workspace = tmp_path / "spike"
@@ -559,9 +936,14 @@ def test_experiment_can_be_bound_promoted_and_completed_as_project(tmp_path: Pat
         ).stdout
     )
     experiment_packet = Path(str(experiment["packet"]))
-    assert {path.name for path in experiment_packet.iterdir()} == {"README.md", "AGENTS.md"}
+    assert {path.name for path in experiment_packet.iterdir()} == {
+        "README.md",
+        "AGENTS.md",
+    }
     assert frontmatter_value(experiment_packet / "README.md", "status") == "active"
-    assert "Routing Spike" in (manager / "experiments/index.md").read_text(encoding="utf-8")
+    assert "Routing Spike" in (manager / "experiments/index.md").read_text(
+        encoding="utf-8"
+    )
 
     inspection = json.loads(
         run_script(
@@ -590,9 +972,16 @@ def test_experiment_can_be_bound_promoted_and_completed_as_project(tmp_path: Pat
     )
     project_packet = Path(str(promoted["project_packet"]))
     assert frontmatter_value(experiment_packet / "README.md", "status") == "promoted"
-    assert frontmatter_value(project_packet / "README.md", "source_experiment_id") == experiment["experiment_id"]
-    assert "../../projects/routing-product/README.md" in experiment_packet.joinpath("README.md").read_text(encoding="utf-8")
-    assert "../../experiments/routing-spike/README.md" in project_packet.joinpath("README.md").read_text(encoding="utf-8")
+    assert (
+        frontmatter_value(project_packet / "README.md", "source_experiment_id")
+        == experiment["experiment_id"]
+    )
+    assert "../../projects/routing-product/README.md" in experiment_packet.joinpath(
+        "README.md"
+    ).read_text(encoding="utf-8")
+    assert "../../experiments/routing-spike/README.md" in project_packet.joinpath(
+        "README.md"
+    ).read_text(encoding="utf-8")
 
     registry = json.loads(
         (manager / ".wirenet/workspace-bindings.json").read_text(encoding="utf-8")
@@ -616,8 +1005,13 @@ def test_experiment_can_be_bound_promoted_and_completed_as_project(tmp_path: Pat
     )
     assert transitioned["changed"] is True
     assert frontmatter_value(project_packet / "README.md", "status") == "completed"
-    assert "Routing Product" in (manager / "projects/index.md").read_text(encoding="utf-8")
-    assert json.loads(run_script(DOCTOR, "--manager-dir", str(manager)).stdout)["ok"] is True
+    assert "Routing Product" in (manager / "projects/index.md").read_text(
+        encoding="utf-8"
+    )
+    assert (
+        json.loads(run_script(DOCTOR, "--manager-dir", str(manager)).stdout)["ok"]
+        is True
+    )
 
 
 def test_invalid_lifecycle_transition_is_side_effect_free(tmp_path: Path) -> None:
@@ -697,11 +1091,19 @@ def test_worklog_is_reserved_for_explicit_ultragoal_state(tmp_path: Path) -> Non
     diagnosis = json.loads(
         run_script(DOCTOR, "--manager-dir", str(manager), check=False).stdout
     )
-    assert any("WORKLOG.md must use OKF type Goal Worklog" in error for error in diagnosis["errors"])
-    assert any("WORKLOG.md must declare producer ultragoal" in error for error in diagnosis["errors"])
+    assert any(
+        "WORKLOG.md must use OKF type Goal Worklog" in error
+        for error in diagnosis["errors"]
+    )
+    assert any(
+        "WORKLOG.md must declare producer ultragoal" in error
+        for error in diagnosis["errors"]
+    )
 
 
-def test_doctor_rejects_out_of_packet_worklog_and_malformed_binding(tmp_path: Path) -> None:
+def test_doctor_rejects_out_of_packet_worklog_and_malformed_binding(
+    tmp_path: Path,
+) -> None:
     manager = tmp_path / "Manager"
     bootstrap(manager)
     manager.joinpath("notes/WORKLOG.md").write_text(
@@ -726,8 +1128,14 @@ def test_doctor_rejects_out_of_packet_worklog_and_malformed_binding(tmp_path: Pa
     diagnosis = json.loads(
         run_script(DOCTOR, "--manager-dir", str(manager), check=False).stdout
     )
-    assert "notes/WORKLOG.md is reserved for UltraGoal state in a Project Pack" in diagnosis["errors"]
-    assert "workspace-bindings.json ignored[0] path must be absolute" in diagnosis["errors"]
+    assert (
+        "notes/WORKLOG.md is reserved for UltraGoal state in a Project Pack"
+        in diagnosis["errors"]
+    )
+    assert (
+        "workspace-bindings.json ignored[0] path must be absolute"
+        in diagnosis["errors"]
+    )
 
 
 def test_manager_doctor_detects_project_index_drift(tmp_path: Path) -> None:
@@ -745,8 +1153,12 @@ def test_manager_doctor_detects_project_index_drift(tmp_path: Path) -> None:
         ).stdout
     )
     index = manager / "projects/index.md"
-    entry = "- [Index Drift](index-drift/README.md) — Must appear in the canonical index\n"
-    index.write_text(index.read_text(encoding="utf-8").replace(entry, ""), encoding="utf-8")
+    entry = (
+        "- [Index Drift](index-drift/README.md) — Must appear in the canonical index\n"
+    )
+    index.write_text(
+        index.read_text(encoding="utf-8").replace(entry, ""), encoding="utf-8"
+    )
 
     diagnosis = json.loads(
         run_script(DOCTOR, "--manager-dir", str(manager), check=False).stdout
@@ -830,7 +1242,10 @@ def test_manager_doctor_detects_invalid_log_chronology(tmp_path: Path) -> None:
         run_script(DOCTOR, "--manager-dir", str(manager), check=False).stdout
     )
     assert diagnosis["ok"] is False
-    assert any("log.md date headings must be newest first" in error for error in diagnosis["errors"])
+    assert any(
+        "log.md date headings must be newest first" in error
+        for error in diagnosis["errors"]
+    )
 
 
 def test_project_discovery_is_shallow_and_marker_only(tmp_path: Path) -> None:
@@ -873,6 +1288,8 @@ def test_workspace_inspection_uses_only_canonical_bindings(tmp_path: Path) -> No
     )
 
     result = json.loads(
-        run_script(INSPECT, "--manager-dir", str(manager), "--workspace", str(workspace)).stdout
+        run_script(
+            INSPECT, "--manager-dir", str(manager), "--workspace", str(workspace)
+        ).stdout
     )
     assert result["classification"] == "untracked"

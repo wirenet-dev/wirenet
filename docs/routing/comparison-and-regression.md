@@ -49,13 +49,14 @@ python3 scripts/compare_routing_contracts.py --json
 | Experiments become real lightweight packets | Bounded spikes need durable questions and conclusions without prematurely becoming projects. | Promotion must preserve origin evidence and transfer bindings without copying local paths into knowledge. |
 | Packet lifecycles are explicit | Active, waiting, blocked, completed, archived, concluded, and promoted states need predictable indexes and transitions. | Deterministic helpers validate edges; semantic completion and archival judgment remains with the agent and user. |
 | UltraGoal is bundled but explicit-only | Persistent goals should work globally without accidental activation. | `agents/openai.yaml` must keep implicit invocation disabled and only UltraGoal may own `WORKLOG.md`. |
+| Plugin release and workspace schema advance independently | Users can update behavior without rewriting personal knowledge; structural changes remain explicit and reviewable. | The updater must dry-run first, require clean local Git, preserve prose and instructions, keep a reversible runtime backup, and finish Doctor-valid. |
 
 ## Added
 
 - stable `manager_id`, `project_id`, and `experiment_id` values;
 - device-local `.wirenet/` metadata and path bindings;
 - project and route classification;
-- dry-run-first bootstrap, repair, doctor, and deterministic packet generator;
+- dry-run-first bootstrap, workspace upgrade, repair, doctor, and deterministic packet generator;
 - a globally installable Manager, bootstrap, sync, and explicit-only UltraGoal skill set;
 - OKF concept metadata, reserved index and log behavior, links, and graph view;
 - a formal distinction between external implementation work and portable memory;
@@ -136,6 +137,8 @@ The suite checks:
     are dry-run-first and Doctor-valid;
 14. UltraGoal cannot be invoked implicitly and malformed or foreign-owned
     `WORKLOG.md` files fail validation.
+15. Workspace upgrades distinguish plugin and schema versions, preserve personal
+    content, refuse ambiguous legacy routes, and finish Doctor-valid.
 
 When upstream changes, first run `scripts/compare_upstream.py --fetch`, inspect
 the commits, and deliberately update the frozen Jason contract only when its

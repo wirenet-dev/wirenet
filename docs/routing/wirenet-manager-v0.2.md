@@ -76,6 +76,7 @@ content seed.
 | Global managed core block | Cross-workspace reconciliation trigger | Optional bootstrap step after approval | Yes, outside Manager |
 | Installed plugin skills | Bootstrap, ongoing Manager, sync, and explicit-only UltraGoal behavior | Plugin install/update | Procedural authority globally |
 | Installed plugin seed | Canonical bootstrap and repair scaffold | Plugin install/update | Creation input |
+| Installed workspace updater | Version negotiation and supported structural migrations | Plugin install/update | Migration authority only after dry-run and approval |
 
 ## Agent Routing
 
@@ -204,3 +205,14 @@ WireNet keeps Jason's durable-meaning threshold and makes it deterministic:
 
 The Inspector is a read-only human projection and never becomes another source of
 truth.
+
+## Workspace Upgrade Routing
+
+Plugin releases update reusable behavior; they do not directly mutate an
+existing Manager. Bootstrap first compares `.wirenet/manager.json` with the
+schema supported by the installed plugin. A current schema proceeds without a
+write. A supported older schema receives a deterministic dry-run plan. Applying
+that plan requires explicit approval and clean local Git, preserves personal
+concepts and runtime instructions, retains replaced runtime metadata under
+`.wirenet/migrations/`, and must finish with Manager Doctor returning `ok=true`.
+A newer or ambiguous schema stops for review instead of guessing.

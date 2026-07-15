@@ -34,7 +34,7 @@ Treat these as public interfaces:
 4. collection indexes and Markdown links;
 5. skill descriptions, shared references, and the global managed trigger;
 6. dry-run, approval, and create-only safety gates;
-7. bootstrap, repair, doctor, sync, and viewer producer-consumer boundaries.
+7. bootstrap, upgrade, repair, doctor, sync, and viewer producer-consumer boundaries.
 
 Tests should assert stable semantics rather than incidental prose. Exact text is
 appropriate only for managed markers, reserved headings, CLI errors, or a
@@ -49,6 +49,7 @@ sentence that intentionally acts as a routing contract.
 | Routing | Does each durable concept have one canonical owner? | Frozen routing contracts, read/write routes, approval gates |
 | Production | Do generators materialize the contract? | Bootstrap seed, Project and Experiment Pack cores, optional concepts, lifecycle-aware indexes |
 | Safety | Are previews and repair non-destructive? | Dry-run has no writes, repair is create-only, rejected routes leave no partial packet |
+| Migration | Can an older supported workspace advance without losing personal meaning? | Version negotiation, clean-Git gate, body preservation, runtime backup, post-upgrade Doctor |
 | Reconciliation | Does a Manager-native or external path resolve predictably? | Local packet detection, longest binding, project, experiment, ignored, and untracked classification |
 | Consumption | Can humans inspect the portable knowledge source? | Full concept rendering, typed nodes, real link edges, and complete exclusion of reserved, runtime, and hidden-state documents |
 | Reference | Did WireNet accidentally erase a useful Jason behavior? | Frozen upstream contract and explicit semantic delta |
@@ -59,6 +60,9 @@ sentence that intentionally acts as a routing contract.
   contract, plus generated device-local Manager metadata.
 - Bootstrap preview writes nothing; repair creates only missing scaffold and
   never overwrites personalized content.
+- Upgrade preview writes nothing. Apply requires a clean local Git checkpoint,
+  preserves personal Markdown bodies and runtime rules, retains superseded
+  local registries under `.wirenet/migrations/`, and must finish Doctor-valid.
 - Project creation preview writes nothing. A rejected duplicate path, slug, or
   project ID leaves indexes, bindings, and packets unchanged.
 - Experiment creation preview writes nothing. Promotion preserves the original

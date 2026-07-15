@@ -107,9 +107,9 @@ external project folders           ◀──────▶    └── ignored
 ## Plugin Skills
 
 - `$wirenet-manager`: ongoing orientation, current stack, and Manager task.
-- `$wirenet-manager-bootstrap`: setup, health checks, repair, project discovery,
-  installation of the global reconciliation rule, and optional user-approved
-  workspace routing.
+- `$wirenet-manager-bootstrap`: setup, schema-aware upgrades, health checks,
+  repair, project discovery, installation of the global reconciliation rule,
+  and optional user-approved workspace routing.
 - `$wirenet-manager-sync`: classify external workspaces and reconcile meaningful
   Project or Experiment Pack changes.
 - `$ultragoal`: explicit-only persistent goal execution. It is installed with
@@ -187,7 +187,8 @@ concept relationships.
 - `plugins/wirenet-manager/`: installable plugin package.
 - `plugins/wirenet-manager/templates/manager/`: content-only runtime seed.
 - `plugins/wirenet-manager/scripts/`: deterministic shared Manager helpers,
-  including the common OKF projection and read-only viewer generator.
+  including workspace upgrades, the common OKF projection, and the read-only
+  viewer generator.
 - `plugins/wirenet-manager/viewer/`: one-file WireNet Inspector template.
 - `docs/architecture-v0.2.md`: file-by-file architecture and routing diagram.
 - `docs/project-pack-contract.md`: Project Pack and OKF profile.
@@ -241,6 +242,18 @@ python3 plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstr
   --apply
 ```
 
+Check an existing Manager for a supported workspace migration:
+
+```sh
+python3 plugins/wirenet-manager/scripts/upgrade_manager.py \
+  --manager-dir /path/to/Manager
+```
+
+The updater is dry-run-first. Plugin updates change reusable behavior but never
+silently rewrite personal Manager content. A workspace migration requires an
+explicit apply step, a clean local Git checkpoint, a successful Doctor result,
+and a reviewed local migration commit.
+
 Compare with upstream without merging:
 
 ```sh
@@ -255,5 +268,6 @@ python3 scripts/compare_routing_contracts.py
 
 ## Release Status
 
-Plugin `0.2.0` is the current implementation of the v0.2 lifecycle architecture.
+Plugin `0.2.1` is the current implementation of the v0.2 lifecycle architecture
+and its explicit workspace-upgrade path.
 The repository's `main` branch is the canonical installation source.

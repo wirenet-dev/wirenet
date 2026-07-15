@@ -86,7 +86,7 @@ External task ends
 ### Marketplace And Manifest
 
 - `.agents/plugins/marketplace.json` exposes the local plugin package.
-- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.2.0,
+- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.2.1,
   bundled skills, interface copy, and starter prompts.
 
 ### Skills
@@ -106,6 +106,8 @@ Each skill keeps its `SKILL.md` concise and places detailed contracts under
 - `scripts/manager_model.py`: schemas, IDs, JSON helpers, and packet renderers.
 - `scripts/manager_doctor.py`: read-only Manager, Project Pack, Experiment Pack,
   binding, and lifecycle validation.
+- `scripts/upgrade_manager.py`: dry-run-first version negotiation and supported
+  local workspace migrations without template overwrite.
 - `scripts/create_project_pack.py`: dry-run-first Manager-native or externally
   bound Project Pack creation.
 - `scripts/create_experiment_pack.py`: dry-run-first lightweight Experiment Pack
@@ -213,6 +215,18 @@ The core block makes Manager reconciliation available from external workspaces.
 The current path is classified against the registry or a Manager-native packet;
 the semantic skill decides whether a meaningful handoff is worth proposing.
 There is no background watcher and no write for routine edits.
+
+## Upgrade Boundary
+
+The plugin package and generated Manager are independently versioned. A plugin
+update replaces reusable behavior and the seed used by future bootstraps, but
+never copies that seed over an existing Manager. `.wirenet/manager.json` records
+the materialized workspace schema. The updater compares it with the installed
+plugin, previews a supported migration, requires a clean local Git checkpoint,
+preserves personal prose and routing, applies only known structural transforms,
+and validates the result with Doctor. A newer workspace schema stops with a
+plugin-update instruction; an unsupported or ambiguous older layout stops for
+manual review.
 
 ## Lifecycle Model
 

@@ -18,6 +18,7 @@ sys.path.insert(0, str(PLUGIN_SCRIPTS))
 
 from manager_doctor import inspect  # noqa: E402
 from manager_model import manager_metadata, write_json  # noqa: E402
+from upgrade_manager import plan_upgrade  # noqa: E402
 
 
 DEFAULT_TEMPLATE = PLUGIN_ROOT / "templates/manager"
@@ -83,14 +84,28 @@ def initialize_git(manager_dir: Path) -> str:
         run(["git", "init"], cwd=manager_dir)
         run(["git", "branch", "-M", "main"], cwd=manager_dir)
 
-    if not run(["git", "config", "user.name"], cwd=manager_dir, check=False).stdout.strip():
+    if not run(
+        ["git", "config", "user.name"], cwd=manager_dir, check=False
+    ).stdout.strip():
         run(["git", "config", "user.name", "WireNet Manager"], cwd=manager_dir)
-    if not run(["git", "config", "user.email"], cwd=manager_dir, check=False).stdout.strip():
-        run(["git", "config", "user.email", "manager@localhost.invalid"], cwd=manager_dir)
+    if not run(
+        ["git", "config", "user.email"], cwd=manager_dir, check=False
+    ).stdout.strip():
+        run(
+            ["git", "config", "user.email", "manager@localhost.invalid"],
+            cwd=manager_dir,
+        )
 
     run(["git", "add", "."], cwd=manager_dir)
     run(
-        ["git", "-c", "commit.gpgsign=false", "commit", "-m", "chore(manager): bootstrap local workspace"],
+        [
+            "git",
+            "-c",
+            "commit.gpgsign=false",
+            "commit",
+            "-m",
+            "chore(manager): bootstrap local workspace",
+        ],
         cwd=manager_dir,
     )
     return run(["git", "rev-parse", "HEAD"], cwd=manager_dir).stdout.strip()
@@ -125,9 +140,25 @@ def main() -> int:
         return 2
 
     if exists and not manager_dir.is_dir():
-        result.update({"ok": False, "error": "destination exists and is not a directory"})
+        result.update(
+            {"ok": False, "error": "destination exists and is not a directory"}
+        )
         print(json.dumps(result, indent=2))
         return 2
+
+    if exists and (manager_dir / ".wirenet/manager.json").is_file():
+        upgrade = plan_upgrade(manager_dir)
+        if upgrade.get("state") != "current":
+            result.update(
+                {
+                    "ok": False,
+                    "state": upgrade.get("state"),
+                    "upgrade": upgrade,
+                    "next_action": "review upgrade_manager.py, then rerun it with --apply",
+                }
+            )
+            print(json.dumps(result, indent=2))
+            return 2
 
     if exists and not args.repair:
         diagnosis = inspect(manager_dir)
@@ -136,7 +167,9 @@ def main() -> int:
                 "ok": diagnosis["ok"],
                 "state": "healthy" if diagnosis["ok"] else "needs-repair",
                 "doctor": diagnosis,
-                "next_action": None if diagnosis["ok"] else "review and rerun with --repair",
+                "next_action": None
+                if diagnosis["ok"]
+                else "review and rerun with --repair",
             }
         )
         print(json.dumps(result, indent=2))
@@ -144,7 +177,9 @@ def main() -> int:
 
     if exists:
         diagnosis = inspect(manager_dir)
-        result["actions"] = [f"create missing scaffold path: {path}" for path in diagnosis["missing"]]
+        result["actions"] = [
+            f"create missing scaffold path: {path}" for path in diagnosis["missing"]
+        ]
         if not args.apply:
             result["doctor"] = diagnosis
             print(json.dumps(result, indent=2))
