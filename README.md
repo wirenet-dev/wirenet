@@ -1,156 +1,126 @@
 ---
-last_edited: 2026-07-11
+last_edited: 2026-07-15
 ---
 
-# Personal Codex Vault
+# WireNet Manager
 
-Starter workspace for giving Codex durable context: projects, people, skills,
-onboarding, recurring checks, and writing-style memory.
+WireNet Manager is an installable ChatGPT Work and Codex plugin for local,
+reviewable work memory. It bootstraps a content-only `~/Manager`, connects
+external workspaces through device-local bindings, and maintains portable
+four-file Project Packs.
 
-Canonical repo: `jxnl/personal-monorepo-template`.
+The project is based on Jason Liu's
+[`personal-monorepo-template`](https://github.com/jxnl/personal-monorepo-template).
+WireNet keeps its plain-file, Git-backed Assistant model while separating the
+installable intelligence from each user's personal content.
 
-This template gives Codex a place to look before it acts and a place to write
-important context after you approve it:
-
-- `projects/` for Assistant workstream packets that may point to external workspaces
-- `experiments/` for short spikes
-- `people/` for collaborators and agents
-- `.codex/skills/` for repo-local skills
-
-This repo is the Assistant shared-memory vault. Onboarding should update this
-repo in place; it should not create a nested `vault/` directory or a separate
-`~/vault` unless you explicitly choose a different location.
-
-## Fast Start
-
-Press `Cmd+Cmd` to open Codex and say:
+## v0.1 Boundary
 
 ```text
-Set me up with jxnl/personal-monorepo-template as ~/vault
+Developer repository / installed plugin       User runtime
+
+plugins/wirenet-manager/                       ~/Manager/
+├── .codex-plugin/plugin.json                  ├── AGENTS.md
+├── skills/                                    ├── TODO.md
+├── scripts/                                   ├── agent/
+└── templates/manager/             ───────▶    ├── people/
+                                                ├── projects/
+external project folders           ◀──────▶    ├── notes/ and sources/
+                                                └── .wirenet/
 ```
 
-Codex should clone this template, create a Codex project rooted at `~/vault`,
-start onboarding, and use that repo as the vault.
+- The plugin owns behavior, schemas, deterministic helpers, and the seed.
+- `~/Manager` owns personal context, Project Packs, local bindings, and Git
+  history. It contains no copied plugin skills in v0.1.
+- External projects keep code, media, datasets, and operational files.
+- Client and specialist capabilities remain independently versioned plugins.
+- No database, cloud sync, shared Knowledge Hub, or filesystem watcher is part
+  of v0.1.
 
-## Manual Setup
+## Plugin Skills
 
-If you want to create the vault yourself:
+- `$wirenet-manager`: ongoing orientation, current stack, and Manager task.
+- `$wirenet-manager-bootstrap`: setup, health checks, repair, project discovery,
+  installation of the global reconciliation rule, and optional user-approved
+  workspace routing.
+- `$wirenet-manager-sync`: classify external workspaces and reconcile meaningful
+  Project Pack changes.
 
-```sh
-cd ~
-git clone https://github.com/jxnl/personal-monorepo-template.git vault
-cd vault
-rm -rf .git
-git init
-```
+Skills use the current installable plugin structure. The repo marketplace is at
+`.agents/plugins/marketplace.json`; the plugin manifest is at
+`plugins/wirenet-manager/.codex-plugin/plugin.json`.
 
-That gives you:
+## Project Pack Contract
 
-```text
-~/vault
-```
+Every v0.1 Project Pack contains:
 
-This repo is the vault. Do not create a second `vault/` directory inside it.
+| File | Responsibility | WireNet OKF mapping |
+| --- | --- | --- |
+| `GOAL.md` | Stable outcome and completion criteria | `Project Brief` |
+| `README.md` | Current status and next move | `Project Status` |
+| `RESULT.md` | Completed outcomes and verification | `Project Result` |
+| `AGENTS.md` | Read order, sources, safety, update rules | `Runtime Adapter` |
 
-Reconcile the canonical scaffold and verify it:
+All four files share a stable `project_id`. Machine-local paths live only in
+`~/Manager/.wirenet/project-bindings.json`. The mapping is a small WireNet OKF
+profile, not a claim that v0.1 implements the complete OKF mirror system.
 
-```sh
-python3 .codex/skills/onboarding/scripts/setup_shared_memory_vault.py
-python3 .codex/skills/onboarding/scripts/vault_doctor.py
-```
+YAML frontmatter in `AGENTS.md` is intentionally limited to metadata. Codex
+still reads the Markdown instructions normally; the metadata is not treated as
+Codex configuration.
 
-Both commands are safe to rerun. Setup and doctor repair create only missing
-canonical files and router entries; they preserve existing personalized files.
+## Developer Layout
 
-## Set Up Codex
+- `.agents/plugins/marketplace.json`: local and future public marketplace.
+- `plugins/wirenet-manager/`: installable plugin package.
+- `plugins/wirenet-manager/templates/manager/`: content-only runtime seed.
+- `plugins/wirenet-manager/scripts/`: deterministic shared Manager helpers.
+- `docs/architecture-v0.1.md`: file-by-file architecture and routing diagram.
+- `docs/project-pack-contract.md`: Project Pack and OKF profile.
+- `docs/installing-wirenet-manager.md`: installation and bootstrap path.
+- `scripts/compare_upstream.py`: read-only comparison with Jason's upstream.
+- `tests/`: plugin, bootstrap, routing, template, and legacy-reference checks.
 
-1. Open Codex.
-2. Install the plugins you actually use.
-3. Create a new Codex project rooted at `~/vault`.
-4. Create a new thread in that project.
-5. Say:
+The root `.codex/`, shelves, and template files remain as a downstream reference
+to Jason's original repository while v0.1 is developed. They are not copied
+into the generated Manager by the plugin. This boundary keeps upstream changes
+mechanically reviewable without making the user's runtime depend on legacy
+repo-local skill discovery.
 
-```text
-$onboard me
-```
-
-## Plugins To Install First
-
-Install plugins before onboarding so Assistant can read the right context.
-
-Start with the tools where your work happens:
-
-- Assistant
-- Gmail or Outlook Email
-- Google Calendar or Outlook Calendar
-- Google Drive, Notion, Documents, Spreadsheets, Presentations, or PDF
-- Slack or Teams
-- GitHub, Linear, or Notion for project tracking
-- Browser
-- Chrome
-- Computer Use
-
-For Chrome workflows, install the Chrome plugin and the [Codex Chrome Extension](https://chromewebstore.google.com/detail/codex/hehggadaopoacecdllhhajmbjkdcmajg).
-
-## What Onboarding Does
-
-Onboarding should explain what it is checking before it checks it.
-
-It should:
-
-- read the workspace
-- ask what projects exist and what matters
-- ask who Codex should know about
-- check whether useful plugins are missing
-- offer thread automations for recurring checks
-- offer a daily update monitor, people monitor, and project monitors where useful, defaulting to 9:00 AM and 4:00 PM check-ins in your timezone
-- offer to bootstrap a `write-like-me` skill from your sent Slack and email writing
-- offer shared-memory setup by using this repo as the vault
-- proactively propose `people/*.md`, project packets, and `AGENTS.md` updates after scanning connected Slack, email, calendar, docs, project trackers, and GitHub context
-
-Assistant should ask before sending messages, changing meetings, editing shared docs, creating automations, creating, pinning, renaming, or looping threads, installing plugins, or writing shared memory.
-
-## Skills
-
-Repo-local skills live under `.codex/skills/`.
-
-Useful starting points:
-
-- `onboarding`: first setup
-- `assistant`: ongoing work support after onboarding
-- `loop`: recurring checks on a thread
-- `new-project`: create a project or experiment
-- `new-person`: create a person note
-- `write-like-me-bootstrap`: create a personal writing-style skill from Slack and email
-
-## Structure
-
-- `projects/`: Assistant workstream packets with durable state and source routes
-- `experiments/`: short-lived spikes
-- `people/`: notes about people or agents
-- `.codex/`: skills, plugin metadata, and assets
-- `templates/`: starter files
-- `tests/`: checks for template integrity
-
-## WireNet Workspace Policy
-
-The vault is shared memory, not the default home for implementation code or
-large data. New active work normally begins under `/Users/gitt/Projects` and can
-later move to `/Users/gitt/Developer`, `/Users/gitt/Documents`, or
-`/Users/gitt/Data` when it becomes durable code, domain work, or data work.
-Project packets in this vault should link those external roots explicitly.
-
-## Validation And Migration
-
-Run the same checks used by packaging CI:
+## Local Development
 
 ```sh
 python3 scripts/validate_markdown.py .
+python3 /Users/gitt/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py \
+  plugins/wirenet-manager
 pytest -q
 git diff --check
 ```
 
-Use the repository-local doctor instead of relying on a global `wirenet status`
-command. Conservative migration-copy instructions are in
-`docs/bootstrap-and-migration.md`. The correction implementation and verification
-record is in `docs/vault-bootstrap-correction-result.md`.
+Preview a disposable bootstrap without mutating the destination:
+
+```sh
+python3 plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py \
+  --manager-dir /tmp/wirenet-manager-review
+```
+
+Apply only to a disposable directory during development:
+
+```sh
+python3 plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py \
+  --manager-dir /tmp/wirenet-manager-review \
+  --apply
+```
+
+Compare with upstream without merging:
+
+```sh
+python3 scripts/compare_upstream.py --fetch
+```
+
+## Installation Status
+
+The repo marketplace is prepared for local development. Publishing and adding
+`wirenet-dev/wirenet-manager` as a remote marketplace happen only after v0.1 is
+reviewed, committed, and the repository remote is corrected from the earlier
+`wirenet-vault` name.

@@ -1,0 +1,30 @@
+{
+  "name": "wirenet-manager",
+  "version": "0.1.0",
+  "description": "Bootstrap and run a local work-memory Manager with portable, reviewable Project Packs.",
+  "author": {
+    "name": "WireNet",
+    "url": "https://wirenet.dev"
+  },
+  "repository": "https://github.com/wirenet-dev/wirenet-manager",
+  "keywords": ["manager", "project-packs", "work-memory", "okf"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "WireNet Manager",
+    "shortDescription": "Local work memory and Project Pack routing",
+    "longDescription": "Bootstrap a content-only local Manager, keep external projects connected through local bindings, and maintain portable four-file Project Packs without copying source code, media, or raw data.",
+    "developerName": "WireNet",
+    "category": "Productivity",
+    "capabilities": [
+      "Orient ongoing work",
+      "Bootstrap a local Manager",
+      "Route external workspaces",
+      "Maintain reviewable Project Packs"
+    ],
+    "defaultPrompt": [
+      "Use $wirenet-manager to show my current stack.",
+      "Use $wirenet-manager-bootstrap to set up ~/Manager.",
+      "Use $wirenet-manager-sync to update this project."
+    ]
+  }
+}

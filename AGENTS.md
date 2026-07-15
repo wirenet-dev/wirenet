@@ -1,92 +1,79 @@
 ---
-last_edited: 2026-07-11
+last_edited: 2026-07-15
 ---
 
-# Root Agent Instructions
+# WireNet Manager Development Instructions
 
-## Default Model
+## Purpose
 
-Use the strongest available coding model unless the user or task explicitly calls for a different model.
+This repository develops and distributes the WireNet Manager plugin. It is not
+the user's personal Manager runtime. The runtime seed lives under
+`plugins/wirenet-manager/templates/manager/` and is materialized into a separate
+folder only through the bootstrap flow.
 
-## Collaboration Style
+## Read Order
 
-- Match Jason's tone: direct, practical, low-ceremony, and comfortable with rough edges while the work is still forming.
-- Be curious before being certain. When the request is blurry, ask the smallest useful question that would change the work.
-- Do not ask questions just to avoid making a reasonable call. If the tradeoff is minor or reversible, choose a sensible default and keep moving.
-- Push back when a request is likely to create churn, hide important context, damage future maintainability, leak private data, or skip a necessary verification step.
-- Name disagreements plainly and briefly. Offer the better path, explain the reason, and then proceed when the direction is clear.
-- Prefer concrete work over abstract planning. Show progress through edits, checks, and durable notes.
-- Keep summaries concise and useful. Lead with what changed, what was verified, and what still needs attention.
-- Avoid generic assistant voice. Do not over-explain obvious steps, apologize performatively, or pad responses with motivational filler.
+1. `README.md`
+2. `docs/architecture-v0.1.md`
+3. `docs/project-pack-contract.md`
+4. `plugins/wirenet-manager/.codex-plugin/plugin.json`
+5. The relevant plugin skill, script, template, and tests
+6. `docs/upstream-reference.md` when comparing Jason Liu's original model
 
-## Start Here
+## Product Boundaries
 
-- Start with `projects/`, `experiments/`, and `README.md` files for project discovery.
-- If the task names a project, experiment, person, agent, prompt, or skill, locate it before planning changes.
-- Read the nearest relevant `AGENTS.md` before working in any subdirectory.
-- Nested `AGENTS.md` files supplement these root rules unless they conflict. When they conflict, follow the more specific local rule and mention the conflict in your summary.
-- If multiple projects are involved, use the source-of-truth order defined by the relevant project docs.
+- The plugin owns reusable skills, deterministic behavior, schemas, and seed
+  templates.
+- A generated `~/Manager` owns personal content, local bindings, and local Git
+  history. Do not copy plugin skills into it by default.
+- External projects keep implementation code, media, and large data.
+- Client or domain capability shelves remain separate plugins.
+- Database sync and the Knowledge Hub are outside v0.1.
 
-## Durable State
+## Project Pack Contract
 
-Keep important context on disk:
+Generated Project Packs must contain `GOAL.md`, `README.md`, `RESULT.md`, and
+`AGENTS.md`. All four share one stable `project_id`. Portable files must not
+contain machine-local paths; store those only in
+`.wirenet/project-bindings.json`.
 
-- Project status belongs in project `README.md` files.
-- Long-running objectives belong in `GOAL.md`.
-- Completed work and verification belong in `RESULT.md`.
-- Human and agent collaboration notes belong in `people/*.md`.
-- Cross-project discovery belongs in repo-level docs such as `README.md`.
+## Skills And Plugins
 
-Do not leave decisions only in chat when they will matter later.
+- Use the current `.agents/plugins/marketplace.json` marketplace location.
+- Keep the installable manifest at
+  `plugins/wirenet-manager/.codex-plugin/plugin.json`.
+- Keep each skill focused and validate it with the official skill validator.
+- Keep detailed contracts in skill `references/` and deterministic repeated
+  behavior in scripts.
+- The root `.codex/` tree is retained as an upstream/downstream reference. Do
+  not present it as the current distributed plugin structure.
 
-This repository is the shared-memory vault. When Assistant onboarding, a repo-local
-skill, or a helper script refers to "the vault", use this repository root as the
-vault root by default. Do not create a nested `vault/` directory or a separate
-`~/vault` unless Jason explicitly asks for a different location.
+## Upstream Reference
 
-Assistant is expected to keep this vault current after explicit approval. That
-includes updating root and project `AGENTS.md` files, project `README.md` files,
-`people/*.md`, `TODO.md`, and agent context files when connector scans, user
-corrections, or recurring check-ins reveal durable information worth preserving.
-Prefer updating the canonical existing file over creating adjacent notes.
+Jason Liu's `jxnl/personal-monorepo-template` is configured as fetch-only
+`upstream`. Review upstream changes by intent with
+`python3 scripts/compare_upstream.py --fetch`. Never blindly merge, rebase,
+reset, or push to upstream.
 
-## Working On Projects
+## Development Safety
 
-- Treat `projects/<project>/` as an Assistant workstream packet by default. A
-  packet may point to an external implementation repository or workspace.
-- Use `/Users/gitt/Projects` as the default starting point for active work,
-  `/Users/gitt/Developer` for long-running owned code and systems,
-  `/Users/gitt/Documents` for durable non-code domain work, and
-  `/Users/gitt/Data` for durable datasets and data systems.
-- Use `experiments/` for short-lived vault-local spikes.
-- When creating a new project, use `.codex/skills/new-project` or follow `templates/project_README.md` and `templates/PROJECT_AGENTS.md`.
-- When creating a new person note, use `.codex/skills/new-person` or follow `people/person.md`.
-- During Assistant onboarding, after scanning connected Slack, email, calendar, docs, project trackers, and GitHub context, proactively propose the people files and project packets that should be created or updated. Ask for approval, then write the approved files directly in this repo.
-- Update the relevant project or experiment `README.md` when adding, archiving, renaming, or changing the status of work.
-- Before editing, read enough surrounding context to understand the local pattern.
-- Keep changes small and reversible unless Jason explicitly asks for a larger reshaping.
-- If a request points at a symptom, look one level deeper for the cause before patching.
+- Use disposable temporary directories for bootstrap and migration tests.
+- Never bootstrap or migrate the live `/Users/gitt/Vault` or a live `~/Manager`
+  during automated tests.
+- Bootstrap and repair must be dry-run-first and create-only for existing
+  folders.
+- Do not configure remotes, cloud sync, customer workspaces, messages,
+  automations, or shared documents without explicit approval.
+- Do not commit secrets, credentials, raw private sources, or generated caches.
 
-## Safety
+## Validation
 
-- Do not commit secrets, credentials, account numbers, private keys, or private personal data.
-- Do not perform external side effects such as sending messages, spending money, placing orders, deleting data, or changing account state without explicit user approval.
-- Prefer small, reversible edits and focused validation.
-- If data is stale or copied from memory, verify it before treating it as current.
-- Ask before destructive actions, irreversible account changes, public/shared writes, or anything that could surprise Jason later.
-- Push back instead of silently complying when the safer or more useful move is different from the literal request.
-- When validation is blocked, say exactly what was not run and why.
+Run before handoff:
 
-## Repo-Local Skills
-
-Skills in `.codex/skills/` are meant to be read and used in place. Do not assume they are installed globally.
-
-Use these when relevant:
-
-- GitHub: `gh-address-comments`, `gh-commit`, `gh-fix-ci`, `yeet`
-- Audits: `audit-ai-code`, `audit-ai-frontend`, `audit-ai-writing`
-- Assistant: `assistant`, `onboarding`
-- Artifacts: `simple-html-artifact`
-- Goals: `ultragoal`
-- Automations: `loop`
-- Bootstrapping: `new-person`, `new-project`
+```sh
+python3 scripts/validate_markdown.py .
+python3 /Users/gitt/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py \
+  plugins/wirenet-manager
+pytest -q
+git diff --check
+```

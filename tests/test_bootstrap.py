@@ -52,6 +52,9 @@ def assert_valid_generated_markdown(vault: Path) -> None:
     markdown = sorted(vault.rglob("*.md"))
     assert markdown
     for path in markdown:
+        relative = path.relative_to(vault)
+        if path.name == "SKILL.md" and "plugins" in relative.parts and "skills" in relative.parts:
+            continue
         value = frontmatter(path).get("last_edited")
         try:
             dt.date.fromisoformat(str(value))

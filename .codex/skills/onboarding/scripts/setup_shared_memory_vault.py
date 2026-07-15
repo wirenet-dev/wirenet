@@ -74,13 +74,12 @@ distinction changes how future work should read the note.
 - `notes/` is for durable scratch notes that do not yet belong in a person or project note.
 - `sources/` is for retained imported evidence and source material; treat it as read-only by default.
 
-## WireNet Workspace Roots
+## External Workspaces
 
-- `/Users/gitt/Projects`: default starting point for active work.
-- `/Users/gitt/Developer`: durable owned code, tooling, and systems.
-- `/Users/gitt/Documents`: durable non-code domain work.
-- `/Users/gitt/Data`: durable datasets and data systems.
-- Treat `projects/<project>/` as an Assistant workstream packet by default; link external workspaces instead of copying their implementation into the vault.
+- Preserve the user's existing project locations.
+- Treat `projects/<project>/` as an Assistant workstream packet by default.
+- Let the installed WireNet Manager plugin keep external paths in its local
+  binding registry instead of copying code, media, or data into the workspace.
 
 ## Where To Write
 

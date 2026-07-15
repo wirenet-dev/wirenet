@@ -1,4 +1,4 @@
-name: Package template
+name: Validate WireNet Manager
 
 on:
   push:
@@ -10,10 +10,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  package:
+  validate:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,86 +28,16 @@ jobs:
       - name: Install test dependencies
         run: python -m pip install pytest
 
-      - name: Choose package version
-        id: version
-        shell: bash
+      - name: Validate Markdown
+        run: python3 scripts/validate_markdown.py .
+
+      - name: Validate plugin JSON
         run: |
-          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
-            version="${GITHUB_REF_NAME}"
-          else
-            version="ci-${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}"
-          fi
-          echo "value=${version}" >> "${GITHUB_OUTPUT}"
+          python3 -m json.tool plugins/wirenet-manager/.codex-plugin/plugin.json >/dev/null
+          python3 -m json.tool .agents/plugins/marketplace.json >/dev/null
 
-      - name: Validate source and tests
-        run: |
-          python scripts/validate_markdown.py .
-          pytest -q
+      - name: Run tests
+        run: pytest -q
 
-      - name: Build zip
-        shell: bash
-        run: |
-          version="${{ steps.version.outputs.value }}"
-          package_dir="dist/personal-monorepo"
-          mkdir -p "${package_dir}"
-          rsync -a \
-            --exclude ".git/" \
-            --exclude ".github/" \
-            --exclude ".DS_Store" \
-            --exclude "__pycache__/" \
-            --exclude ".pytest_cache/" \
-            --exclude ".ruff_cache/" \
-            --exclude ".venv/" \
-            --exclude "dist/" \
-            ./ "${package_dir}/"
-          cd dist
-          zip -qr "personal-monorepo-template-${version}.zip" personal-monorepo
-
-      - name: Bootstrap and validate packaged vault
-        shell: bash
-        run: |
-          version="${{ steps.version.outputs.value }}"
-          scratch="$(mktemp -d)"
-          unzip -q "dist/personal-monorepo-template-${version}.zip" -d "${scratch}/package"
-          package_root="${scratch}/package/personal-monorepo"
-          generated="${scratch}/generated-vault"
-          python "${package_root}/scripts/validate_markdown.py" "${package_root}"
-          python "${package_root}/.codex/skills/onboarding/scripts/setup_shared_memory_vault.py" \
-            --vault-dir "${generated}"
-          python "${package_root}/scripts/validate_markdown.py" "${generated}"
-          python "${package_root}/.codex/skills/onboarding/scripts/vault_doctor.py" \
-            --vault-dir "${generated}" > "${scratch}/doctor.json"
-          python - "${scratch}/doctor.json" <<'PY'
-          import json
-          import sys
-          from pathlib import Path
-
-          result = json.loads(Path(sys.argv[1]).read_text())
-          if not result["ok"]:
-              raise SystemExit(json.dumps(result, indent=2))
-          PY
-
-      - name: Upload package
-        uses: actions/upload-artifact@v4
-        with:
-          name: personal-monorepo-template-${{ steps.version.outputs.value }}
-          path: dist/personal-monorepo-template-${{ steps.version.outputs.value }}.zip
-          if-no-files-found: error
-
-      - name: Publish release asset
-        if: github.ref_type == 'tag'
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          version="${{ steps.version.outputs.value }}"
-          asset="dist/personal-monorepo-template-${version}.zip"
-          if gh release view "${version}" >/dev/null 2>&1; then
-            gh release upload "${version}" "${asset}" --clobber
-          else
-            gh release create "${version}" \
-              "${asset}" \
-              --title "${version}" \
-              --notes "Template package ${version}" \
-              --latest
-          fi
+      - name: Check generated drift
+        run: git diff --check

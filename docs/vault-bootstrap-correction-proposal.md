@@ -1,8 +1,11 @@
 ---
-last_edited: 2026-07-11
+last_edited: 2026-07-15
 ---
 
 # Vault Bootstrap Correction Proposal
+
+> Historical design record for the upstream-derived root scaffold. The current
+> WireNet Manager v0.1 product contract lives in `architecture-v0.1.md`.
 
 ## Objective
 

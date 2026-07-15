@@ -55,6 +55,11 @@ def has_iso_last_edited(path: Path) -> bool:
     return False
 
 
+def is_plugin_skill(path: Path, vault_dir: Path) -> bool:
+    relative = path.relative_to(vault_dir)
+    return path.name == "SKILL.md" and "plugins" in relative.parts and "skills" in relative.parts
+
+
 def configured_remotes(vault_dir: Path) -> dict[str, str]:
     if not (vault_dir / ".git").exists():
         return {}
@@ -117,7 +122,7 @@ def inspect(vault_dir: Path) -> dict[str, object]:
     invalid_markdown = [
         path.relative_to(vault_dir).as_posix()
         for path in sorted(vault_dir.rglob("*.md"))
-        if not has_iso_last_edited(path)
+        if not is_plugin_skill(path, vault_dir) and not has_iso_last_edited(path)
     ]
     ignored_caches = [
         path.relative_to(vault_dir).as_posix()

@@ -1,8 +1,13 @@
 ---
-last_edited: 2026-07-11
+last_edited: 2026-07-15
 ---
 
 # Vault Bootstrap And Migration
+
+> Historical reference for the corrected Jason-style root scaffold retained in
+> this development repository. WireNet Manager v0.1 runtime bootstrap is defined
+> in `architecture-v0.1.md` and the installed plugin; it does not clone or copy
+> this legacy `.codex/` tree into `~/Manager`.
 
 ## Canonical Model
 

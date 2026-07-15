@@ -27,12 +27,26 @@ def frontmatter(path: Path) -> dict[str, str]:
     return data
 
 
-def validate_markdown(path: Path, *, skill: bool = False) -> list[str]:
+def validate_markdown(
+    path: Path,
+    *,
+    skill: bool = False,
+    plugin_skill: bool = False,
+) -> list[str]:
     errors: list[str] = []
     try:
         data = frontmatter(path)
     except ValueError as error:
         return [f"{path}: {error}"]
+    if plugin_skill:
+        allowed = {"name", "description", "license", "allowed-tools", "metadata"}
+        if unexpected := set(data) - allowed:
+            errors.append(f"{path}: unsupported plugin skill keys: {sorted(unexpected)}")
+        for key in ("name", "description"):
+            if not data.get(key):
+                errors.append(f"{path}: {key} must not be empty")
+        return errors
+
     edited = data.get("last_edited", "")
     try:
         date.fromisoformat(edited)
@@ -59,7 +73,8 @@ def validate_tree(root: Path) -> list[str]:
     errors: list[str] = []
     for path in markdown:
         is_skill = path.name == "SKILL.md" and ".codex" in path.parts and "skills" in path.parts
-        errors.extend(validate_markdown(path, skill=is_skill))
+        is_plugin_skill = path.name == "SKILL.md" and "plugins" in path.parts and "skills" in path.parts
+        errors.extend(validate_markdown(path, skill=is_skill, plugin_skill=is_plugin_skill))
     return errors
 
 
