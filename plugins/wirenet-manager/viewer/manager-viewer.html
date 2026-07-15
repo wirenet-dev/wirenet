@@ -73,7 +73,12 @@ button, input, select { font: inherit; }
   padding: 0 9px;
   outline: none;
 }
-.controls input { width: min(260px, 28vw); }
+.controls input { width: min(240px, 25vw); }
+#document-select { width: min(360px, 34vw); }
+#view-mode { min-width: 152px; }
+#audience-filter { min-width: 92px; }
+.graph-control { display: none; }
+.graph-mode .graph-control { display: inline-block; }
 .controls input:focus, .controls select:focus, .controls button:focus-visible {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px rgba(255, 92, 26, .12);
@@ -90,6 +95,7 @@ button, input, select { font: inherit; }
 }
 main { display: flex; flex: 1; min-height: 0; }
 #graph {
+  display: none;
   flex: 1 1 58%;
   min-width: 0;
   position: relative;
@@ -101,11 +107,21 @@ main { display: flex; flex: 1; min-height: 0; }
   background-size: 28px 28px;
 }
 #detail {
-  flex: 0 0 42%;
+  flex: 1 1 100%;
   overflow-y: auto;
-  padding: 24px 30px 40px;
+  padding: 42px 32px 56px;
   background: var(--white);
 }
+.document-mode #detail-content,
+.document-mode #detail-empty,
+.document-mode #load-error {
+  width: min(100%, 860px);
+  margin-left: auto;
+  margin-right: auto;
+}
+.graph-mode #graph { display: block; }
+.graph-mode #detail { flex: 0 0 42%; padding: 24px 30px 40px; }
+.graph-mode #detail-content { width: auto; margin-left: 0; margin-right: 0; }
 #detail-empty, #load-error {
   max-width: 390px;
   margin: 18vh auto 0;
@@ -156,6 +172,35 @@ main { display: flex; flex: 1; min-height: 0; }
   font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
   font-size: 10px;
 }
+.packet-nav {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: -5px 0 20px;
+}
+.packet-nav button,
+.catalog-link {
+  border: 0;
+  padding: 0;
+  color: var(--ink);
+  background: transparent;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: #bdbdbd;
+  text-underline-offset: 3px;
+}
+.packet-nav button {
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  text-decoration: none;
+}
+.packet-nav button[aria-current="page"] { border-color: var(--accent); color: var(--accent); }
+.catalog-groups { display: grid; gap: 26px; margin-top: 24px; }
+.catalog-group h2 { margin: 0 0 8px; font-size: 18px; }
+.catalog-group ul { margin: 0; padding: 0; list-style: none; }
+.catalog-group li { margin: 7px 0; }
+.catalog-description { color: var(--muted); margin-left: 6px; }
 #detail-body { max-width: 76ch; font-size: 14px; line-height: 1.62; }
 #detail-body h1, #detail-body h2, #detail-body h3, #detail-body h4 { color: var(--ink); line-height: 1.2; }
 #detail-body h1 { margin: 28px 0 10px; font-size: 24px; }
@@ -209,15 +254,15 @@ main { display: flex; flex: 1; min-height: 0; }
 @media (max-width: 900px) {
   .app-header { align-items: flex-start; flex-direction: column; gap: 10px; }
   .controls { width: 100%; justify-content: flex-start; }
-  .controls input { flex: 1 1 180px; width: auto; }
+  .controls input, #document-select { flex: 1 1 180px; width: auto; }
   main { flex-direction: column; }
-  #graph { flex: 0 0 44vh; border-right: 0; border-bottom: 1px solid var(--line); }
-  #detail { flex: 1 1 auto; padding: 22px 20px 36px; }
+  .graph-mode #graph { flex: 0 0 44vh; border-right: 0; border-bottom: 1px solid var(--line); }
+  #detail, .graph-mode #detail { flex: 1 1 auto; padding: 22px 20px 36px; }
   .viewer-footer { display: none; }
 }
 </style>
 </head>
-<body>
+<body class="document-mode catalog-mode">
 <header class="app-header">
   <div class="brand" aria-label="WireNet Manager">
     <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="#262626" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
@@ -230,18 +275,29 @@ main { display: flex; flex: 1; min-height: 0; }
     <span class="read-only">read only</span>
   </div>
   <div class="controls" aria-label="Viewer controls">
-    <input id="search" type="search" placeholder="Search concepts" aria-label="Search concepts">
-    <select id="filter-type" aria-label="Filter by type">
+    <select id="document-select" aria-label="Open document"></select>
+    <select id="view-mode" aria-label="Viewer mode">
+      <option value="catalog">Catalog</option>
+      <option value="document">Document</option>
+      <option value="graph">Graph + document</option>
+    </select>
+    <select id="audience-filter" aria-label="Document audience">
+      <option value="human">Human</option>
+      <option value="agent">Agent</option>
+      <option value="all">All</option>
+    </select>
+    <input class="graph-control" id="search" type="search" placeholder="Search graph" aria-label="Search graph">
+    <select class="graph-control" id="filter-type" aria-label="Filter graph by type">
       <option value="">All types</option>
     </select>
-    <select id="layout" aria-label="Graph layout">
+    <select class="graph-control" id="layout" aria-label="Graph layout">
       <option value="cose">Connected</option>
       <option value="concentric">Concentric</option>
       <option value="breadthfirst">Hierarchy</option>
       <option value="circle">Circle</option>
       <option value="grid">Grid</option>
     </select>
-    <button id="reset" type="button">Reset</button>
+    <button class="graph-control" id="reset" type="button">Reset</button>
   </div>
 </header>
 
@@ -249,13 +305,14 @@ main { display: flex; flex: 1; min-height: 0; }
   <section id="graph" aria-label="OKF knowledge graph"></section>
   <section id="detail" aria-live="polite">
     <div id="load-error" hidden></div>
-    <div id="detail-empty">Select an OKF concept to read its Markdown and inspect its links.</div>
+    <div id="detail-empty">No human-facing Manager documents are ready yet.</div>
     <article id="detail-content" hidden>
       <header class="detail-header">
         <div class="detail-kicker"><span class="type-chip" id="detail-type"></span></div>
         <h1 id="detail-title"></h1>
         <div class="detail-path" id="detail-id"></div>
       </header>
+      <nav class="packet-nav" id="packet-nav" aria-label="Project Pack documents" hidden></nav>
       <dl class="frontmatter" id="detail-meta"></dl>
       <div id="detail-body"></div>
       <section id="detail-backlinks" hidden>
@@ -293,22 +350,42 @@ window.BUNDLE = __BUNDLE_DATA__;
   }
 
   const typeSelect = document.getElementById("filter-type");
-  for (const type of bundle.types) {
-    const option = document.createElement("option");
-    option.value = type;
-    option.textContent = type;
-    typeSelect.appendChild(option);
-  }
 
   const backlinks = {};
   for (const edge of bundle.edges) {
-    if (edge.data.kind !== "link") continue;
+    if (!['link', 'catalog'].includes(edge.data.kind)) continue;
     const { source, target } = edge.data;
     (backlinks[target] ||= []).push(source);
   }
 
   const nodeIndex = {};
   for (const node of bundle.nodes) nodeIndex[node.data.id] = node.data;
+
+  const documentSelect = document.getElementById("document-select");
+  const viewMode = document.getElementById("view-mode");
+  const audienceFilter = document.getElementById("audience-filter");
+  const fileOrder = {
+    "README.md": 10,
+    "GOAL.md": 20,
+    "WORKLOG.md": 30,
+    "RESULT.md": 40,
+    "log.md": 50,
+  };
+  let selectedId = "";
+
+  function sortDocuments(nodes) {
+    return [...nodes].sort((left, right) => {
+    const leftPath = left.data.path || left.data.id;
+    const rightPath = right.data.path || right.data.id;
+    const leftDirectory = leftPath.split("/").slice(0, -1).join("/");
+    const rightDirectory = rightPath.split("/").slice(0, -1).join("/");
+    const directoryOrder = leftDirectory.localeCompare(rightDirectory);
+    if (directoryOrder) return directoryOrder;
+    const leftFile = leftPath.split("/").pop();
+    const rightFile = rightPath.split("/").pop();
+    return (fileOrder[leftFile] || 99) - (fileOrder[rightFile] || 99) || leftPath.localeCompare(rightPath);
+    });
+  }
 
   const cy = cytoscape({
     container: document.getElementById("graph"),
@@ -361,10 +438,23 @@ window.BUNDLE = __BUNDLE_DATA__;
         }
       },
       {
+        selector: 'edge[kind = "routing"]',
+        style: {
+          "width": 2,
+          "line-color": "#ff5c1a",
+          "target-arrow-color": "#ff5c1a"
+        }
+      },
+      {
+        selector: 'edge[kind = "catalog"]',
+        style: { "line-style": "dotted", "line-color": "#b7b7b7" }
+      },
+      {
         selector: "edge:selected",
         style: { "line-color": "#ff5c1a", "target-arrow-color": "#ff5c1a", "width": 2.3 }
       },
-      { selector: ".dim", style: { "opacity": .12 } }
+      { selector: ".dim", style: { "opacity": .12 } },
+      { selector: ".filtered-out", style: { "display": "none" } }
     ],
     layout: {
       name: "cose",
@@ -382,29 +472,24 @@ window.BUNDLE = __BUNDLE_DATA__;
   });
 
   cy.on("tap", "node", (event) => showDetail(event.target.id()));
-  cy.on("tap", (event) => { if (event.target === cy) clearSelection(); });
+
+  documentSelect.addEventListener("change", (event) => {
+    if (event.target.value === "__catalog__") renderCatalog();
+    else showDetail(event.target.value);
+  });
+
+  viewMode.addEventListener("change", (event) => setViewMode(event.target.value));
+  audienceFilter.addEventListener("change", () => refreshView());
 
   document.getElementById("layout").addEventListener("change", (event) => {
-    const layoutName = event.target.value;
-    const options = { name: layoutName, animate: false, padding: 42 };
-    if (layoutName === "cose") Object.assign(options, {
-      randomize: true,
-      nodeRepulsion: 180000,
-      idealEdgeLength: 125,
-      nodeOverlap: 36,
-      componentSpacing: 120,
-      gravity: .12,
-      numIter: 1400
-    });
-    cy.layout(options).run();
+    runLayout(event.target.value);
   });
 
   document.getElementById("reset").addEventListener("click", () => {
-    cy.elements().removeClass("dim");
     document.getElementById("search").value = "";
     document.getElementById("filter-type").value = "";
+    applyFilter("", "");
     cy.fit(null, 38);
-    clearSelection();
   });
 
   document.getElementById("search").addEventListener("input", (event) => {
@@ -420,26 +505,211 @@ window.BUNDLE = __BUNDLE_DATA__;
     cy.nodes().forEach((node) => {
       const data = node.data();
       const haystack = [data.label, data.id, data.type, ...(data.tags || [])].join(" ").toLowerCase();
-      const visible = (!query || haystack.includes(query)) && (!typeValue || data.type === typeValue);
-      node.toggleClass("dim", !visible);
+      const included = audienceMatches(data) && data.kind !== "index";
+      const matches = (!query || haystack.includes(query)) && (!typeValue || data.type === typeValue);
+      node.toggleClass("filtered-out", !included);
+      node.toggleClass("dim", included && !matches);
     });
     cy.edges().forEach((edge) => {
-      edge.toggleClass("dim", edge.source().hasClass("dim") || edge.target().hasClass("dim"));
+      const excluded = edge.source().hasClass("filtered-out") || edge.target().hasClass("filtered-out");
+      edge.toggleClass("filtered-out", excluded);
+      edge.toggleClass("dim", !excluded && (edge.source().hasClass("dim") || edge.target().hasClass("dim")));
     });
   }
 
-  function clearSelection() {
-    cy.elements().unselect();
+  function audienceMatches(data) {
+    const selected = audienceFilter.value;
+    if (selected === "all") return true;
+    return data.audience === selected;
+  }
+
+  function visibleNodes({ indexesOnly = false, graphOnly = false } = {}) {
+    return bundle.nodes.filter((node) => {
+      if (!audienceMatches(node.data)) return false;
+      if (indexesOnly) return node.data.kind === "index";
+      if (graphOnly) return node.data.kind !== "index";
+      return true;
+    });
+  }
+
+  function populateTypeSelect() {
+    const previous = typeSelect.value;
+    typeSelect.innerHTML = '<option value="">All types</option>';
+    const types = [...new Set(visibleNodes({ graphOnly: true }).map((node) => node.data.type))].sort();
+    for (const type of types) {
+      const option = document.createElement("option");
+      option.value = type;
+      option.textContent = type;
+      typeSelect.appendChild(option);
+    }
+    if (types.includes(previous)) typeSelect.value = previous;
+  }
+
+  function populateDocumentSelect() {
+    const previous = documentSelect.value || selectedId;
+    documentSelect.innerHTML = "";
+    let choices;
+    if (viewMode.value === "catalog") {
+      const root = document.createElement("option");
+      root.value = "__catalog__";
+      root.textContent = `${bundleName} catalog`;
+      documentSelect.appendChild(root);
+      choices = visibleNodes({ indexesOnly: true });
+    } else {
+      choices = visibleNodes({ graphOnly: viewMode.value === "graph" });
+    }
+    for (const node of sortDocuments(choices)) {
+      const option = document.createElement("option");
+      const fileName = (node.data.path || node.data.id).split("/").pop().replace(/\.md$/i, "");
+      option.value = node.data.id;
+      option.textContent = `${node.data.label} · ${fileName}`;
+      documentSelect.appendChild(option);
+    }
+    const values = [...documentSelect.options].map((option) => option.value);
+    documentSelect.value = values.includes(previous) ? previous : values[0] || "";
+    documentSelect.disabled = values.length === 0;
+  }
+
+  function runLayout(layoutName) {
+    const options = { name: layoutName, animate: false, padding: 42 };
+    if (layoutName === "cose") Object.assign(options, {
+      randomize: true,
+      nodeRepulsion: 180000,
+      idealEdgeLength: 125,
+      nodeOverlap: 36,
+      componentSpacing: 120,
+      gravity: .12,
+      numIter: 1400
+    });
+    cy.layout(options).run();
+  }
+
+  function setViewMode(mode) {
+    const graphMode = mode === "graph";
+    const catalogMode = mode === "catalog";
+    document.body.classList.toggle("graph-mode", graphMode);
+    document.body.classList.toggle("document-mode", !graphMode);
+    document.body.classList.toggle("catalog-mode", catalogMode);
+    populateDocumentSelect();
+    applyFilter(document.getElementById("search").value, typeSelect.value);
+    if (catalogMode) renderCatalog();
+    else if (documentSelect.value) showDetail(documentSelect.value);
+    if (graphMode) requestAnimationFrame(() => {
+      cy.resize();
+      runLayout(document.getElementById("layout").value);
+      cy.fit(null, 42);
+    });
+  }
+
+  function refreshView() {
+    populateTypeSelect();
+    populateDocumentSelect();
+    applyFilter(document.getElementById("search").value, typeSelect.value);
+    if (viewMode.value === "catalog" || documentSelect.value === "__catalog__") renderCatalog();
+    else if (documentSelect.value) showDetail(documentSelect.value);
+    else showEmpty("No documents match this audience.");
+    if (viewMode.value === "graph") requestAnimationFrame(() => cy.fit(null, 42));
+  }
+
+  function showEmpty(message) {
+    document.getElementById("detail-empty").textContent = message;
     document.getElementById("detail-empty").hidden = false;
     document.getElementById("detail-content").hidden = true;
+  }
+
+  function renderCatalog() {
+    selectedId = "";
+    documentSelect.value = "__catalog__";
+    document.getElementById("detail-empty").hidden = true;
+    document.getElementById("detail-content").hidden = false;
+    const chip = document.getElementById("detail-type");
+    chip.textContent = "Catalog";
+    chip.style.background = "#262626";
+    document.getElementById("detail-title").textContent = `${bundleName} catalog`;
+    document.getElementById("detail-id").textContent = `${audienceFilter.value} documents · index navigation`;
+    document.getElementById("detail-meta").hidden = true;
+    document.getElementById("packet-nav").hidden = true;
+    document.getElementById("detail-backlinks").hidden = true;
+
+    const body = document.getElementById("detail-body");
+    body.innerHTML = "";
+    const nodes = sortDocuments(visibleNodes());
+    if (!nodes.length) {
+      const empty = document.createElement("p");
+      empty.className = "muted";
+      empty.textContent = "No documents match this audience.";
+      body.appendChild(empty);
+      return;
+    }
+
+    const intro = document.createElement("p");
+    intro.textContent = "Open a collection index, then follow its links into the complete source documents.";
+    body.appendChild(intro);
+    const groups = {};
+    for (const node of nodes) {
+      const path = node.data.path || node.data.id;
+      const group = path.includes("/") ? path.split("/", 1)[0] : "Manager";
+      (groups[group] ||= []).push(node);
+    }
+    const container = document.createElement("div");
+    container.className = "catalog-groups";
+    for (const [group, groupNodes] of Object.entries(groups).sort(([left], [right]) => left.localeCompare(right))) {
+      const section = document.createElement("section");
+      section.className = "catalog-group";
+      const heading = document.createElement("h2");
+      heading.textContent = group === "Manager" ? "Manager" : group.replace(/[-_]/g, " ");
+      section.appendChild(heading);
+      const list = document.createElement("ul");
+      const landing = groupNodes.find((node) => node.data.kind === "index");
+      const entries = landing ? [landing] : groupNodes;
+      for (const node of entries) {
+        const item = document.createElement("li");
+        const link = document.createElement("button");
+        link.type = "button";
+        link.className = "catalog-link";
+        link.textContent = node.data.label;
+        link.addEventListener("click", () => showDetail(node.data.id));
+        item.appendChild(link);
+        const description = node.data.description || (landing ? `${groupNodes.length} documents` : node.data.path);
+        if (description) {
+          const note = document.createElement("span");
+          note.className = "catalog-description";
+          note.textContent = `— ${description}`;
+          item.appendChild(note);
+        }
+        list.appendChild(item);
+      }
+      section.appendChild(list);
+      container.appendChild(section);
+    }
+    body.appendChild(container);
+    document.getElementById("detail").scrollTop = 0;
   }
 
   function showDetail(conceptId) {
     const data = nodeIndex[conceptId];
     if (!data) return;
+    if (!audienceMatches(data)) {
+      audienceFilter.value = "all";
+      populateDocumentSelect();
+      applyFilter(document.getElementById("search").value, typeSelect.value);
+    }
+    selectedId = conceptId;
+    if (data.kind === "index" && viewMode.value !== "catalog") {
+      viewMode.value = "catalog";
+      document.body.classList.remove("graph-mode");
+      document.body.classList.add("document-mode", "catalog-mode");
+      populateDocumentSelect();
+    } else if (data.kind !== "index" && viewMode.value === "catalog") {
+      viewMode.value = "document";
+      document.body.classList.remove("catalog-mode", "graph-mode");
+      document.body.classList.add("document-mode");
+      populateDocumentSelect();
+    }
     cy.elements().unselect();
     const node = cy.getElementById(conceptId);
     if (node) node.select();
+    documentSelect.value = conceptId;
 
     document.getElementById("detail-empty").hidden = true;
     document.getElementById("detail-content").hidden = false;
@@ -454,6 +724,7 @@ window.BUNDLE = __BUNDLE_DATA__;
     meta.innerHTML = "";
     addMeta(meta, "Status", data.status);
     addMeta(meta, "Updated", data.updated);
+    addMeta(meta, "Audience", data.audience);
     addMeta(meta, "Project ID", data.projectId);
     addMeta(meta, "Description", data.description);
     addResource(meta, data.resource);
@@ -461,13 +732,15 @@ window.BUNDLE = __BUNDLE_DATA__;
     if (!meta.children.length) meta.hidden = true;
     else meta.hidden = false;
 
+    renderPacketNav(data);
+
     const rawBody = bundle.bodies[conceptId] || "";
     const rendered = marked.parse(rawBody, { breaks: false, gfm: true });
     const body = document.getElementById("detail-body");
     body.innerHTML = sanitizeHtml(rendered);
     rewriteLinks(body);
 
-    const sources = backlinks[conceptId] || [];
+    const sources = (backlinks[conceptId] || []).filter((source) => audienceMatches(nodeIndex[source]));
     const section = document.getElementById("detail-backlinks");
     const list = document.getElementById("backlinks-list");
     list.innerHTML = "";
@@ -486,6 +759,27 @@ window.BUNDLE = __BUNDLE_DATA__;
     }
 
     document.getElementById("detail").scrollTop = 0;
+  }
+
+  function renderPacketNav(data) {
+    const nav = document.getElementById("packet-nav");
+    nav.innerHTML = "";
+    if (!data.projectId) {
+      nav.hidden = true;
+      return;
+    }
+    const siblings = sortDocuments(bundle.nodes.filter((node) =>
+      node.data.projectId === data.projectId && audienceMatches(node.data) && node.data.kind !== "index"
+    ));
+    nav.hidden = siblings.length < 2;
+    for (const sibling of siblings) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = (sibling.data.path || sibling.data.id).split("/").pop().replace(/\.md$/i, "");
+      if (sibling.data.id === data.id) button.setAttribute("aria-current", "page");
+      button.addEventListener("click", () => showDetail(sibling.data.id));
+      nav.appendChild(button);
+    }
   }
 
   function addMeta(list, label, value) {
@@ -566,12 +860,16 @@ window.BUNDLE = __BUNDLE_DATA__;
     });
   }
 
-  const initial =
-    bundle.nodes.find((node) => node.data.type === "OKF Index") ||
-    bundle.nodes.find((node) => node.data.type === "Project Status") ||
-    bundle.nodes[0];
-  if (initial) showDetail(initial.data.id);
-  else document.getElementById("detail-empty").textContent = "No OKF concepts were found in this Manager.";
+  populateTypeSelect();
+  populateDocumentSelect();
+  applyFilter("", "");
+  if (bundle.nodes.length) renderCatalog();
+  else {
+    documentSelect.disabled = true;
+    viewMode.disabled = true;
+    audienceFilter.disabled = true;
+    showEmpty("No Manager documents were found.");
+  }
 })();
 </script>
 </body>

@@ -49,8 +49,9 @@ folder names plus lightweight markers such as `.git`, `package.json`,
 
 The user classifies candidates as:
 
-- `project`: create a Project Pack with four state documents, an OKF log, and a
-  local binding;
+- `project`: create an open Project Pack with `README.md`, `AGENTS.md`, both
+  collection routes, and a local binding; add goal, result, worklog, index,
+  log, or other concepts only when useful;
 - `experiment`: remember the path without creating a full packet;
 - `ignored`: remember the path and do not ask again.
 
@@ -59,6 +60,10 @@ The user classifies candidates as:
 After approval, the bootstrap adds a core managed block to the user's global
 Codex `AGENTS.md`. It invokes `$wirenet-manager-sync` only when a future task
 would otherwise misunderstand durable project state.
+
+The block is conditional on the skill being installed and enabled. Disabling
+the plugin therefore stops reconciliation without blocking ordinary tasks; the
+managed block can also be removed explicitly during uninstall.
 
 A second managed block for workspace routing is optional. Bootstrap offers it
 only when the user already has a stable convention or explicitly wants one. It

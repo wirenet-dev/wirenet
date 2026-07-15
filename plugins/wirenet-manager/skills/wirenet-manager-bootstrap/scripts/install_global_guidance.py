@@ -18,16 +18,19 @@ ROUTING_END = "<!-- wirenet-manager:routing:end -->"
 CORE_BLOCK = f"""{CORE_START}
 ## WireNet Manager
 
-Before the final response in a project task, use `$wirenet-manager-sync` only
-when a future task would otherwise misunderstand durable goals, status,
-ownership, blockers, decisions, deadlines, results, canonical sources, or next
-steps. Do not update the Manager for routine edits, commands, or transient
+When `$wirenet-manager-sync` is installed and enabled, use it before the final
+response in a project task only when a future task would otherwise
+misunderstand durable goals, status,
+ownership, people, blockers, decisions, deadlines, results, canonical sources,
+or next steps. Let the skill choose the canonical Project Pack or Manager shelf;
+the user should not need to route ordinary context manually. Do not update the
+Manager for routine edits, commands, or transient
 experiments. If the workspace is untracked but appears durable, ask once whether
 it is a project, experiment, or ignored folder. Preview Project Pack changes and
 obtain approval before writing unless the user already approved that exact
-update. If the skill is unavailable, do not block the user's task; report the
-pending reconciliation briefly. Never copy raw media, source dumps, secrets, or
-generated files into the Manager.
+update. If the skill is unavailable or disabled, do nothing and do not block the
+user's task. Never copy raw media, source dumps, secrets, or generated files
+into canonical Manager knowledge; keep transient outputs local.
 {CORE_END}"""
 
 

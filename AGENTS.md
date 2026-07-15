@@ -18,7 +18,8 @@ folder only through the bootstrap flow.
 3. `docs/project-pack-contract.md`
 4. `plugins/wirenet-manager/.codex-plugin/plugin.json`
 5. The relevant plugin skill, script, template, and tests
-6. `docs/upstream-reference.md` when comparing Jason Liu's original model
+6. `docs/upstream-reference.md` and `docs/routing/` when comparing Jason Liu's
+   original model or changing routing semantics
 
 ## Product Boundaries
 
@@ -32,11 +33,13 @@ folder only through the bootstrap flow.
 
 ## Project Pack Contract
 
-Generated Project Packs must contain `GOAL.md`, `README.md`, `RESULT.md`,
-`AGENTS.md`, and the reserved OKF history file `log.md`. The four concept
-documents share one stable `project_id`; `log.md` is scoped by the packet path
-and carries no concept frontmatter. Portable files must not contain
-machine-local paths; store those only in `.wirenet/project-bindings.json`.
+Generated Project Packs must begin with `README.md` and `AGENTS.md`. Agents may
+add `GOAL.md`, `RESULT.md`, `WORKLOG.md`, reserved `index.md` or `log.md`, and
+other useful concepts when the work earns them. Every non-reserved concept in a
+packet shares one stable `project_id` and has a descriptive OKF `type`;
+reserved files are scoped by their path and carry no concept frontmatter.
+Portable files must not contain machine-local paths; store those only in
+`.wirenet/project-bindings.json`.
 
 ## Skills And Plugins
 

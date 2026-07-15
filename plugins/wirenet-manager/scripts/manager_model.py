@@ -182,15 +182,15 @@ def render_project_agents(title: str, project_id: str, stamp: datetime) -> str:
             "",
             "## Purpose",
             "",
-            "Keep this Project Pack useful as a durable handoff, not an activity log.",
+            "Keep this Project Pack useful as an open, durable handoff rather than a fixed form or activity log.",
             "",
             "## Read Order",
             "",
-            "1. `GOAL.md` for the stable outcome and completion contract.",
-            "2. `README.md` for current status, next move, decisions, and blockers.",
-            "3. `RESULT.md` for completed outcomes and verification.",
-            "4. `log.md` only when the chronology of meaningful changes matters.",
-            "5. Revisit the canonical sources listed below only when needed.",
+            "1. `README.md` for the current state, next move, decisions, and blockers.",
+            "2. This `AGENTS.md` for recurring sources, safety, and routing.",
+            "3. Read `GOAL.md`, `RESULT.md`, `WORKLOG.md`, or `log.md` only when present and relevant.",
+            "4. Follow links to additional Project Pack concepts only as the task needs them.",
+            "5. Revisit the canonical external sources listed below selectively.",
             "",
             "## Recurring Sources",
             "",
@@ -199,11 +199,13 @@ def render_project_agents(title: str, project_id: str, stamp: datetime) -> str:
             "## Update Rules",
             "",
             "- Update `README.md` only when future work would otherwise misunderstand the project.",
-            "- Update `GOAL.md` only when the desired outcome, constraints, or completion criteria change.",
-            "- Update `RESULT.md` only for completed outcomes with evidence or verification.",
-            "- Add one concise `log.md` entry for each meaningful state transition written to the packet.",
+            "- Create or update `GOAL.md` only when a separate durable outcome contract improves the handoff.",
+            "- Create or update `RESULT.md` only when completed outcomes deserve durable evidence or verification.",
+            "- Let an active UltraGoal use `WORKLOG.md` for detailed attempts; do not mirror that detail into `log.md`.",
+            "- Create or update `log.md` only when a sparse OKF chronology materially improves navigation or synchronization.",
+            "- Additional Markdown concepts are allowed when they have a clear purpose, OKF `type`, and this packet's `project_id`.",
             "- Update this file only when read order, recurring sources, safety gates, or routing changes.",
-            "- Keep `log.md` semantic: no routine edits, command logs, raw transcripts, or duplicated status.",
+            "- Keep optional `log.md` semantic: no routine edits, command logs, raw transcripts, or duplicated status.",
             "- Do not record raw source material, secrets, or generated files.",
             "",
             "## Safety Gates",
@@ -332,3 +334,26 @@ def insert_project_index(
             remainder = content[line_end + 1 :].lstrip("\n")
             updated = content[: line_end + 1] + f"\n{entry}\n" + remainder
     return updated
+
+
+def insert_project_router(
+    content: str,
+    slug: str,
+    title: str,
+    summary: str,
+) -> str:
+    heading = "## Active Project Packs"
+    if heading not in content:
+        raise ValueError(f"project README is missing {heading!r}")
+    description = " ".join(summary.split())
+    entry = f"- [{title}]({slug}/README.md)"
+    if description:
+        entry += f" — {description}"
+    if entry in content.splitlines():
+        return content
+    marker = content.index(heading) + len(heading)
+    line_end = content.find("\n", marker)
+    if line_end < 0:
+        return content + f"\n\n{entry}\n"
+    remainder = content[line_end + 1 :].lstrip("\n")
+    return content[: line_end + 1] + f"\n{entry}\n" + remainder

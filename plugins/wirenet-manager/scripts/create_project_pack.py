@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Preview or create a WireNet Manager Project Pack with an OKF update log."""
+"""Preview or create an open WireNet Manager Project Pack."""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ from pathlib import Path
 from manager_model import (
     BINDINGS_SCHEMA,
     insert_project_index,
+    insert_project_router,
     iso_timestamp,
     load_bindings,
     load_json,
@@ -34,6 +35,9 @@ def main() -> int:
     parser.add_argument("--workspace", action="append", default=[])
     parser.add_argument("--project-id", default="")
     parser.add_argument("--slug", default="")
+    parser.add_argument("--with-goal", action="store_true")
+    parser.add_argument("--with-result", action="store_true")
+    parser.add_argument("--with-log", action="store_true")
     parser.add_argument("--apply", action="store_true")
     args = parser.parse_args()
 
@@ -42,10 +46,14 @@ def main() -> int:
     project_id = args.project_id or new_project_id()
     packet = manager_dir / "projects" / slug
     workspaces = [str(Path(item).expanduser().resolve(strict=False)) for item in args.workspace]
-    files = [
-        packet / name
-        for name in ("README.md", "AGENTS.md", "GOAL.md", "RESULT.md", "log.md")
-    ]
+    file_names = ["README.md", "AGENTS.md"]
+    if args.with_goal:
+        file_names.append("GOAL.md")
+    if args.with_result:
+        file_names.append("RESULT.md")
+    if args.with_log:
+        file_names.append("log.md")
+    files = [packet / name for name in file_names]
     result: dict[str, object] = {
         "ok": True,
         "dry_run": not args.apply,
@@ -75,10 +83,14 @@ def main() -> int:
         return 2
 
     index_path = manager_dir / "projects/index.md"
+    router_path = manager_dir / "projects/README.md"
     stamp = now()
     try:
         updated_index = insert_project_index(
             index_path.read_text(encoding="utf-8"), slug, args.name, args.summary
+        )
+        updated_router = insert_project_router(
+            router_path.read_text(encoding="utf-8"), slug, args.name, args.summary
         )
         bindings = load_bindings(manager_dir)
         manager_metadata = load_json(manager_dir / ".wirenet/manager.json")
@@ -107,13 +119,19 @@ def main() -> int:
         render_project_readme(args.name, args.summary, project_id, stamp), encoding="utf-8"
     )
     (packet / "AGENTS.md").write_text(render_project_agents(args.name, project_id, stamp), encoding="utf-8")
-    (packet / "GOAL.md").write_text(
-        render_project_goal(args.name, args.summary, project_id, stamp), encoding="utf-8"
-    )
-    (packet / "RESULT.md").write_text(render_project_result(args.name, project_id, stamp), encoding="utf-8")
-    (packet / "log.md").write_text(render_project_log(args.name, stamp), encoding="utf-8")
+    if args.with_goal:
+        (packet / "GOAL.md").write_text(
+            render_project_goal(args.name, args.summary, project_id, stamp), encoding="utf-8"
+        )
+    if args.with_result:
+        (packet / "RESULT.md").write_text(
+            render_project_result(args.name, project_id, stamp), encoding="utf-8"
+        )
+    if args.with_log:
+        (packet / "log.md").write_text(render_project_log(args.name, stamp), encoding="utf-8")
 
     index_path.write_text(updated_index, encoding="utf-8")
+    router_path.write_text(updated_router, encoding="utf-8")
 
     binding_path = manager_dir / ".wirenet/project-bindings.json"
     bindings["schema_version"] = BINDINGS_SCHEMA

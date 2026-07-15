@@ -24,9 +24,10 @@ personal Manager.
 8. Present candidates and classify each relevant folder as project,
    experiment, or ignored.
 9. For approved projects, preview then apply the plugin-root
-   `scripts/create_project_pack.py`. It creates `GOAL.md`, `README.md`,
-   `RESULT.md`, and `AGENTS.md` with one stable `project_id`, plus the reserved
-   OKF history file `log.md`.
+   `scripts/create_project_pack.py`. It creates an open packet with `README.md`
+   and `AGENTS.md`, updates both the Jason-compatible README router and additive
+   OKF index, and stores one stable `project_id`. Add optional goal, result, log,
+   worklog, index, or other concepts only when useful.
 10. Preview `scripts/install_global_guidance.py`; ask before applying the core
     managed block to the user's global `AGENTS.md`.
 11. Ask one optional routing question: does the user already have a stable

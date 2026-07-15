@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate or serve a read-only WireNet Manager OKF viewer."""
+"""Generate or serve a read-only WireNet Manager document and OKF viewer."""
 
 from __future__ import annotations
 
@@ -29,11 +29,12 @@ IGNORED_DIRECTORIES = {
     ".next",
     ".turbo",
     "assets",
-    "docs",
     "plugins",
     "scripts",
     "skills",
     "tests",
+    "templates",
+    "outputs",
     "viewer",
 }
 MARKDOWN_EXTENSIONS = {".md", ".markdown"}
@@ -51,8 +52,11 @@ TYPE_PALETTE = {
     "Decision": "#b1507c",
     "OKF Index": "#262626",
     "OKF Log": "#c2841a",
+    "Document": "#8a8a8a",
 }
 DEFAULT_NODE_COLOR = "#8a8a8a"
+AGENT_AUDIENCES = {"agent", "machine", "system"}
+AGENT_CONCEPT_TYPES = {"Runtime Adapter"}
 
 
 @dataclass
@@ -68,6 +72,9 @@ class Concept:
     updated: str
     project_id: str
     body: str
+    audience: str
+    document_kind: str
+    is_okf: bool
     outgoing: list[str] = field(default_factory=list)
 
     def to_node(self) -> dict[str, Any]:
@@ -86,6 +93,9 @@ class Concept:
                 "updated": self.updated,
                 "projectId": self.project_id,
                 "path": self.path,
+                "audience": self.audience,
+                "kind": self.document_kind,
+                "isOkf": self.is_okf,
                 "color": color,
                 "size": 28 + min(48, len(self.body) // 260),
             }
@@ -150,7 +160,12 @@ def description_from(body: str, metadata: dict[str, Any]) -> str:
         if stripped.startswith(("```", "~~~")):
             in_fence = not in_fence
             continue
-        if in_fence or not stripped or stripped.startswith(("#", "-", "*", ">", "|")):
+        if (
+            in_fence
+            or not stripped
+            or stripped.startswith(("#", "-", "*", ">", "|"))
+            or (line[:1].isspace() and not paragraphs)
+        ):
             if paragraphs:
                 break
             continue
@@ -169,6 +184,36 @@ def tags_from(metadata: dict[str, Any]) -> list[str]:
     else:
         values = []
     return sorted({str(item).lstrip("#").strip() for item in values if str(item).strip()})
+
+
+def document_kind(path: PurePosixPath, concept_type: str) -> str:
+    if path.name.lower() == "agents.md" or concept_type in AGENT_CONCEPT_TYPES:
+        return "instructions"
+    if (
+        path.name.lower() == "index.md"
+        or concept_type.endswith(" Index")
+    ):
+        return "index"
+    if path.name.lower() == "log.md":
+        return "log"
+    if concept_type and concept_type != "Document":
+        return "concept"
+    return "document"
+
+
+def document_audience(
+    path: PurePosixPath,
+    concept_type: str,
+    metadata: dict[str, Any],
+) -> str:
+    explicit = str(metadata.get("audience") or "").strip().lower()
+    if explicit in AGENT_AUDIENCES:
+        return "agent"
+    if explicit in {"human", "people", "user"}:
+        return "human"
+    if path.name.lower() == "agents.md" or concept_type in AGENT_CONCEPT_TYPES:
+        return "agent"
+    return "human"
 
 
 def iter_markdown(manager_dir: Path) -> list[Path]:
@@ -192,9 +237,9 @@ def iter_markdown(manager_dir: Path) -> list[Path]:
     return paths
 
 
-def read_okf_concepts(manager_dir: Path) -> list[Concept]:
+def read_manager_documents(manager_dir: Path) -> list[Concept]:
     candidates: list[tuple[Path, dict[str, Any], str]] = []
-    concept_paths: set[Path] = set()
+    project_ids_by_directory: dict[Path, str] = {}
     markdown_paths = iter_markdown(manager_dir)
 
     for path in markdown_paths:
@@ -203,42 +248,34 @@ def read_okf_concepts(manager_dir: Path) -> list[Concept]:
         except (OSError, UnicodeDecodeError):
             continue
         metadata, body = parse_frontmatter(raw)
-        if str(metadata.get("type") or "").strip():
-            candidates.append((path, metadata, body))
-            concept_paths.add(path)
-
-    okf_directories = {path.parent for path in concept_paths}
-    for path in concept_paths:
-        relative_parent = path.parent
-        while relative_parent != manager_dir and manager_dir in relative_parent.parents:
-            okf_directories.add(relative_parent)
-            relative_parent = relative_parent.parent
-        okf_directories.add(manager_dir)
-
-    existing_paths = {path for path, _, _ in candidates}
-    for path in markdown_paths:
-        if path in existing_paths or path.name not in {"index.md", "log.md"}:
-            continue
-        if path.parent not in okf_directories:
-            continue
-        try:
-            raw = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
-            continue
-        metadata, body = parse_frontmatter(raw)
-        metadata = dict(metadata)
-        metadata["type"] = "OKF Index" if path.name == "index.md" else "OKF Log"
         candidates.append((path, metadata, body))
+        project_id = str(metadata.get("project_id") or "").strip()
+        if project_id:
+            project_ids_by_directory.setdefault(path.parent, project_id)
 
     concepts: list[Concept] = []
     for path, metadata, body in sorted(candidates, key=lambda item: item[0].as_posix()):
         relative_path = path.relative_to(manager_dir).as_posix()
+        relative = PurePosixPath(relative_path)
+        concept_type = str(metadata.get("type") or "").strip()
+        if relative.name.lower() == "index.md":
+            concept_type = concept_type or "OKF Index"
+        elif relative.name.lower() == "log.md":
+            concept_type = concept_type or "OKF Log"
+        elif relative.name.lower() == "agents.md":
+            concept_type = concept_type or "Runtime Adapter"
+        else:
+            concept_type = concept_type or "Document"
+        project_id = str(metadata.get("project_id") or "").strip()
+        if not project_id and path.parent in project_ids_by_directory:
+            project_id = project_ids_by_directory[path.parent]
+        kind = document_kind(relative, concept_type)
         concept_id = str(PurePosixPath(relative_path).with_suffix(""))
         concepts.append(
             Concept(
                 path=relative_path,
                 concept_id=concept_id,
-                concept_type=str(metadata.get("type") or "Unknown"),
+                concept_type=concept_type,
                 title=title_from(relative_path, body, metadata),
                 description=description_from(body, metadata),
                 resource=str(metadata.get("resource") or ""),
@@ -250,8 +287,11 @@ def read_okf_concepts(manager_dir: Path) -> list[Concept]:
                     or metadata.get("timestamp")
                     or ""
                 ),
-                project_id=str(metadata.get("project_id") or ""),
+                project_id=project_id,
                 body=body,
+                audience=document_audience(relative, concept_type, metadata),
+                document_kind=kind,
+                is_okf=bool(metadata.get("type")) or relative.name.lower() in {"index.md", "log.md"},
             )
         )
 
@@ -340,17 +380,18 @@ def build_graph(concepts: list[Concept]) -> dict[str, Any]:
 
     for concept in concepts:
         for target in concept.outgoing:
-            key = (concept.concept_id, target, "link")
+            edge_kind = "catalog" if concept.document_kind == "index" else "link"
+            key = (concept.concept_id, target, edge_kind)
             if key in seen:
                 continue
             seen.add(key)
             edges.append(
                 {
                     "data": {
-                        "id": f"link__{concept.concept_id}__{target}",
+                        "id": f"{edge_kind}__{concept.concept_id}__{target}",
                         "source": concept.concept_id,
                         "target": target,
-                        "kind": "link",
+                        "kind": edge_kind,
                     }
                 }
             )
@@ -382,6 +423,36 @@ def build_graph(concepts: list[Concept]) -> dict[str, Any]:
                 }
             )
 
+    instructions = [item for item in concepts if item.document_kind == "instructions"]
+    for concept in instructions:
+        directory = PurePosixPath(concept.path).parent
+        parents = [
+            candidate
+            for candidate in instructions
+            if candidate is not concept
+            and (
+                PurePosixPath(candidate.path).parent == PurePosixPath(".")
+                or PurePosixPath(candidate.path).parent in directory.parents
+            )
+        ]
+        if not parents:
+            continue
+        parent = max(parents, key=lambda item: len(PurePosixPath(item.path).parent.parts))
+        key = (parent.concept_id, concept.concept_id, "routing")
+        if key in seen:
+            continue
+        seen.add(key)
+        edges.append(
+            {
+                "data": {
+                    "id": f"routing__{parent.concept_id}__{concept.concept_id}",
+                    "source": parent.concept_id,
+                    "target": concept.concept_id,
+                    "kind": "routing",
+                }
+            }
+        )
+
     return {
         "nodes": nodes,
         "edges": edges,
@@ -400,7 +471,7 @@ def generate_html(manager_dir: Path, *, bundle_name: str | None = None) -> tuple
     manager_dir = manager_dir.expanduser().resolve()
     if not manager_dir.is_dir():
         raise FileNotFoundError(f"Manager directory not found: {manager_dir}")
-    concepts = read_okf_concepts(manager_dir)
+    concepts = read_manager_documents(manager_dir)
     graph = build_graph(concepts)
     safe_name = bundle_name or manager_dir.name
     graph_json = json.dumps(graph, ensure_ascii=False).replace("</", "<\\/")
@@ -457,7 +528,7 @@ def serve_html(html: str, port: int) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Render the OKF content in a WireNet Manager as one read-only HTML file."
+        description="Render Manager Markdown and OKF navigation as one read-only HTML file."
     )
     parser.add_argument(
         "--manager-dir",
@@ -477,7 +548,7 @@ def main() -> int:
     if not 1 <= args.port <= 65535:
         raise SystemExit("--port must be between 1 and 65535")
     html, counts = generate_html(args.manager_dir, bundle_name=args.name)
-    print(f"OKF concepts: {counts['concepts']}", flush=True)
+    print(f"Viewer documents: {counts['concepts']}", flush=True)
     print(f"Graph edges: {counts['edges']}", flush=True)
     if args.serve:
         serve_html(html, args.port)

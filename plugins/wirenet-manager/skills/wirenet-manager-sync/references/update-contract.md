@@ -23,12 +23,19 @@ last_edited: 2026-07-15
 
 ## Project Pack Routing
 
-- `GOAL.md`: stable intent and completion contract.
 - `README.md`: current operational handoff.
-- `RESULT.md`: completed evidence.
 - `AGENTS.md`: recurring routing and local rules.
-- `log.md`: one concise dated entry for a meaningful state transition; never a
-  command-by-command worklog or duplicate status page.
+- optional `GOAL.md`: stable intent and completion contract when a separate
+  document improves the handoff.
+- optional `RESULT.md`: completed evidence when it deserves a durable document.
+- optional `WORKLOG.md`: detailed active UltraGoal attempts and next action.
+- optional `log.md`: sparse dated transitions useful for navigation or sync;
+  never a command-by-command worklog or duplicate status page.
+- other optional concepts: allowed when they use a clear OKF type and stable
+  packet `project_id`.
+
+Do not force information into a conventional filename merely to fill a template.
+Do not create empty optional documents.
 
 ## Workspace Classification
 
@@ -39,3 +46,6 @@ last_edited: 2026-07-15
 
 Bindings and routes are device-local. They belong in
 `.wirenet/project-bindings.json`, not portable Project Pack frontmatter.
+
+For non-project durable context, follow the shared content-routing contract in
+`../wirenet-manager/references/content-routing.md`.

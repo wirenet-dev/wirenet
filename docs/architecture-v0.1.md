@@ -42,7 +42,7 @@ External task ends
           │
       user approval
           ▼
-     update canonical state and compact log
+     update canonical state; add a sparse log only when useful
 ```
 
 ## Product Files
@@ -76,15 +76,40 @@ Each skill keeps its `SKILL.md` concise and places detailed contracts under
 ### Read-Only Viewer
 
 `viewer/manager-viewer.html` is a single HTML template based on the official
-Google Cloud OKF graph-and-detail viewer model. The generator embeds only
-Markdown documents with a non-empty OKF `type`, plus reserved `index.md` and
-`log.md` files inside those concept trees. Technical plugin files, skills,
-scripts, hidden state, and local binding JSON never enter the generated page.
+Google Cloud OKF graph-and-detail viewer model. The generator embeds Manager
+Markdown documents without filtering or rewriting their bodies. Templates,
+technical plugin files, skills, scripts, hidden state, and local binding JSON
+never enter the generated page.
 
 Markdown links create graph edges. Documents sharing a Project Pack
 `project_id` receive a separate dashed packet relationship. The page renders
-Markdown, backlinks, search, type filters, and layouts, but offers no editing or
-filesystem API.
+complete Markdown and backlinks. Catalog mode uses OKF index documents for
+progressive disclosure, document mode supports focused reading, and graph mode
+adds search, type filters, and layouts. The audience filter selects human
+documents, agent instructions, or all documents. In agent mode, structural
+routing edges show the nearest-parent hierarchy between `AGENTS.md` files. The
+viewer offers no editing or filesystem API.
+
+### Layer Boundary
+
+WireNet preserves Jason Liu's plain-file operating model instead of replacing
+it with OKF:
+
+1. Project `README.md` remains canonical current state; optional `GOAL.md`,
+   `RESULT.md`, `WORKLOG.md`, and additional concepts remain normal Markdown.
+2. `AGENTS.md` remains executable routing and behavioral guidance for agents.
+3. `.wirenet/project-bindings.json` stores only device-local project IDs,
+   paths, and classifications; it does not contain instructions or project prose.
+4. OKF frontmatter, `index.md`, `log.md`, and Markdown links add portable
+   identity, progressive disclosure, chronology, and graph relationships.
+5. The viewer is a read-only consumer of those layers and never becomes a
+   second source of truth.
+
+The frozen entity and route definitions under `contracts/routing/` make this
+boundary testable. They distinguish committed placeholders from semantically
+routed shelves, and they keep the Jason reference separate from WireNet's OKF,
+binding, plugin, and viewer additions. The human-readable analysis lives under
+`docs/routing/`.
 
 ### Seed
 
@@ -96,14 +121,19 @@ skills. Bootstrap adds the dynamic `.wirenet/manager.json` file.
 
 - `AGENTS.md`: Manager-wide read order, durable-state rules, and safety.
 - `README.md`: human explanation of the local workspace.
+- `index.md`: required WireNet bundle catalog and OKF version declaration.
 - `TODO.md`: cross-project current stack.
 - `agent/USER_CONTEXT.md`: durable user working context.
-- `projects/index.md`: compact catalog for progressive disclosure and search.
-- `projects/<slug>/`: four portable state documents plus one OKF `log.md`.
+- `projects/README.md`: Jason-compatible collection guide and routing surface.
+- `projects/index.md`: additive catalog for progressive disclosure and search.
+- `projects/<slug>/`: open packet with required `README.md` and `AGENTS.md`;
+  other concepts, packet-local indexes, and logs are optional.
 - `people/`: recurring collaborator notes.
 - `notes/`: durable scratch material without a canonical home.
-- `sources/`: retained evidence, read-only by default.
-- `experiments/`, `outputs/`, `archive/`: bounded supporting shelves.
+- `docs/`: optional structured documents without a stronger canonical home.
+- `sources/`: curated Knowledge Shelf, read-only by default and link-first.
+- `experiments/` and `archive/`: bounded supporting shelves.
+- `outputs/`: ignored device-local working memory for generated intermediates.
 - `.wirenet/manager.json`: schema, Manager ID, plugin version, and OKF profile.
 - `.wirenet/project-bindings.json`: device-local project paths and ignored or
   experimental routes.

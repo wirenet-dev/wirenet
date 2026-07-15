@@ -18,20 +18,28 @@ from manager_model import (
 
 
 REQUIRED_PATHS = (
+    ".gitignore",
     "AGENTS.md",
+    "index.md",
     "README.md",
     "TODO.md",
     "agent/USER_CONTEXT.md",
+    "archive/README.md",
+    "docs/README.md",
+    "experiments/README.md",
+    "outputs/README.md",
     "people/README.md",
+    "projects/README.md",
     "projects/index.md",
     "projects/AGENTS.md",
     "notes/README.md",
     "sources/README.md",
+    "templates/README.md",
     ".wirenet/manager.json",
     ".wirenet/project-bindings.json",
 )
-PACK_CONCEPT_FILES = ("README.md", "AGENTS.md", "GOAL.md", "RESULT.md")
-PACK_FILES = (*PACK_CONCEPT_FILES, "log.md")
+REQUIRED_PACK_FILES = ("README.md", "AGENTS.md")
+RESERVED_OKF_FILES = {"index.md", "log.md"}
 
 
 def validate_update_log(path: Path) -> list[str]:
@@ -79,15 +87,20 @@ def inspect(manager_dir: Path) -> dict[str, object]:
     project_ids: set[str] = set()
     projects_dir = manager_dir / "projects"
     project_index = ""
+    project_router = ""
     if (projects_dir / "index.md").is_file():
         project_index = (projects_dir / "index.md").read_text(encoding="utf-8")
         if project_index.startswith("---\n"):
             errors.append("projects/index.md must not contain Project Pack frontmatter")
         if "## Active Project Packs" not in project_index:
             errors.append("projects/index.md is missing the active-packets section")
+    if (projects_dir / "README.md").is_file():
+        project_router = (projects_dir / "README.md").read_text(encoding="utf-8")
+        if "## Active Project Packs" not in project_router:
+            errors.append("projects/README.md is missing the active-packets section")
     if projects_dir.is_dir():
         for packet in sorted(path for path in projects_dir.iterdir() if path.is_dir()):
-            packet_missing = [name for name in PACK_FILES if not (packet / name).is_file()]
+            packet_missing = [name for name in REQUIRED_PACK_FILES if not (packet / name).is_file()]
             project_id = project_id_from_readme(packet / "README.md")
             packet_errors: list[str] = []
             if not project_id:
@@ -96,23 +109,26 @@ def inspect(manager_dir: Path) -> dict[str, object]:
                 packet_errors.append(f"duplicate project_id: {project_id}")
             else:
                 project_ids.add(project_id)
-            file_project_ids = {
-                name: project_id_from_readme(packet / name)
-                for name in PACK_CONCEPT_FILES
-                if (packet / name).is_file()
-            }
+            concept_files = sorted(
+                path
+                for path in packet.glob("*.md")
+                if path.name not in RESERVED_OKF_FILES
+            )
+            file_project_ids = {path.name: project_id_from_readme(path) for path in concept_files}
             if project_id and any(value != project_id for value in file_project_ids.values()):
-                packet_errors.append("the four concept files do not share one project_id")
-            for name in PACK_CONCEPT_FILES:
-                path = packet / name
-                if path.is_file() and f'schema: "{PROJECT_PACK_SCHEMA}"' not in path.read_text(
-                    encoding="utf-8"
-                ):
-                    packet_errors.append(f"{name} is not on the v0.1 Project Pack schema")
+                packet_errors.append("all Project Pack concept files must share one project_id")
+            for path in concept_files:
+                content = path.read_text(encoding="utf-8")
+                if f'schema: "{PROJECT_PACK_SCHEMA}"' not in content:
+                    packet_errors.append(f"{path.name} is not on the v0.1 Project Pack schema")
+                if not re.search(r"(?m)^type:\s*[\"']?\S", content):
+                    packet_errors.append(f"{path.name} is missing a non-empty OKF type")
             if (packet / "log.md").is_file():
                 packet_errors.extend(validate_update_log(packet / "log.md"))
             if project_index and f"({packet.name}/README.md)" not in project_index:
                 packet_errors.append("Project Pack is missing from projects/index.md")
+            if project_router and f"({packet.name}/README.md)" not in project_router:
+                packet_errors.append("Project Pack is missing from projects/README.md")
             packet_reports.append(
                 {
                     "path": str(packet),

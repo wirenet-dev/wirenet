@@ -7,7 +7,8 @@ last_edited: 2026-07-15
 WireNet Manager is an installable ChatGPT Work and Codex plugin for local,
 reviewable work memory. It bootstraps a content-only `~/Manager`, connects
 external workspaces through device-local bindings, and maintains portable
-Project Packs with four stable state documents and a concise OKF update log.
+Project Packs that begin with a human handoff and local agent instructions,
+then grow only when the work earns more structure.
 
 ## Install And Bootstrap
 
@@ -33,12 +34,12 @@ Developer repository / installed plugin       User runtime
 
 plugins/wirenet-manager/                       ~/Manager/
 ├── .codex-plugin/plugin.json                  ├── AGENTS.md
-├── skills/                                    ├── TODO.md
-├── scripts/                                   ├── agent/
-└── templates/manager/             ───────▶    ├── people/
-                                                ├── projects/
-external project folders           ◀──────▶    ├── notes/ and sources/
-                                                └── .wirenet/
+├── skills/                                    ├── index.md and README.md
+├── scripts/                                   ├── TODO.md and agent/
+└── templates/manager/             ───────▶    ├── projects/ and people/
+                                                ├── notes/, docs/, sources/
+                                                ├── ignored outputs/
+external project folders           ◀──────▶    └── .wirenet/
 ```
 
 - The plugin owns behavior, schemas, deterministic helpers, and the seed.
@@ -61,15 +62,20 @@ external project folders           ◀──────▶    ├── notes/ 
 ## Read-Only Manager Viewer
 
 `$wirenet-manager` can open a small branded viewer for the Manager's local OKF
-memory. It shows only typed OKF Markdown concepts plus the `index.md` and
-`log.md` files that belong to those concept trees. Plugin metadata, skills,
-scripts, hidden state, and device-local bindings are excluded.
+memory. The viewer renders each selected Markdown source in full; it never
+removes sections or rewrites a document for presentation. Its audience filter
+switches between human-facing documents, agent instructions, and all Manager
+documents. Templates, plugin metadata, skills, scripts, hidden state, and
+device-local bindings remain excluded.
 
 The viewer follows the graph-and-detail model of Google's official OKF HTML
 viewer: Markdown links become graph relationships, Project Pack documents are
 grouped by their stable `project_id`, and selecting a concept renders its
-Markdown and backlinks. It is read-only and has no Node runtime, database,
-watcher, or edit API.
+Markdown and backlinks. Catalog mode exposes actual OKF `index.md` files and a
+synthesized Manager catalog for progressive disclosure. Document mode supports
+focused reading. Graph mode shows concept links, Project Pack relationships,
+and the inherited hierarchy between `AGENTS.md` files. It is read-only and has
+no Node runtime, database, watcher, or edit API.
 
 For local development:
 
@@ -92,15 +98,19 @@ Every v0.1 Project Pack contains:
 
 | File | Responsibility | WireNet OKF mapping |
 | --- | --- | --- |
-| `GOAL.md` | Stable outcome and completion criteria | `Project Brief` |
 | `README.md` | Current status and next move | `Project Status` |
-| `RESULT.md` | Completed outcomes and verification | `Project Result` |
 | `AGENTS.md` | Read order, sources, safety, update rules | `Runtime Adapter` |
-| `log.md` | Meaningful changes, newest first | reserved OKF update log |
 
-The four concept documents share a stable `project_id`. The reserved `log.md`
-is identified by its packet path and deliberately carries no duplicate concept
-metadata. Machine-local paths live only in
+These two files are the open core, not a fixed form. The Manager may add
+`GOAL.md`, `RESULT.md`, `WORKLOG.md`, reserved `index.md` or `log.md`, and other
+typed concepts when they improve the handoff. All non-reserved concepts share
+one stable `project_id`; reserved files are identified by their packet path and
+carry no duplicate concept metadata. Manager `index.md` and
+`projects/index.md` are required by the WireNet profile as navigational entry
+points, even though OKF itself makes both indexes and logs optional. Packet-local
+indexes and all logs remain optional.
+
+Machine-local paths live only in
 `~/Manager/.wirenet/project-bindings.json`. The mapping is a small WireNet OKF
 profile, not a claim that v0.1 implements the complete OKF mirror system.
 
@@ -118,8 +128,16 @@ Codex configuration.
 - `plugins/wirenet-manager/viewer/`: one-file viewer template.
 - `docs/architecture-v0.1.md`: file-by-file architecture and routing diagram.
 - `docs/project-pack-contract.md`: Project Pack and OKF profile.
+- `docs/testing-markdown-as-code.md`: contract surfaces, test layers, and
+  regression invariants for the natural-language product.
+- `docs/routing/`: frozen Jason and WireNet routing descriptions plus the
+  regression strategy.
+- `contracts/routing/`: machine-readable routing entities, producers,
+  consumers, evidence, and route contracts.
 - `docs/installing-wirenet-manager.md`: installation and bootstrap path.
 - `scripts/compare_upstream.py`: read-only comparison with Jason's upstream.
+- `scripts/compare_routing_contracts.py`: deterministic semantic contract
+  comparison without fetching or mutating Git state.
 - `tests/`: plugin, bootstrap, routing, template, and legacy-reference checks.
 
 ## Upstream Reference
@@ -165,6 +183,12 @@ Compare with upstream without merging:
 
 ```sh
 python3 scripts/compare_upstream.py --fetch
+```
+
+Compare the frozen routing contracts without network access:
+
+```sh
+python3 scripts/compare_routing_contracts.py
 ```
 
 ## Release Status

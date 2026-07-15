@@ -8,22 +8,33 @@ last_edited: 2026-07-15
 
 # Project Pack Instructions
 
-## Required Files
+## Minimum Contract
 
-Every active Project Pack contains:
+Every active Project Pack starts with:
 
-1. `GOAL.md` — stable outcome and completion contract; OKF `Project Brief`.
-2. `README.md` — current project state; OKF `Project Status`.
-3. `RESULT.md` — completed outcomes and verification; WireNet `Project Result`.
-4. `AGENTS.md` — local read order and routing; OKF `Runtime Adapter`.
-5. `log.md` — meaningful changes under ISO-date headings; reserved OKF history.
+1. `README.md` — current project state; OKF `Project Status`.
+2. `AGENTS.md` — local read order and routing; OKF `Runtime Adapter`.
+
+## Optional Conventions
+
+- `GOAL.md` — stable outcome and completion contract; OKF `Project Brief`.
+- `RESULT.md` — completed outcomes and verification; WireNet `Project Result`.
+- `WORKLOG.md` — detailed active UltraGoal attempts, evidence, and next action.
+- `log.md` — sparse meaningful changes under ISO-date headings; reserved OKF history.
+- Other Markdown concepts — allowed when their purpose is clearer than forcing
+  the information into a standard filename.
 
 ## Rules
 
-- Use one stable `project_id` across the four concept documents. `log.md` is
-  scoped by its packet path and carries no concept frontmatter.
+- Use one stable `project_id` across every Project Pack concept document.
+  Reserved `index.md` and `log.md` are path-scoped and carry no concept
+  frontmatter.
 - Keep local filesystem paths out of portable Project Pack files.
-- Update the project index when creating or archiving a packet.
-- Add one compact `log.md` entry when canonical project state meaningfully changes.
-- Keep packets useful as handoffs; never turn `log.md` into a raw worklog.
+- Update both `projects/README.md` and `projects/index.md` when creating or
+  archiving a packet.
+- Create `GOAL.md`, `RESULT.md`, `WORKLOG.md`, `log.md`, or another concept only
+  when it earns a separate durable role.
+- Never mirror UltraGoal `WORKLOG.md` detail into `log.md`; the latter is only a
+  sparse portable chronology when useful.
+- Keep packets useful as handoffs without restricting agents to a fixed file set.
 - Preserve unknown frontmatter keys when editing.

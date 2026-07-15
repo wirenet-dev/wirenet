@@ -29,11 +29,13 @@ folder.
 
 ```text
 projects/<slug>/
-├── GOAL.md       # stable outcome; OKF Project Brief
 ├── README.md     # current state; OKF Project Status
-├── RESULT.md     # completed evidence; Project Result
 ├── AGENTS.md     # read order and routing; Runtime Adapter
-└── log.md        # meaningful changes; reserved OKF history
+├── GOAL.md       # optional stable outcome; OKF Project Brief
+├── RESULT.md     # optional completed evidence; Project Result
+├── WORKLOG.md    # optional detailed UltraGoal state
+├── log.md        # optional sparse OKF history
+└── <concept>.md  # optional purpose-driven project knowledge
 ```
 
 YAML frontmatter is safe in `AGENTS.md` as ordinary Markdown metadata. Codex
@@ -43,7 +45,9 @@ remain normal `AGENTS.md` content. Keep the metadata small and unambiguous.
 ## Portable And Local State
 
 - `project_id` is stable and portable across devices.
-- The four concept documents share `project_id`; `log.md` is path-scoped.
+- `README.md` and `AGENTS.md` are the minimum packet.
+- Every non-reserved concept shares `project_id`; `index.md` and `log.md` are
+  path-scoped.
 - `.wirenet/project-bindings.json` maps that ID to local absolute paths.
 - `.wirenet/manager.json` records Manager, plugin, schema, and OKF-profile
   versions.

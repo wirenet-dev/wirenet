@@ -9,6 +9,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 VIEWER = ROOT / "plugins/wirenet-manager/scripts/generate_manager_viewer.py"
+BOOTSTRAP = ROOT / "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py"
+CREATE_PROJECT = ROOT / "plugins/wirenet-manager/scripts/create_project_pack.py"
 
 
 def write_concept(
@@ -18,14 +20,17 @@ def write_concept(
     title: str,
     body: str,
     project_id: str = "",
+    audience: str = "",
 ) -> None:
     project_line = f'project_id: "{project_id}"\n' if project_id else ""
+    audience_line = f'audience: "{audience}"\n' if audience else ""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         "---\n"
         f'type: "{concept_type}"\n'
         'schema: "wirenet-manager/v0.1"\n'
         f'{project_line}'
+        f'{audience_line}'
         f'title: "{title}"\n'
         "status: active\n"
         "last_edited: 2026-07-15\n"
@@ -41,8 +46,14 @@ def extract_bundle(html: str) -> dict[str, object]:
     return json.loads(match.group("bundle"))
 
 
-def test_viewer_contains_only_okf_content_and_reserved_navigation(tmp_path: Path) -> None:
+def test_viewer_contains_manager_documents_with_audience_and_routing(tmp_path: Path) -> None:
     manager = tmp_path / "Manager"
+    write_concept(
+        manager / "AGENTS.md",
+        concept_type="Runtime Adapter",
+        title="Manager Instructions",
+        body="Read the nested instructions.",
+    )
     write_concept(
         manager / "README.md",
         concept_type="Manager Overview",
@@ -86,6 +97,25 @@ def test_viewer_contains_only_okf_content_and_reserved_navigation(tmp_path: Path
         title="Hidden State",
         body="DO_NOT_RENDER_HIDDEN_STATE",
     )
+    write_concept(
+        manager / "projects/alpha/AGENTS.md",
+        concept_type="Runtime Adapter",
+        title="Alpha Agent Instructions",
+        body="RENDER_AGENT_INSTRUCTIONS_IN_AGENT_OR_ALL_MODE",
+        project_id="prj_alpha",
+    )
+    write_concept(
+        manager / "templates/README.md",
+        concept_type="Project Status",
+        title="Template",
+        body="DO_NOT_RENDER_TEMPLATES",
+    )
+    write_concept(
+        manager / "notes/decision.md",
+        concept_type="Decision",
+        title="Internal Decision",
+        body="RENDER_TYPED_DOCUMENTS",
+    )
 
     output = tmp_path / "viewer.html"
     result = subprocess.run(
@@ -96,24 +126,214 @@ def test_viewer_contains_only_okf_content_and_reserved_navigation(tmp_path: Path
         text=True,
     )
 
-    assert "OKF concepts: 5" in result.stdout
+    assert "Viewer documents: 9" in result.stdout
     html = output.read_text(encoding="utf-8")
     bundle = extract_bundle(html)
     nodes = {node["data"]["path"] for node in bundle["nodes"]}
     assert nodes == {
+        "AGENTS.md",
         "README.md",
+        "notes/decision.md",
+        "notes/private.md",
         "projects/index.md",
+        "projects/alpha/AGENTS.md",
         "projects/alpha/GOAL.md",
         "projects/alpha/README.md",
         "projects/alpha/log.md",
     }
-    assert "DO_NOT_RENDER_UNTYPED" not in html
+    assert "DO_NOT_RENDER_UNTYPED" in html
     assert "DO_NOT_RENDER_SKILLS" not in html
     assert "DO_NOT_RENDER_HIDDEN_STATE" not in html
+    assert "RENDER_AGENT_INSTRUCTIONS_IN_AGENT_OR_ALL_MODE" in html
+    assert "DO_NOT_RENDER_TEMPLATES" not in html
+    assert "RENDER_TYPED_DOCUMENTS" in html
     assert str(manager) not in html
+    assert 'id="document-select"' in html
+    assert '<option value="catalog">Catalog</option>' in html
+    assert '<option value="document">Document</option>' in html
+    assert '<option value="graph">Graph + document</option>' in html
+    assert 'id="audience-filter"' in html
 
     edge_kinds = {edge["data"]["kind"] for edge in bundle["edges"]}
-    assert edge_kinds == {"link", "packet"}
+    assert edge_kinds == {"catalog", "link", "packet", "routing"}
+    assert len(bundle["edges"]) == 6
+
+    node_data = {node["data"]["path"]: node["data"] for node in bundle["nodes"]}
+    assert node_data["AGENTS.md"]["audience"] == "agent"
+    assert node_data["projects/alpha/AGENTS.md"]["kind"] == "instructions"
+    assert node_data["projects/index.md"]["kind"] == "index"
+    assert node_data["notes/private.md"]["isOkf"] is False
+
+
+def test_fresh_project_keeps_complete_source_documents(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    subprocess.run(
+        [sys.executable, str(BOOTSTRAP), "--manager-dir", str(manager), "--apply"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    subprocess.run(
+        [
+            sys.executable,
+            str(CREATE_PROJECT),
+            "Empty Project",
+            "--summary",
+            "",
+            "--workspace",
+            str(workspace),
+            "--manager-dir",
+            str(manager),
+            "--apply",
+        ],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    output = tmp_path / "viewer.html"
+    result = subprocess.run(
+        [sys.executable, str(VIEWER), "--manager-dir", str(manager), "--out", str(output)],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    bundle = extract_bundle(output.read_text(encoding="utf-8"))
+
+    assert "Viewer documents: 16" in result.stdout
+    nodes = {node["data"]["path"]: node["data"] for node in bundle["nodes"]}
+    assert nodes["projects/empty-project/AGENTS.md"]["audience"] == "agent"
+    assert nodes["projects/empty-project/README.md"]["audience"] == "human"
+    assert "projects/empty-project/GOAL.md" not in nodes
+    assert "projects/empty-project/RESULT.md" not in nodes
+    assert "projects/empty-project/log.md" not in nodes
+    bodies = "\n".join(bundle["bodies"].values())
+    assert "Describe the latest durable state" in bodies
+    assert "Add the smallest useful next action" in bodies
+
+
+def test_substantive_project_content_appears_without_metadata_toggle(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    write_concept(
+        manager / "projects/alpha/README.md",
+        concept_type="Project Status",
+        title="Alpha Status",
+        project_id="prj_alpha",
+        body="The prototype is ready for review.",
+    )
+    write_concept(
+        manager / "projects/alpha/RESULT.md",
+        concept_type="Project Result",
+        title="Alpha Results",
+        project_id="prj_alpha",
+        body="The prototype passed the mobile review.",
+    )
+    (manager / "projects/alpha/log.md").write_text(
+        "# Update Log\n\n## 2026-07-15\n\n- **Delivery**: Prototype approved.\n",
+        encoding="utf-8",
+    )
+
+    output = tmp_path / "viewer.html"
+    subprocess.run(
+        [sys.executable, str(VIEWER), "--manager-dir", str(manager), "--out", str(output)],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    bundle = extract_bundle(output.read_text(encoding="utf-8"))
+
+    assert {node["data"]["path"] for node in bundle["nodes"]} == {
+        "projects/alpha/README.md",
+        "projects/alpha/RESULT.md",
+        "projects/alpha/log.md",
+    }
+
+
+def test_viewer_does_not_filter_sections_from_generated_documents(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    subprocess.run(
+        [sys.executable, str(BOOTSTRAP), "--manager-dir", str(manager), "--apply"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    subprocess.run(
+        [
+            sys.executable,
+            str(CREATE_PROJECT),
+            "Useful Project",
+            "--summary",
+            "Ship the prototype.",
+            "--workspace",
+            str(workspace),
+            "--manager-dir",
+            str(manager),
+            "--apply",
+        ],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    output = tmp_path / "viewer.html"
+    subprocess.run(
+        [sys.executable, str(VIEWER), "--manager-dir", str(manager), "--out", str(output)],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    bundle = extract_bundle(output.read_text(encoding="utf-8"))
+    bodies = "\n".join(bundle["bodies"].values())
+
+    project_paths = {
+        node["data"]["path"]
+        for node in bundle["nodes"]
+        if node["data"]["path"].startswith("projects/useful-project/")
+    }
+    assert project_paths == {
+        "projects/useful-project/AGENTS.md",
+        "projects/useful-project/README.md",
+    }
+    assert "Ship the prototype." in bodies
+    assert "Describe the latest durable state" in bodies
+    assert "Add the smallest useful next action" in bodies
+    assert "## Current Status" in bodies
+    assert "## Next Move" in bodies
+
+
+def test_explicit_audience_marks_an_instruction_document(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    write_concept(
+        manager / "people/alex.md",
+        concept_type="Person",
+        title="Alex",
+        body="Alex owns the final review.",
+        audience="agent",
+    )
+
+    output = tmp_path / "viewer.html"
+    subprocess.run(
+        [sys.executable, str(VIEWER), "--manager-dir", str(manager), "--out", str(output)],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    bundle = extract_bundle(output.read_text(encoding="utf-8"))
+
+    assert [node["data"]["path"] for node in bundle["nodes"]] == ["people/alex.md"]
+    assert bundle["nodes"][0]["data"]["audience"] == "agent"
 
 
 def test_viewer_rejects_links_that_escape_the_manager(tmp_path: Path) -> None:

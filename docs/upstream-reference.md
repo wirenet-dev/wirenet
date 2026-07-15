@@ -41,6 +41,29 @@ python3 scripts/compare_upstream.py --fetch --json
 The report is read-only apart from updating the local remote-tracking ref. It
 does not merge, rebase, reset, amend, stage, commit, or push anything.
 
+## Semantic Routing Comparison
+
+The Git comparison shows file and commit drift. The frozen routing contracts
+show behavioral drift:
+
+- [`routing/jason-liu-original.md`](routing/jason-liu-original.md) documents the
+  original scaffold, producers, consumers, and routing behavior at upstream
+  commit `df863768495aaf524a2bf9b5b25ef2622a2591a1`.
+- [`routing/wirenet-manager-v0.1.md`](routing/wirenet-manager-v0.1.md) documents
+  the same dimensions for the distributed plugin and generated Manager.
+- [`routing/comparison-and-regression.md`](routing/comparison-and-regression.md)
+  explains preserved, changed, added, and removed behavior.
+
+The matching JSON contracts live under `contracts/routing/`. Compare them
+without network or Git mutation:
+
+```sh
+python3 scripts/compare_routing_contracts.py
+```
+
+Do not update the frozen Jason contract merely because the local WireNet tree
+changed. Refresh it only after inspecting a real upstream routing change.
+
 ## Upstream Review Rule
 
 When `behind` is greater than zero:

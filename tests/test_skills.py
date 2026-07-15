@@ -62,13 +62,33 @@ def test_plugin_skill_frontmatter_uses_official_contract() -> None:
 
 def test_manager_seed_contains_content_but_no_embedded_skills() -> None:
     seed = ROOT / "plugins/wirenet-manager/templates/manager"
+    assert (seed / ".gitignore").is_file()
     assert (seed / "AGENTS.md").is_file()
+    assert (seed / "index.md").is_file()
+    assert (seed / "docs/README.md").is_file()
     assert (seed / "projects/AGENTS.md").is_file()
     assert (seed / "projects/index.md").is_file()
-    assert not (seed / "projects/README.md").exists()
+    assert (seed / "projects/README.md").is_file()
     assert (seed / ".wirenet/project-bindings.json").is_file()
     assert not (seed / ".agents").exists()
     assert not (seed / ".codex").exists()
+
+
+def test_manager_skills_share_one_content_routing_contract() -> None:
+    skills = ROOT / "plugins/wirenet-manager/skills"
+    manager = (skills / "wirenet-manager/SKILL.md").read_text(encoding="utf-8")
+    sync = (skills / "wirenet-manager-sync/SKILL.md").read_text(encoding="utf-8")
+    bootstrap = (skills / "wirenet-manager-bootstrap/SKILL.md").read_text(encoding="utf-8")
+    contract = (
+        skills / "wirenet-manager/references/content-routing.md"
+    ).read_text(encoding="utf-8")
+
+    assert "references/content-routing.md" in manager
+    assert "../wirenet-manager/references/content-routing.md" in sync
+    assert "README.md" in bootstrap and "AGENTS.md" in bootstrap
+    assert "Keep this shared reference instead of creating a separate routing skill" in contract
+    assert "Manager `index.md` provides the bundle-level catalog" in contract
+    assert "Neither file is required merely because a packet exists" in contract
 
 
 def test_plugin_manifest_and_marketplace_point_to_v01_package() -> None:
