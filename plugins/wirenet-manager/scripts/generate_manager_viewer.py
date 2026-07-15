@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate or serve a read-only WireNet Manager document and OKF viewer."""
+"""Generate or serve the read-only WireNet Manager OKF viewer."""
 
 from __future__ import annotations
 
@@ -18,6 +18,7 @@ from urllib.parse import unquote, urlsplit
 
 DEFAULT_PORT = 4318
 MAX_MARKDOWN_BYTES = 2_000_000
+INDEX_NAME = "index.md"
 IGNORED_DIRECTORIES = {
     ".git",
     ".obsidian",
@@ -44,13 +45,14 @@ MARKDOWN_LINK_RE = re.compile(r"(?<!!)\[([^\]]+)\]\(([^)\s]+)(?:\s+[\"'][^\"']*[
 WIKI_LINK_RE = re.compile(r"\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|([^\]]+))?\]\]")
 
 TYPE_PALETTE = {
+    "Manager Overview": "#262626",
+    "Task Stack": "#ff5c1a",
     "Project Brief": "#ff5c1a",
     "Project Status": "#2f8fce",
     "Project Result": "#23855c",
-    "Runtime Adapter": "#707070",
+    "Runtime Adapter": "#737373",
     "Person": "#7c5cc4",
     "Decision": "#b1507c",
-    "OKF Index": "#262626",
     "OKF Log": "#c2841a",
     "Document": "#8a8a8a",
 }
@@ -68,36 +70,23 @@ class Concept:
     description: str
     resource: str
     tags: list[str]
-    status: str
-    updated: str
-    project_id: str
     body: str
     audience: str
-    document_kind: str
-    is_okf: bool
     outgoing: list[str] = field(default_factory=list)
 
     def to_node(self) -> dict[str, Any]:
-        color = TYPE_PALETTE.get(self.concept_type, DEFAULT_NODE_COLOR)
-        graph_label = self.title if len(self.title) <= 28 else f"{self.title[:27].rstrip()}…"
         return {
             "data": {
                 "id": self.concept_id,
                 "label": self.title,
-                "graphLabel": graph_label,
                 "type": self.concept_type,
                 "description": self.description,
                 "resource": self.resource,
                 "tags": self.tags,
-                "status": self.status,
-                "updated": self.updated,
-                "projectId": self.project_id,
                 "path": self.path,
                 "audience": self.audience,
-                "kind": self.document_kind,
-                "isOkf": self.is_okf,
-                "color": color,
-                "size": 28 + min(48, len(self.body) // 260),
+                "color": TYPE_PALETTE.get(self.concept_type, DEFAULT_NODE_COLOR),
+                "size": 30 + min(54, len(self.body) // 220),
             }
         }
 
@@ -112,9 +101,8 @@ def parse_frontmatter(raw: str) -> tuple[dict[str, Any], str]:
             continue
         key, raw_value = line.split(":", 1)
         key = key.strip()
-        if not re.fullmatch(r"[A-Za-z0-9_-]+", key):
-            continue
-        metadata[key] = parse_scalar(raw_value.strip())
+        if re.fullmatch(r"[A-Za-z0-9_-]+", key):
+            metadata[key] = parse_scalar(raw_value.strip())
     return metadata, raw[match.end() :]
 
 
@@ -130,9 +118,7 @@ def parse_scalar(value: str) -> Any:
         return value[1:-1]
     if value.startswith("[") and value.endswith("]"):
         inner = value[1:-1].strip()
-        if not inner:
-            return []
-        return [str(parse_scalar(item.strip())) for item in inner.split(",")]
+        return [] if not inner else [str(parse_scalar(item.strip())) for item in inner.split(",")]
     lowered = value.lower()
     if lowered in {"true", "false"}:
         return lowered == "true"
@@ -186,26 +172,7 @@ def tags_from(metadata: dict[str, Any]) -> list[str]:
     return sorted({str(item).lstrip("#").strip() for item in values if str(item).strip()})
 
 
-def document_kind(path: PurePosixPath, concept_type: str) -> str:
-    if path.name.lower() == "agents.md" or concept_type in AGENT_CONCEPT_TYPES:
-        return "instructions"
-    if (
-        path.name.lower() == "index.md"
-        or concept_type.endswith(" Index")
-    ):
-        return "index"
-    if path.name.lower() == "log.md":
-        return "log"
-    if concept_type and concept_type != "Document":
-        return "concept"
-    return "document"
-
-
-def document_audience(
-    path: PurePosixPath,
-    concept_type: str,
-    metadata: dict[str, Any],
-) -> str:
+def document_audience(path: PurePosixPath, concept_type: str, metadata: dict[str, Any]) -> str:
     explicit = str(metadata.get("audience") or "").strip().lower()
     if explicit in AGENT_AUDIENCES:
         return "agent"
@@ -227,7 +194,7 @@ def iter_markdown(manager_dir: Path) -> list[Path]:
         root_path = Path(root)
         for name in sorted(files):
             path = root_path / name
-            if path.suffix.lower() not in MARKDOWN_EXTENSIONS:
+            if path.suffix.lower() not in MARKDOWN_EXTENSIONS or path.name.lower() == INDEX_NAME:
                 continue
             try:
                 if path.stat().st_size <= MAX_MARKDOWN_BYTES:
@@ -238,76 +205,52 @@ def iter_markdown(manager_dir: Path) -> list[Path]:
 
 
 def read_manager_documents(manager_dir: Path) -> list[Concept]:
-    candidates: list[tuple[Path, dict[str, Any], str]] = []
-    project_ids_by_directory: dict[Path, str] = {}
-    markdown_paths = iter_markdown(manager_dir)
-
-    for path in markdown_paths:
+    concepts: list[Concept] = []
+    for path in iter_markdown(manager_dir):
         try:
             raw = path.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             continue
         metadata, body = parse_frontmatter(raw)
-        candidates.append((path, metadata, body))
-        project_id = str(metadata.get("project_id") or "").strip()
-        if project_id:
-            project_ids_by_directory.setdefault(path.parent, project_id)
-
-    concepts: list[Concept] = []
-    for path, metadata, body in sorted(candidates, key=lambda item: item[0].as_posix()):
         relative_path = path.relative_to(manager_dir).as_posix()
         relative = PurePosixPath(relative_path)
         concept_type = str(metadata.get("type") or "").strip()
-        if relative.name.lower() == "index.md":
-            concept_type = concept_type or "OKF Index"
-        elif relative.name.lower() == "log.md":
+        if relative.name.lower() == "log.md":
             concept_type = concept_type or "OKF Log"
         elif relative.name.lower() == "agents.md":
             concept_type = concept_type or "Runtime Adapter"
         else:
             concept_type = concept_type or "Document"
-        project_id = str(metadata.get("project_id") or "").strip()
-        if not project_id and path.parent in project_ids_by_directory:
-            project_id = project_ids_by_directory[path.parent]
-        kind = document_kind(relative, concept_type)
-        concept_id = str(PurePosixPath(relative_path).with_suffix(""))
         concepts.append(
             Concept(
                 path=relative_path,
-                concept_id=concept_id,
+                concept_id=str(relative.with_suffix("")),
                 concept_type=concept_type,
                 title=title_from(relative_path, body, metadata),
                 description=description_from(body, metadata),
                 resource=str(metadata.get("resource") or ""),
                 tags=tags_from(metadata),
-                status=str(metadata.get("status") or ""),
-                updated=str(
-                    metadata.get("updated_at")
-                    or metadata.get("last_edited")
-                    or metadata.get("timestamp")
-                    or ""
-                ),
-                project_id=project_id,
                 body=body,
                 audience=document_audience(relative, concept_type, metadata),
-                document_kind=kind,
-                is_okf=bool(metadata.get("type")) or relative.name.lower() in {"index.md", "log.md"},
             )
         )
-
     resolve_links(concepts)
     return concepts
 
 
 def build_path_lookup(concepts: list[Concept]) -> dict[str, str]:
     lookup: dict[str, str] = {}
+    aliases: dict[str, set[str]] = {}
     for concept in concepts:
         path = PurePosixPath(concept.path)
         without_suffix = str(path.with_suffix(""))
         lookup[concept.path.lower()] = concept.concept_id
         lookup[without_suffix.lower()] = concept.concept_id
-        lookup[path.name.lower()] = concept.concept_id
-        lookup[path.stem.lower()] = concept.concept_id
+        aliases.setdefault(path.name.lower(), set()).add(concept.concept_id)
+        aliases.setdefault(path.stem.lower(), set()).add(concept.concept_id)
+    for alias, concept_ids in aliases.items():
+        if len(concept_ids) == 1:
+            lookup[alias] = next(iter(concept_ids))
     return lookup
 
 
@@ -326,7 +269,7 @@ def resolve_target(source_path: str, target: str, lookup: dict[str, str]) -> str
         return None
     variants = [normalized, normalized.removesuffix(".md"), normalized.removesuffix(".markdown")]
     if not PurePosixPath(normalized).suffix:
-        variants.extend([f"{normalized}.md", f"{normalized}/index.md"])
+        variants.append(f"{normalized}.md")
     for variant in variants:
         match = lookup.get(variant.lower())
         if match:
@@ -367,98 +310,65 @@ def normalize_internal_links(concept: Concept, lookup: dict[str, str]) -> str:
         )
         if not target:
             return match.group(0)
-        label = match.group(2) or match.group(1)
-        return f"[{label}](/{target}.md)"
+        return f"[{match.group(2) or match.group(1)}](/{target}.md)"
 
     return WIKI_LINK_RE.sub(replace_wiki, MARKDOWN_LINK_RE.sub(replace_markdown, concept.body))
 
 
 def build_graph(concepts: list[Concept]) -> dict[str, Any]:
-    nodes = [concept.to_node() for concept in concepts]
+    concept_ids = {concept.concept_id for concept in concepts}
     edges: list[dict[str, Any]] = []
     seen: set[tuple[str, str, str]] = set()
-
     for concept in concepts:
         for target in concept.outgoing:
-            edge_kind = "catalog" if concept.document_kind == "index" else "link"
-            key = (concept.concept_id, target, edge_kind)
-            if key in seen:
+            key = ("link", concept.concept_id, target)
+            if target not in concept_ids or key in seen:
                 continue
             seen.add(key)
             edges.append(
                 {
                     "data": {
-                        "id": f"{edge_kind}__{concept.concept_id}__{target}",
+                        "id": f"{concept.concept_id}__{target}",
                         "source": concept.concept_id,
                         "target": target,
-                        "kind": edge_kind,
+                        "kind": "link",
                     }
                 }
             )
 
-    by_project: dict[str, list[Concept]] = {}
-    for concept in concepts:
-        if concept.project_id:
-            by_project.setdefault(concept.project_id, []).append(concept)
-    for project_concepts in by_project.values():
-        anchor = next(
-            (item for item in project_concepts if item.concept_type == "Project Status"),
-            project_concepts[0],
-        )
-        for concept in project_concepts:
-            if concept is anchor:
-                continue
-            key = (anchor.concept_id, concept.concept_id, "packet")
-            if key in seen:
-                continue
-            seen.add(key)
-            edges.append(
-                {
-                    "data": {
-                        "id": f"packet__{anchor.concept_id}__{concept.concept_id}",
-                        "source": anchor.concept_id,
-                        "target": concept.concept_id,
-                        "kind": "packet",
-                    }
-                }
-            )
-
-    instructions = [item for item in concepts if item.document_kind == "instructions"]
-    for concept in instructions:
-        directory = PurePosixPath(concept.path).parent
-        parents = [
-            candidate
-            for candidate in instructions
-            if candidate is not concept
-            and (
-                PurePosixPath(candidate.path).parent == PurePosixPath(".")
-                or PurePosixPath(candidate.path).parent in directory.parents
-            )
+    agent_documents = {
+        PurePosixPath(concept.path).parent: concept
+        for concept in concepts
+        if PurePosixPath(concept.path).name.lower() == "agents.md"
+    }
+    for child_directory, child in agent_documents.items():
+        candidates = [
+            (directory, concept)
+            for directory, concept in agent_documents.items()
+            if directory != child_directory and directory in child_directory.parents
         ]
-        if not parents:
+        if not candidates:
             continue
-        parent = max(parents, key=lambda item: len(PurePosixPath(item.path).parent.parts))
-        key = (parent.concept_id, concept.concept_id, "routing")
+        _, parent = max(candidates, key=lambda item: len(item[0].parts))
+        key = ("routing", parent.concept_id, child.concept_id)
         if key in seen:
             continue
         seen.add(key)
         edges.append(
             {
                 "data": {
-                    "id": f"routing__{parent.concept_id}__{concept.concept_id}",
+                    "id": f"routing__{parent.concept_id}__{child.concept_id}",
                     "source": parent.concept_id,
-                    "target": concept.concept_id,
+                    "target": child.concept_id,
                     "kind": "routing",
                 }
             }
         )
-
     return {
-        "nodes": nodes,
+        "nodes": [concept.to_node() for concept in concepts],
         "edges": edges,
         "bodies": {concept.concept_id: concept.body for concept in concepts},
         "types": sorted({concept.concept_type for concept in concepts}),
-        "palette": TYPE_PALETTE,
     }
 
 
@@ -471,14 +381,12 @@ def generate_html(manager_dir: Path, *, bundle_name: str | None = None) -> tuple
     manager_dir = manager_dir.expanduser().resolve()
     if not manager_dir.is_dir():
         raise FileNotFoundError(f"Manager directory not found: {manager_dir}")
-    concepts = read_manager_documents(manager_dir)
-    graph = build_graph(concepts)
-    safe_name = bundle_name or manager_dir.name
+    graph = build_graph(read_manager_documents(manager_dir))
     graph_json = json.dumps(graph, ensure_ascii=False).replace("</", "<\\/")
-    name_json = json.dumps(safe_name, ensure_ascii=False).replace("</", "<\\/")
+    name_json = json.dumps(bundle_name or manager_dir.name, ensure_ascii=False).replace("</", "<\\/")
     html = load_template().replace("__BUNDLE_NAME__", name_json).replace("__BUNDLE_DATA__", graph_json)
     return html, {
-        "concepts": len(concepts),
+        "concepts": len(graph["nodes"]),
         "edges": len(graph["edges"]),
         "bytes": len(html.encode("utf-8")),
     }
@@ -528,7 +436,7 @@ def serve_html(html: str, port: int) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Render Manager Markdown and OKF navigation as one read-only HTML file."
+        description="Render Manager Markdown as a read-only Google-derived OKF viewer."
     )
     parser.add_argument(
         "--manager-dir",
@@ -536,9 +444,9 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path(os.environ.get("WIRENET_MANAGER_DIR", "~/Manager")),
         help="Manager content root (default: WIRENET_MANAGER_DIR or ~/Manager)",
     )
-    parser.add_argument("--out", type=Path, help="Write the self-contained HTML to this path")
+    parser.add_argument("--out", type=Path, help="Write the generated HTML to this path")
     parser.add_argument("--name", help="Viewer title (default: Manager directory name)")
-    parser.add_argument("--serve", action="store_true", help="Serve the generated page on 127.0.0.1")
+    parser.add_argument("--serve", action="store_true", help="Serve the page on 127.0.0.1")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT, help=f"Local port (default: {DEFAULT_PORT})")
     return parser
 

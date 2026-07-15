@@ -57,11 +57,12 @@ When the user asks to browse, inspect, or open the Manager memory visually:
 4. Stop the local server when the viewer is no longer needed.
 
 The viewer is read-only and must render selected source documents completely.
-Use its audience filter for human documents, agent instructions, or all Manager
-documents. Catalog mode follows OKF indexes, document mode supports focused
-reading, and graph mode shows document links, Project Pack relationships, and
-the inherited `AGENTS.md` hierarchy. It must not expose templates, plugin
-metadata, skills, scripts, local bindings, or hidden Manager state.
+Human-facing documents are visible by default. Use the agent-instructions toggle
+to add complete `AGENTS.md` documents and their derived nearest-parent routing
+edges. Reading view hides the graph for focused inspection; graph view shows
+real Markdown-link relationships and backlinks. Reserved indexes, templates,
+plugin metadata, skills, scripts, local bindings, and hidden Manager state must
+not appear in the projection.
 
 ## Reference
 

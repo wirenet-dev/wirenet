@@ -126,7 +126,7 @@ def test_viewer_contains_manager_documents_with_audience_and_routing(tmp_path: P
         text=True,
     )
 
-    assert "Viewer documents: 9" in result.stdout
+    assert "Viewer documents: 8" in result.stdout
     html = output.read_text(encoding="utf-8")
     bundle = extract_bundle(html)
     nodes = {node["data"]["path"] for node in bundle["nodes"]}
@@ -135,7 +135,6 @@ def test_viewer_contains_manager_documents_with_audience_and_routing(tmp_path: P
         "README.md",
         "notes/decision.md",
         "notes/private.md",
-        "projects/index.md",
         "projects/alpha/AGENTS.md",
         "projects/alpha/GOAL.md",
         "projects/alpha/README.md",
@@ -148,21 +147,27 @@ def test_viewer_contains_manager_documents_with_audience_and_routing(tmp_path: P
     assert "DO_NOT_RENDER_TEMPLATES" not in html
     assert "RENDER_TYPED_DOCUMENTS" in html
     assert str(manager) not in html
-    assert 'id="document-select"' in html
-    assert '<option value="catalog">Catalog</option>' in html
-    assert '<option value="document">Document</option>' in html
-    assert '<option value="graph">Graph + document</option>' in html
-    assert 'id="audience-filter"' in html
+    assert "projects/index.md" not in html
+    assert 'id="graph"' in html
+    assert 'id="detail"' in html
+    assert 'id="show-agent"' in html
+    assert 'id="reading-mode"' in html
+    assert 'id="document-select"' not in html
+    assert 'id="view-mode"' not in html
+    assert 'id="audience-filter"' not in html
 
     edge_kinds = {edge["data"]["kind"] for edge in bundle["edges"]}
-    assert edge_kinds == {"catalog", "link", "packet", "routing"}
-    assert len(bundle["edges"]) == 6
+    assert edge_kinds == {"link", "routing"}
+    assert len(bundle["edges"]) == 2
 
     node_data = {node["data"]["path"]: node["data"] for node in bundle["nodes"]}
     assert node_data["AGENTS.md"]["audience"] == "agent"
-    assert node_data["projects/alpha/AGENTS.md"]["kind"] == "instructions"
-    assert node_data["projects/index.md"]["kind"] == "index"
-    assert node_data["notes/private.md"]["isOkf"] is False
+    assert node_data["projects/alpha/AGENTS.md"]["audience"] == "agent"
+    routing = next(edge["data"] for edge in bundle["edges"] if edge["data"]["kind"] == "routing")
+    assert (routing["source"], routing["target"]) == (
+        "AGENTS",
+        "projects/alpha/AGENTS",
+    )
 
 
 def test_fresh_project_keeps_complete_source_documents(tmp_path: Path) -> None:
@@ -205,8 +210,8 @@ def test_fresh_project_keeps_complete_source_documents(tmp_path: Path) -> None:
     )
     bundle = extract_bundle(output.read_text(encoding="utf-8"))
 
-    assert "Viewer documents: 16" in result.stdout
     nodes = {node["data"]["path"]: node["data"] for node in bundle["nodes"]}
+    assert f"Viewer documents: {len(nodes)}" in result.stdout
     assert nodes["projects/empty-project/AGENTS.md"]["audience"] == "agent"
     assert nodes["projects/empty-project/README.md"]["audience"] == "human"
     assert "projects/empty-project/GOAL.md" not in nodes
@@ -334,6 +339,42 @@ def test_explicit_audience_marks_an_instruction_document(tmp_path: Path) -> None
 
     assert [node["data"]["path"] for node in bundle["nodes"]] == ["people/alex.md"]
     assert bundle["nodes"][0]["data"]["audience"] == "agent"
+
+
+def test_agent_routing_uses_the_nearest_parent_instructions(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    for path, title in (
+        ("AGENTS.md", "Manager Instructions"),
+        ("projects/AGENTS.md", "Project Instructions"),
+        ("projects/alpha/AGENTS.md", "Alpha Instructions"),
+    ):
+        write_concept(
+            manager / path,
+            concept_type="Runtime Adapter",
+            title=title,
+            body="Routing instructions.",
+            audience="agent",
+        )
+
+    output = tmp_path / "viewer.html"
+    subprocess.run(
+        [sys.executable, str(VIEWER), "--manager-dir", str(manager), "--out", str(output)],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    bundle = extract_bundle(output.read_text(encoding="utf-8"))
+    routes = {
+        (edge["data"]["source"], edge["data"]["target"])
+        for edge in bundle["edges"]
+        if edge["data"]["kind"] == "routing"
+    }
+
+    assert routes == {
+        ("AGENTS", "projects/AGENTS"),
+        ("projects/AGENTS", "projects/alpha/AGENTS"),
+    }
 
 
 def test_viewer_rejects_links_that_escape_the_manager(tmp_path: Path) -> None:

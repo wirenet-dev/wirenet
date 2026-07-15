@@ -276,6 +276,7 @@ def test_project_pack_is_open_and_supports_optional_concepts_and_local_routing(t
     assert frontmatter_value(child_packet / "README.md", "type") == "Project Status"
     assert frontmatter_value(child_packet / "RESULT.md", "type") == "Project Result"
     assert frontmatter_value(child_packet / "AGENTS.md", "type") == "Runtime Adapter"
+    assert frontmatter_value(child_packet / "AGENTS.md", "audience") == "agent"
     log = (child_packet / "log.md").read_text(encoding="utf-8")
     assert not log.startswith("---")
     assert re.search(r"(?m)^## \d{4}-\d{2}-\d{2}$", log)

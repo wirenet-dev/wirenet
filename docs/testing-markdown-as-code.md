@@ -49,7 +49,7 @@ sentence that intentionally acts as a routing contract.
 | Production | Do generators materialize the contract? | Bootstrap seed, open Project Pack core, optional concepts, both collection routes |
 | Safety | Are previews and repair non-destructive? | Dry-run has no writes, repair is create-only, rejected routes leave no partial packet |
 | Reconciliation | Does an external path resolve predictably? | Longest binding, experiment and ignored routes, untracked classification |
-| Consumption | Can humans and agents inspect the same source? | Full Markdown rendering, audience projection, graph edges, hidden-state exclusion |
+| Consumption | Can humans and agents inspect the same source? | Full Markdown rendering, agent toggle, real link edges, derived AGENTS routing, hidden-state exclusion |
 | Compatibility | Did WireNet accidentally erase Jason's behavior? | Frozen upstream contract and explicit semantic delta |
 
 ## Core Regression Invariants
@@ -71,7 +71,9 @@ sentence that intentionally acts as a routing contract.
 - The global managed block recalls the sync skill only when it is installed and
   enabled; disabling the plugin does not block ordinary tasks.
 - The viewer never becomes a source of truth and never exposes hidden bindings,
-  templates, plugin implementation, or ignored outputs.
+  reserved indexes, templates, plugin implementation, or ignored outputs.
+- Viewer routing edges follow the nearest `AGENTS.md` parent exactly and are
+  never persisted as a second routing authority.
 
 ## Change Rule
 

@@ -15,6 +15,6 @@ Copyright 2025 Google LLC
 Licensed under the Apache License, Version 2.0. A copy is included at
 `LICENSES/Apache-2.0.txt`.
 
-WireNet modifications include the local Manager content filter, Project Pack
-relationships, link normalization, sanitization, local-only serving, and the
-WireNet visual identity.
+WireNet modifications include the local Manager content filter, optional
+derived `AGENTS.md` routing, reading mode, link normalization, sanitization,
+local-only serving, and the WireNet visual identity.

@@ -75,7 +75,9 @@ remove them merely to introduce OKF.
 - Manager `index.md` provides the bundle-level catalog and declares OKF 0.1.
 - `projects/README.md` remains the human and Jason-compatible collection guide.
 - `projects/index.md` is the additive OKF catalog generated from packet state.
-- A packet-local `index.md` is optional; the viewer may synthesize navigation.
+- A packet-local `index.md` is optional. The Google-derived viewer deliberately
+  omits reserved indexes; agents and future synchronization consumers still use
+  them for progressive disclosure.
 
 ## UltraGoal And OKF History
 

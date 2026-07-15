@@ -158,7 +158,8 @@ WireNet applies that model as an overlay:
    as stable entry points, although OKF itself makes indexes optional.
 4. Packet-local indexes and all `log.md` files remain optional.
 5. Normal Markdown links create portable relationships.
-6. The viewer consumes those layers without editing or replacing them.
+6. The viewer projects non-index concepts without editing or replacing them;
+   optional AGENTS routing is derived from filesystem inheritance.
 
 The portable Project Pack is the intended future synchronization unit. The
 whole Manager is currently an OKF-compatible content tree, not a strict claim

@@ -103,8 +103,9 @@ def common_frontmatter(
     status: str,
     stamp: datetime,
     visibility: str = "private",
+    audience: str | None = None,
 ) -> list[str]:
-    return [
+    lines = [
         "---",
         f"type: {yaml_string(concept_type)}",
         f"schema: {yaml_string(PROJECT_PACK_SCHEMA)}",
@@ -114,15 +115,22 @@ def common_frontmatter(
         "scope: projects",
         "context_scope: project",
         f"visibility: {visibility}",
-        "assembly_scope: project_context",
-        f"status: {status}",
-        f"timestamp: {iso_timestamp(stamp)}",
-        f"created_at: {iso_date(stamp)}",
-        f"updated_at: {iso_date(stamp)}",
-        f"last_edited: {iso_date(stamp)}",
-        "---",
-        "",
     ]
+    if audience:
+        lines.append(f"audience: {audience}")
+    lines.extend(
+        [
+            "assembly_scope: project_context",
+            f"status: {status}",
+            f"timestamp: {iso_timestamp(stamp)}",
+            f"created_at: {iso_date(stamp)}",
+            f"updated_at: {iso_date(stamp)}",
+            f"last_edited: {iso_date(stamp)}",
+            "---",
+            "",
+        ]
+    )
+    return lines
 
 
 def render_project_readme(title: str, summary: str, project_id: str, stamp: datetime) -> str:
@@ -175,6 +183,7 @@ def render_project_agents(title: str, project_id: str, stamp: datetime) -> str:
         status="active",
         stamp=stamp,
         visibility="local",
+        audience="agent",
     )
     lines.extend(
         [

@@ -82,20 +82,20 @@ external project folders           ◀──────▶    └── .wirene
 ## Read-Only Manager Viewer
 
 `$wirenet-manager` can open a small branded viewer for the Manager's local OKF
-memory. The viewer renders each selected Markdown source in full; it never
-removes sections or rewrites a document for presentation. Its audience filter
-switches between human-facing documents, agent instructions, and all Manager
-documents. Templates, plugin metadata, skills, scripts, hidden state, and
-device-local bindings remain excluded.
+memory. The viewer renders complete Markdown sources and never removes sections
+or rewrites a document for presentation. Human-facing documents are visible by
+default; one toggle adds `AGENTS.md` and explicit agent-facing runtime adapters.
+Templates, plugin metadata, skills, scripts, hidden state, device-local
+bindings, and reserved `index.md` files remain outside this visual projection.
 
 The viewer follows the graph-and-detail model of Google's official OKF HTML
-viewer: Markdown links become graph relationships, Project Pack documents are
-grouped by their stable `project_id`, and selecting a concept renders its
-Markdown and backlinks. Catalog mode exposes actual OKF `index.md` files and a
-synthesized Manager catalog for progressive disclosure. Document mode supports
-focused reading. Graph mode shows concept links, Project Pack relationships,
-and the inherited hierarchy between `AGENTS.md` files. It is read-only and has
-no Node runtime, database, watcher, or edit API.
+viewer: each non-index document is a concept node, Markdown links become graph
+relationships, and selecting a concept renders its Markdown and backlinks. A
+reading view hides the graph without creating another content mode. When agent
+instructions are enabled, dashed edges visualize the filesystem's actual
+nearest-parent `AGENTS.md` inheritance. Those routing edges are derived rather
+than stored, so the filesystem remains the only routing authority. The viewer
+is read-only and has no Node runtime, database, watcher, or edit API.
 
 For local development:
 
@@ -134,9 +134,10 @@ Machine-local paths live only in
 `~/Manager/.wirenet/project-bindings.json`. The mapping is a small WireNet OKF
 profile, not a claim that v0.1 implements the complete OKF mirror system.
 
-YAML frontmatter in `AGENTS.md` is intentionally limited to metadata. Codex
-still reads the Markdown instructions normally; the metadata is not treated as
-Codex configuration.
+YAML frontmatter in `AGENTS.md` identifies the document as an OKF `Runtime
+Adapter` with `audience: agent`. Codex still reads the Markdown instructions
+normally; the metadata is not treated as Codex configuration and does not
+replace filesystem instruction inheritance.
 
 ## Developer Layout
 

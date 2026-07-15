@@ -40,11 +40,11 @@ python3 scripts/compare_routing_contracts.py --json
 | Plugin behavior is separate from personal Manager content | One updateable product can serve many users and external projects. | Bootstrap must never copy skills into Manager or overwrite personal content. |
 | External workspaces are bound by stable project ID and local path | Media, code, and data stay in their proper working folders. | Portable packet files must never leak absolute paths. |
 | Every Project Pack starts with `README.md` and `AGENTS.md` | A small stable core preserves Jason's open model while making local handoff reliable. | Generator, doctor, sync, and viewer must accept optional extensions without requiring empty documents. |
-| Root and project collection `index.md` files are WireNet-required | Stable catalog entry points improve portability and viewing even though OKF makes them optional. | They must remain additive and never replace README or AGENTS routing. |
+| Root and project collection `index.md` files are WireNet-required | Stable catalog entry points improve portability and agent navigation even though OKF makes them optional. | They must remain additive and never replace README or AGENTS routing. |
 | Optional `log.md` adds a sparse time axis when useful | OKF history can improve portable handoff and later sync. | It must stay newest-first and semantic, never become mandatory activity logging. |
 | Global managed core block triggers reconciliation outside Manager | Repo-local skill recall cannot update packets from arbitrary workspaces reliably. | The block must be idempotent, minimal, approval-gated, and independent from optional workspace routing. |
 | `docs/`, `outputs/`, and `archive/` receive explicit policies | Jason's placeholders otherwise have no usable routing semantics. | Policies must stay open and must not turn working output into canonical knowledge. |
-| Viewer exposes Human, Agent, and All projections | Humans need inspectable content without changing source files. | The viewer must render complete selected documents and exclude hidden bindings and implementation files. |
+| Viewer adds an optional agent-instructions projection | Humans need inspectable content and developers need visible instruction inheritance without changing source files. | The viewer must render complete documents, derive nearest-parent AGENTS routing exactly, and exclude indexes, hidden bindings, and implementation files. |
 
 ## Added
 
@@ -122,7 +122,7 @@ The suite checks:
 6. root, collection, and project AGENTS files remain the routing hierarchy;
 7. local bindings contain paths but no project prose or instructions;
 8. the global core block supplies the cross-workspace trigger;
-9. viewer audience and graph behavior remain a projection, not a write path;
+9. viewer link and derived AGENTS-routing behavior remain a projection, not a write path;
 10. contract comparison makes added, removed, and changed entities visible.
 
 When upstream changes, first run `scripts/compare_upstream.py --fetch`, inspect

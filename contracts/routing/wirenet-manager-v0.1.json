@@ -60,7 +60,7 @@
       "audience": "human-and-agent",
       "description": "WireNet-required bundle catalog and OKF version declaration. OKF itself permits a bundle without it.",
       "produced_by": ["Manager seed", "approved catalog updates"],
-      "consumed_by": ["wirenet-manager skill", "human viewer", "future OKF consumers"],
+      "consumed_by": ["wirenet-manager skill", "future OKF consumers"],
       "evidence": ["plugins/wirenet-manager/templates/manager/index.md", "plugins/wirenet-manager/skills/wirenet-manager/SKILL.md"]
     },
     {
@@ -108,7 +108,7 @@
       "audience": "human-and-agent",
       "description": "WireNet-required additive progressive-disclosure catalog for active Project Packs. OKF itself permits it to be absent.",
       "produced_by": ["Manager seed", "create-project-pack helper"],
-      "consumed_by": ["wirenet-manager skill", "human viewer", "agents", "future OKF consumers"],
+      "consumed_by": ["wirenet-manager skill", "agents", "future OKF consumers"],
       "evidence": ["plugins/wirenet-manager/templates/manager/projects/index.md", "plugins/wirenet-manager/scripts/create_project_pack.py"]
     },
     {
@@ -144,7 +144,7 @@
       "audience": "agent",
       "description": "Project read order, recurring source routes, safety gates, and per-file update thresholds.",
       "produced_by": ["create-project-pack helper", "approved routing changes"],
-      "consumed_by": ["Codex instruction inheritance", "wirenet-manager-sync", "human viewer in Agent or All mode"],
+      "consumed_by": ["Codex instruction inheritance", "wirenet-manager-sync", "human viewer when agent instructions are enabled"],
       "evidence": ["plugins/wirenet-manager/scripts/manager_model.py", "plugins/wirenet-manager/templates/manager/projects/AGENTS.md"]
     },
     {
@@ -370,7 +370,7 @@
       "presence": "generated-on-demand",
       "authority": "none",
       "audience": "human",
-      "description": "Read-only projection of Manager content with Human, Agent, and All filters plus catalog, document, and graph modes.",
+      "description": "Read-only Google-derived graph-and-detail projection of non-index Manager content with reading mode and optional derived AGENTS.md routing.",
       "produced_by": ["generate-manager-viewer helper"],
       "consumed_by": ["human in built-in Browser"],
       "evidence": ["plugins/wirenet-manager/scripts/generate_manager_viewer.py", "plugins/wirenet-manager/viewer/manager-viewer.html"]
@@ -455,7 +455,7 @@
       "reads": ["Manager Markdown content excluding templates, skills, scripts, hidden state, and bindings"],
       "writes": ["temporary single-file HTML projection"],
       "approval": "not-required-for-local-read-only-generation",
-      "description": "Render complete source documents; filter whole documents by audience and expose catalog, focused document, or graph-plus-document modes.",
+      "description": "Render complete non-index source documents, real Markdown-link edges, and optional nearest-parent AGENTS.md routing; hide implementation and local state.",
       "evidence": ["plugins/wirenet-manager/skills/wirenet-manager/SKILL.md", "plugins/wirenet-manager/scripts/generate_manager_viewer.py"]
     }
   ],

@@ -12,257 +12,172 @@
 <title>WireNet Manager</title>
 <script referrerpolicy="no-referrer" src="https://cdn.jsdelivr.net/npm/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
 <script referrerpolicy="no-referrer" src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+<script referrerpolicy="no-referrer" src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
 <style>
 :root {
   --ink: #262626;
-  --muted: #737373;
-  --line: #e7e7e7;
-  --soft: #f6f6f4;
+  --muted: #707070;
+  --line: #e4e4e1;
+  --soft: #f6f6f3;
   --accent: #ff5c1a;
-  --white: #ffffff;
+  --white: #fff;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body {
   margin: 0;
-  color: var(--ink);
-  background: var(--white);
-  font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
-  font-size: 14px;
   display: flex;
   flex-direction: column;
+  color: var(--ink);
+  background: var(--white);
+  font: 14px/1.5 "Helvetica Neue", Arial, sans-serif;
 }
 button, input, select { font: inherit; }
 .app-header {
-  min-height: 58px;
+  min-height: 60px;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 20px;
   padding: 10px 18px;
   border-bottom: 1px solid var(--line);
-  background: var(--white);
-  flex-shrink: 0;
 }
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 210px;
+.brand, .controls { display: flex; align-items: center; }
+.brand { gap: 10px; min-width: max-content; }
+.brand-mark { width: 21px; height: 21px; }
+.wordmark, .read-only, .detail-path, .type-chip {
+  font-family: "SFMono-Regular", Consolas, monospace;
 }
-.brand-mark { width: 21px; height: 21px; flex: 0 0 auto; }
-.wordmark {
-  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
-  font-size: 17px;
-  font-weight: 650;
-  letter-spacing: .01em;
-}
+.wordmark { font-size: 17px; font-weight: 650; }
 .product-name {
-  color: var(--muted);
-  border-left: 1px solid var(--line);
   padding-left: 10px;
-  white-space: nowrap;
+  border-left: 1px solid var(--line);
+  color: var(--muted);
 }
-.controls { display: flex; align-items: center; justify-content: flex-end; gap: 7px; flex-wrap: wrap; }
-.controls input, .controls select, .controls button {
-  height: 34px;
-  border: 1px solid #d2d2d2;
-  border-radius: 4px;
-  color: var(--ink);
-  background: var(--white);
-  padding: 0 9px;
-  outline: none;
-}
-.controls input { width: min(240px, 25vw); }
-#document-select { width: min(360px, 34vw); }
-#view-mode { min-width: 152px; }
-#audience-filter { min-width: 92px; }
-.graph-control { display: none; }
-.graph-mode .graph-control { display: inline-block; }
-.controls input:focus, .controls select:focus, .controls button:focus-visible {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(255, 92, 26, .12);
-}
-.controls button { cursor: pointer; background: var(--ink); color: var(--white); border-color: var(--ink); }
-.controls button:hover { background: #3c3c3c; }
 .read-only {
-  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
-  font-size: 10px;
+  color: var(--accent);
+  font-size: 9px;
   letter-spacing: .08em;
   text-transform: uppercase;
-  color: var(--accent);
-  white-space: nowrap;
 }
-main { display: flex; flex: 1; min-height: 0; }
+.controls { justify-content: flex-end; gap: 7px; flex-wrap: wrap; }
+.controls input, .controls select, .controls button, .toggle {
+  min-height: 34px;
+  border: 1px solid #d1d1ce;
+  border-radius: 4px;
+  background: var(--white);
+  color: var(--ink);
+}
+.controls input, .controls select { padding: 0 9px; }
+.controls input { width: min(220px, 24vw); }
+.controls button { padding: 0 10px; cursor: pointer; }
+.controls button:hover { border-color: var(--ink); }
+.controls :focus-visible { outline: 2px solid rgba(255, 92, 26, .25); outline-offset: 1px; }
+.toggle { display: flex; align-items: center; gap: 6px; padding: 0 9px; cursor: pointer; }
+.toggle input { width: auto; min-height: 0; margin: 0; accent-color: var(--accent); }
+main { min-height: 0; flex: 1 1 auto; display: flex; }
 #graph {
-  display: none;
-  flex: 1 1 58%;
+  flex: 1 1 60%;
   min-width: 0;
-  position: relative;
   border-right: 1px solid var(--line);
   background:
-    linear-gradient(rgba(38,38,38,.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(38,38,38,.025) 1px, transparent 1px),
+    linear-gradient(rgba(38, 38, 38, .025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(38, 38, 38, .025) 1px, transparent 1px),
     var(--white);
   background-size: 28px 28px;
 }
 #detail {
-  flex: 1 1 100%;
+  flex: 0 0 40%;
+  min-width: 340px;
   overflow-y: auto;
-  padding: 42px 32px 56px;
-  background: var(--white);
+  padding: 26px 30px 42px;
 }
-.document-mode #detail-content,
-.document-mode #detail-empty,
-.document-mode #load-error {
-  width: min(100%, 860px);
-  margin-left: auto;
-  margin-right: auto;
-}
-.graph-mode #graph { display: block; }
-.graph-mode #detail { flex: 0 0 42%; padding: 24px 30px 40px; }
-.graph-mode #detail-content { width: auto; margin-left: 0; margin-right: 0; }
+body.reading-mode #graph { display: none; }
+body.reading-mode #detail { flex: 1 1 auto; min-width: 0; }
+body.reading-mode #detail-content,
+body.reading-mode #detail-empty,
+body.reading-mode #load-error { width: min(100%, 820px); margin-left: auto; margin-right: auto; }
 #detail-empty, #load-error {
-  max-width: 390px;
+  max-width: 380px;
   margin: 18vh auto 0;
   color: var(--muted);
-  line-height: 1.55;
 }
 #load-error { color: #9b2c2c; }
-.detail-header { display: block; padding: 0; border: 0; margin: 0 0 18px; }
-.detail-kicker { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.detail-header { margin-bottom: 18px; }
 .type-chip {
   display: inline-block;
-  border-radius: 999px;
   padding: 3px 8px;
+  border-radius: 999px;
   color: var(--white);
-  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
   font-size: 10px;
-  line-height: 1.2;
-  letter-spacing: .04em;
+  letter-spacing: .03em;
 }
-.detail-header h1 { margin: 0 0 5px; font-size: clamp(24px, 3vw, 38px); line-height: 1.08; font-weight: 600; }
-.detail-path {
-  color: var(--muted);
-  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
-  font-size: 11px;
-  word-break: break-word;
-}
+.detail-header h1 { margin: 9px 0 5px; font-size: clamp(24px, 3vw, 36px); line-height: 1.08; }
+.detail-path { color: var(--muted); font-size: 11px; word-break: break-word; }
 .frontmatter {
   display: grid;
-  grid-template-columns: minmax(72px, 105px) 1fr;
-  row-gap: 6px;
-  column-gap: 14px;
+  grid-template-columns: minmax(76px, 104px) 1fr;
+  gap: 6px 14px;
+  margin: 0 0 20px;
   padding: 13px 0;
-  margin: 0 0 18px;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  border-block: 1px solid var(--line);
   font-size: 12px;
 }
+.frontmatter:empty { display: none; }
 .frontmatter dt { color: var(--muted); }
-.frontmatter dd { margin: 0; min-width: 0; word-break: break-word; }
-.frontmatter a { color: var(--ink); text-decoration-color: var(--accent); }
+.frontmatter dd { min-width: 0; margin: 0; word-break: break-word; }
+.frontmatter a, #detail-body a, #detail-backlinks a {
+  color: var(--ink);
+  text-decoration-color: var(--accent);
+  text-underline-offset: 2px;
+}
 .tag {
   display: inline-block;
-  margin: 0 5px 4px 0;
+  margin: 0 4px 4px 0;
   padding: 2px 6px;
   border-radius: 3px;
-  color: #555;
   background: var(--soft);
-  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
-  font-size: 10px;
+  font: 10px "SFMono-Regular", Consolas, monospace;
 }
-.packet-nav {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin: -5px 0 20px;
-}
-.packet-nav button,
-.catalog-link {
-  border: 0;
-  padding: 0;
-  color: var(--ink);
-  background: transparent;
-  cursor: pointer;
-  text-decoration: underline;
-  text-decoration-color: #bdbdbd;
-  text-underline-offset: 3px;
-}
-.packet-nav button {
-  padding: 5px 8px;
-  border: 1px solid var(--line);
-  border-radius: 3px;
-  text-decoration: none;
-}
-.packet-nav button[aria-current="page"] { border-color: var(--accent); color: var(--accent); }
-.catalog-groups { display: grid; gap: 26px; margin-top: 24px; }
-.catalog-group h2 { margin: 0 0 8px; font-size: 18px; }
-.catalog-group ul { margin: 0; padding: 0; list-style: none; }
-.catalog-group li { margin: 7px 0; }
-.catalog-description { color: var(--muted); margin-left: 6px; }
-#detail-body { max-width: 76ch; font-size: 14px; line-height: 1.62; }
-#detail-body h1, #detail-body h2, #detail-body h3, #detail-body h4 { color: var(--ink); line-height: 1.2; }
+#detail-body { max-width: 76ch; line-height: 1.64; }
+#detail-body h1, #detail-body h2, #detail-body h3 { line-height: 1.2; }
 #detail-body h1 { margin: 28px 0 10px; font-size: 24px; }
 #detail-body h2 { margin: 25px 0 8px; font-size: 18px; }
 #detail-body h3 { margin: 20px 0 7px; font-size: 15px; }
-#detail-body h4 { margin: 18px 0 6px; font-size: 14px; }
 #detail-body p { margin: 8px 0 12px; }
 #detail-body ul, #detail-body ol { margin: 8px 0 14px; padding-left: 24px; }
 #detail-body li { margin: 4px 0; }
-#detail-body blockquote { margin: 14px 0; padding: 2px 0 2px 14px; border-left: 3px solid var(--accent); color: #555; }
+#detail-body blockquote { margin: 14px 0; padding-left: 14px; border-left: 3px solid var(--accent); color: #555; }
 #detail-body code {
   padding: 1px 4px;
   border-radius: 3px;
   background: var(--soft);
-  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
-  font-size: .88em;
+  font: .88em "SFMono-Regular", Consolas, monospace;
 }
-#detail-body pre {
-  overflow-x: auto;
-  padding: 13px 15px;
-  border-radius: 4px;
-  background: var(--ink);
-  color: #f5f5f5;
-}
+#detail-body pre { overflow-x: auto; padding: 13px 15px; border-radius: 4px; background: var(--ink); color: #f5f5f5; }
 #detail-body pre code { padding: 0; background: transparent; color: inherit; }
-#detail-body table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 12px; }
+#detail-body table { width: 100%; margin: 15px 0; border-collapse: collapse; font-size: 12px; }
 #detail-body th, #detail-body td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
-#detail-body th { font-weight: 600; background: var(--soft); }
-#detail-body a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: 2px; }
-#detail-body a.internal { cursor: pointer; }
-#detail-body hr { border: 0; border-top: 1px solid var(--line); margin: 24px 0; }
+#detail-body th { background: var(--soft); }
+#detail-body hr { margin: 24px 0; border: 0; border-top: 1px solid var(--line); }
 #detail-body input[type="checkbox"] { accent-color: var(--accent); }
 #detail-backlinks { margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--line); }
 #detail-backlinks h2 { margin: 0 0 9px; color: var(--muted); font-size: 12px; font-weight: 500; }
 #detail-backlinks ul { margin: 0; padding: 0; list-style: none; }
 #detail-backlinks li { margin: 5px 0; }
-#detail-backlinks a { color: var(--ink); cursor: pointer; text-decoration-color: var(--accent); }
-.muted { color: var(--muted); font-size: 11px; }
-.viewer-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 6px 18px;
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
-  font-size: 9px;
-  letter-spacing: .03em;
-}
-.viewer-footer a { color: inherit; }
-@media (max-width: 900px) {
-  .app-header { align-items: flex-start; flex-direction: column; gap: 10px; }
+#detail-backlinks a { cursor: pointer; }
+@media (max-width: 980px) {
+  .app-header { align-items: flex-start; flex-direction: column; gap: 9px; }
   .controls { width: 100%; justify-content: flex-start; }
-  .controls input, #document-select { flex: 1 1 180px; width: auto; }
+  .controls input { flex: 1 1 180px; width: auto; }
   main { flex-direction: column; }
-  .graph-mode #graph { flex: 0 0 44vh; border-right: 0; border-bottom: 1px solid var(--line); }
-  #detail, .graph-mode #detail { flex: 1 1 auto; padding: 22px 20px 36px; }
-  .viewer-footer { display: none; }
+  #graph { flex: 0 0 44vh; border-right: 0; border-bottom: 1px solid var(--line); }
+  #detail { flex: 1 1 auto; min-width: 0; padding: 22px 20px 36px; }
 }
 </style>
 </head>
-<body class="document-mode catalog-mode">
+<body>
 <header class="app-header">
   <div class="brand" aria-label="WireNet Manager">
     <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="#262626" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
@@ -275,29 +190,20 @@ main { display: flex; flex: 1; min-height: 0; }
     <span class="read-only">read only</span>
   </div>
   <div class="controls" aria-label="Viewer controls">
-    <select id="document-select" aria-label="Open document"></select>
-    <select id="view-mode" aria-label="Viewer mode">
-      <option value="catalog">Catalog</option>
-      <option value="document">Document</option>
-      <option value="graph">Graph + document</option>
-    </select>
-    <select id="audience-filter" aria-label="Document audience">
-      <option value="human">Human</option>
-      <option value="agent">Agent</option>
-      <option value="all">All</option>
-    </select>
-    <input class="graph-control" id="search" type="search" placeholder="Search graph" aria-label="Search graph">
-    <select class="graph-control" id="filter-type" aria-label="Filter graph by type">
+    <input id="search" type="search" placeholder="Search graph" aria-label="Search graph">
+    <select id="filter-type" aria-label="Filter graph by type">
       <option value="">All types</option>
     </select>
-    <select class="graph-control" id="layout" aria-label="Graph layout">
+    <select id="layout" aria-label="Graph layout">
       <option value="cose">Connected</option>
-      <option value="concentric">Concentric</option>
       <option value="breadthfirst">Hierarchy</option>
+      <option value="concentric">Concentric</option>
       <option value="circle">Circle</option>
       <option value="grid">Grid</option>
     </select>
-    <button class="graph-control" id="reset" type="button">Reset</button>
+    <label class="toggle"><input id="show-agent" type="checkbox"> Agent instructions</label>
+    <button id="reading-mode" type="button">Reading view</button>
+    <button id="reset" type="button">Reset</button>
   </div>
 </header>
 
@@ -305,28 +211,22 @@ main { display: flex; flex: 1; min-height: 0; }
   <section id="graph" aria-label="OKF knowledge graph"></section>
   <section id="detail" aria-live="polite">
     <div id="load-error" hidden></div>
-    <div id="detail-empty">No human-facing Manager documents are ready yet.</div>
+    <div id="detail-empty">No Manager documents are ready yet.</div>
     <article id="detail-content" hidden>
       <header class="detail-header">
-        <div class="detail-kicker"><span class="type-chip" id="detail-type"></span></div>
+        <span class="type-chip" id="detail-type"></span>
         <h1 id="detail-title"></h1>
-        <div class="detail-path" id="detail-id"></div>
+        <div class="detail-path" id="detail-path"></div>
       </header>
-      <nav class="packet-nav" id="packet-nav" aria-label="Project Pack documents" hidden></nav>
       <dl class="frontmatter" id="detail-meta"></dl>
       <div id="detail-body"></div>
       <section id="detail-backlinks" hidden>
-        <h2>Backlinks</h2>
+        <h2>Linked from</h2>
         <ul id="backlinks-list"></ul>
       </section>
     </article>
   </section>
 </main>
-
-<footer class="viewer-footer">
-  <span>WireNet Manager · local OKF memory</span>
-  <span>Viewer based on Google Cloud OKF · Apache-2.0</span>
-</footer>
 
 <script>
 window.BUNDLE_NAME = __BUNDLE_NAME__;
@@ -337,54 +237,38 @@ window.BUNDLE = __BUNDLE_DATA__;
   "use strict";
 
   const bundle = window.BUNDLE || { nodes: [], edges: [], bodies: {}, types: [] };
-  const bundleName = window.BUNDLE_NAME || "Manager";
-  document.title = `WireNet Manager — ${bundleName}`;
-  document.getElementById("bundle-name").textContent = bundleName;
+  const name = window.BUNDLE_NAME || "Manager";
+  const byId = Object.fromEntries(bundle.nodes.map(node => [node.data.id, node.data]));
+  const backlinks = {};
+  let selectedId = "";
 
-  if (!window.cytoscape || !window.marked) {
+  document.title = `WireNet Manager — ${name}`;
+  document.getElementById("bundle-name").textContent = name;
+
+  for (const edge of bundle.edges) {
+    if (edge.data.kind !== "link") continue;
+    (backlinks[edge.data.target] ||= []).push(edge.data.source);
+  }
+
+  if (!window.cytoscape || !window.marked || !window.DOMPurify) {
     const error = document.getElementById("load-error");
     error.hidden = false;
-    error.textContent = "The graph libraries could not be loaded. Check the network connection and reload this page.";
+    error.textContent = "The viewer libraries could not be loaded. Check the network connection and reload.";
     document.getElementById("detail-empty").hidden = true;
     return;
   }
 
-  const typeSelect = document.getElementById("filter-type");
+  const search = document.getElementById("search");
+  const typeFilter = document.getElementById("filter-type");
+  const layoutSelect = document.getElementById("layout");
+  const showAgent = document.getElementById("show-agent");
+  const readingMode = document.getElementById("reading-mode");
 
-  const backlinks = {};
-  for (const edge of bundle.edges) {
-    if (!['link', 'catalog'].includes(edge.data.kind)) continue;
-    const { source, target } = edge.data;
-    (backlinks[target] ||= []).push(source);
-  }
-
-  const nodeIndex = {};
-  for (const node of bundle.nodes) nodeIndex[node.data.id] = node.data;
-
-  const documentSelect = document.getElementById("document-select");
-  const viewMode = document.getElementById("view-mode");
-  const audienceFilter = document.getElementById("audience-filter");
-  const fileOrder = {
-    "README.md": 10,
-    "GOAL.md": 20,
-    "WORKLOG.md": 30,
-    "RESULT.md": 40,
-    "log.md": 50,
-  };
-  let selectedId = "";
-
-  function sortDocuments(nodes) {
-    return [...nodes].sort((left, right) => {
-    const leftPath = left.data.path || left.data.id;
-    const rightPath = right.data.path || right.data.id;
-    const leftDirectory = leftPath.split("/").slice(0, -1).join("/");
-    const rightDirectory = rightPath.split("/").slice(0, -1).join("/");
-    const directoryOrder = leftDirectory.localeCompare(rightDirectory);
-    if (directoryOrder) return directoryOrder;
-    const leftFile = leftPath.split("/").pop();
-    const rightFile = rightPath.split("/").pop();
-    return (fileOrder[leftFile] || 99) - (fileOrder[rightFile] || 99) || leftPath.localeCompare(rightPath);
-    });
+  for (const type of bundle.types) {
+    const option = document.createElement("option");
+    option.value = type;
+    option.textContent = type;
+    typeFilter.appendChild(option);
   }
 
   const cy = cytoscape({
@@ -395,28 +279,24 @@ window.BUNDLE = __BUNDLE_DATA__;
         selector: "node",
         style: {
           "background-color": "data(color)",
-          "label": "data(graphLabel)",
+          "label": "data(label)",
+          "width": "data(size)",
+          "height": "data(size)",
+          "border-width": 1,
+          "border-color": "#262626",
           "color": "#262626",
-          "font-family": "IBM Plex Sans, Helvetica Neue, Arial, sans-serif",
           "font-size": 9,
           "font-weight": 500,
           "text-valign": "bottom",
           "text-margin-y": 5,
           "text-wrap": "wrap",
-          "text-max-width": 104,
-          "text-background-color": "#ffffff",
+          "text-max-width": 105,
+          "text-background-color": "#fff",
           "text-background-opacity": .82,
-          "text-background-padding": 2,
-          "width": "data(size)",
-          "height": "data(size)",
-          "border-width": 1,
-          "border-color": "#262626"
+          "text-background-padding": 2
         }
       },
-      {
-        selector: "node:selected",
-        style: { "border-width": 4, "border-color": "#ff5c1a" }
-      },
+      { selector: "node:selected", style: { "border-width": 4, "border-color": "#ff5c1a" } },
       {
         selector: "edge",
         style: {
@@ -429,448 +309,186 @@ window.BUNDLE = __BUNDLE_DATA__;
         }
       },
       {
-        selector: 'edge[kind = "packet"]',
+        selector: "edge[kind = 'routing']",
         style: {
           "line-style": "dashed",
-          "line-color": "#dedede",
-          "target-arrow-color": "#dedede",
-          "target-arrow-shape": "none"
-        }
-      },
-      {
-        selector: 'edge[kind = "routing"]',
-        style: {
-          "width": 2,
           "line-color": "#ff5c1a",
           "target-arrow-color": "#ff5c1a"
         }
       },
-      {
-        selector: 'edge[kind = "catalog"]',
-        style: { "line-style": "dotted", "line-color": "#b7b7b7" }
-      },
-      {
-        selector: "edge:selected",
-        style: { "line-color": "#ff5c1a", "target-arrow-color": "#ff5c1a", "width": 2.3 }
-      },
-      { selector: ".dim", style: { "opacity": .12 } },
+      { selector: ".dimmed", style: { "opacity": .14 } },
       { selector: ".filtered-out", style: { "display": "none" } }
     ],
-    layout: {
-      name: "cose",
-      animate: false,
-      padding: 42,
-      randomize: true,
-      nodeRepulsion: 180000,
-      idealEdgeLength: 125,
-      nodeOverlap: 36,
-      componentSpacing: 120,
-      gravity: .12,
-      numIter: 1400
-    },
-    wheelSensitivity: .2
+    layout: { name: "cose", animate: false, fit: true, padding: 36 }
   });
 
-  cy.on("tap", "node", (event) => showDetail(event.target.id()));
-
-  documentSelect.addEventListener("change", (event) => {
-    if (event.target.value === "__catalog__") renderCatalog();
-    else showDetail(event.target.value);
-  });
-
-  viewMode.addEventListener("change", (event) => setViewMode(event.target.value));
-  audienceFilter.addEventListener("change", () => refreshView());
-
-  document.getElementById("layout").addEventListener("change", (event) => {
-    runLayout(event.target.value);
-  });
-
-  document.getElementById("reset").addEventListener("click", () => {
-    document.getElementById("search").value = "";
-    document.getElementById("filter-type").value = "";
-    applyFilter("", "");
-    cy.fit(null, 38);
-  });
-
-  document.getElementById("search").addEventListener("input", (event) => {
-    applyFilter(event.target.value, typeSelect.value);
-  });
-
-  typeSelect.addEventListener("change", (event) => {
-    applyFilter(document.getElementById("search").value, event.target.value);
-  });
-
-  function applyFilter(queryValue, typeValue) {
-    const query = queryValue.trim().toLowerCase();
-    cy.nodes().forEach((node) => {
-      const data = node.data();
-      const haystack = [data.label, data.id, data.type, ...(data.tags || [])].join(" ").toLowerCase();
-      const included = audienceMatches(data) && data.kind !== "index";
-      const matches = (!query || haystack.includes(query)) && (!typeValue || data.type === typeValue);
-      node.toggleClass("filtered-out", !included);
-      node.toggleClass("dim", included && !matches);
-    });
-    cy.edges().forEach((edge) => {
-      const excluded = edge.source().hasClass("filtered-out") || edge.target().hasClass("filtered-out");
-      edge.toggleClass("filtered-out", excluded);
-      edge.toggleClass("dim", !excluded && (edge.source().hasClass("dim") || edge.target().hasClass("dim")));
-    });
+  function isAgent(data) {
+    return data && data.audience === "agent";
   }
 
-  function audienceMatches(data) {
-    const selected = audienceFilter.value;
-    if (selected === "all") return true;
-    return data.audience === selected;
+  function runLayout() {
+    cy.layout({ name: layoutSelect.value, animate: false, fit: true, padding: 36 }).run();
   }
 
-  function visibleNodes({ indexesOnly = false, graphOnly = false } = {}) {
-    return bundle.nodes.filter((node) => {
-      if (!audienceMatches(node.data)) return false;
-      if (indexesOnly) return node.data.kind === "index";
-      if (graphOnly) return node.data.kind !== "index";
-      return true;
-    });
-  }
-
-  function populateTypeSelect() {
-    const previous = typeSelect.value;
-    typeSelect.innerHTML = '<option value="">All types</option>';
-    const types = [...new Set(visibleNodes({ graphOnly: true }).map((node) => node.data.type))].sort();
-    for (const type of types) {
-      const option = document.createElement("option");
-      option.value = type;
-      option.textContent = type;
-      typeSelect.appendChild(option);
-    }
-    if (types.includes(previous)) typeSelect.value = previous;
-  }
-
-  function populateDocumentSelect() {
-    const previous = documentSelect.value || selectedId;
-    documentSelect.innerHTML = "";
-    let choices;
-    if (viewMode.value === "catalog") {
-      const root = document.createElement("option");
-      root.value = "__catalog__";
-      root.textContent = `${bundleName} catalog`;
-      documentSelect.appendChild(root);
-      choices = visibleNodes({ indexesOnly: true });
-    } else {
-      choices = visibleNodes({ graphOnly: viewMode.value === "graph" });
-    }
-    for (const node of sortDocuments(choices)) {
-      const option = document.createElement("option");
-      const fileName = (node.data.path || node.data.id).split("/").pop().replace(/\.md$/i, "");
-      option.value = node.data.id;
-      option.textContent = `${node.data.label} · ${fileName}`;
-      documentSelect.appendChild(option);
-    }
-    const values = [...documentSelect.options].map((option) => option.value);
-    documentSelect.value = values.includes(previous) ? previous : values[0] || "";
-    documentSelect.disabled = values.length === 0;
-  }
-
-  function runLayout(layoutName) {
-    const options = { name: layoutName, animate: false, padding: 42 };
-    if (layoutName === "cose") Object.assign(options, {
-      randomize: true,
-      nodeRepulsion: 180000,
-      idealEdgeLength: 125,
-      nodeOverlap: 36,
-      componentSpacing: 120,
-      gravity: .12,
-      numIter: 1400
-    });
-    cy.layout(options).run();
-  }
-
-  function setViewMode(mode) {
-    const graphMode = mode === "graph";
-    const catalogMode = mode === "catalog";
-    document.body.classList.toggle("graph-mode", graphMode);
-    document.body.classList.toggle("document-mode", !graphMode);
-    document.body.classList.toggle("catalog-mode", catalogMode);
-    populateDocumentSelect();
-    applyFilter(document.getElementById("search").value, typeSelect.value);
-    if (catalogMode) renderCatalog();
-    else if (documentSelect.value) showDetail(documentSelect.value);
-    if (graphMode) requestAnimationFrame(() => {
-      cy.resize();
-      runLayout(document.getElementById("layout").value);
-      cy.fit(null, 42);
-    });
-  }
-
-  function refreshView() {
-    populateTypeSelect();
-    populateDocumentSelect();
-    applyFilter(document.getElementById("search").value, typeSelect.value);
-    if (viewMode.value === "catalog" || documentSelect.value === "__catalog__") renderCatalog();
-    else if (documentSelect.value) showDetail(documentSelect.value);
-    else showEmpty("No documents match this audience.");
-    if (viewMode.value === "graph") requestAnimationFrame(() => cy.fit(null, 42));
-  }
-
-  function showEmpty(message) {
-    document.getElementById("detail-empty").textContent = message;
-    document.getElementById("detail-empty").hidden = false;
-    document.getElementById("detail-content").hidden = true;
-  }
-
-  function renderCatalog() {
-    selectedId = "";
-    documentSelect.value = "__catalog__";
-    document.getElementById("detail-empty").hidden = true;
-    document.getElementById("detail-content").hidden = false;
-    const chip = document.getElementById("detail-type");
-    chip.textContent = "Catalog";
-    chip.style.background = "#262626";
-    document.getElementById("detail-title").textContent = `${bundleName} catalog`;
-    document.getElementById("detail-id").textContent = `${audienceFilter.value} documents · index navigation`;
-    document.getElementById("detail-meta").hidden = true;
-    document.getElementById("packet-nav").hidden = true;
-    document.getElementById("detail-backlinks").hidden = true;
-
-    const body = document.getElementById("detail-body");
-    body.innerHTML = "";
-    const nodes = sortDocuments(visibleNodes());
-    if (!nodes.length) {
-      const empty = document.createElement("p");
-      empty.className = "muted";
-      empty.textContent = "No documents match this audience.";
-      body.appendChild(empty);
-      return;
-    }
-
-    const intro = document.createElement("p");
-    intro.textContent = "Open a collection index, then follow its links into the complete source documents.";
-    body.appendChild(intro);
-    const groups = {};
-    for (const node of nodes) {
-      const path = node.data.path || node.data.id;
-      const group = path.includes("/") ? path.split("/", 1)[0] : "Manager";
-      (groups[group] ||= []).push(node);
-    }
-    const container = document.createElement("div");
-    container.className = "catalog-groups";
-    for (const [group, groupNodes] of Object.entries(groups).sort(([left], [right]) => left.localeCompare(right))) {
-      const section = document.createElement("section");
-      section.className = "catalog-group";
-      const heading = document.createElement("h2");
-      heading.textContent = group === "Manager" ? "Manager" : group.replace(/[-_]/g, " ");
-      section.appendChild(heading);
-      const list = document.createElement("ul");
-      const landing = groupNodes.find((node) => node.data.kind === "index");
-      const entries = landing ? [landing] : groupNodes;
-      for (const node of entries) {
-        const item = document.createElement("li");
-        const link = document.createElement("button");
-        link.type = "button";
-        link.className = "catalog-link";
-        link.textContent = node.data.label;
-        link.addEventListener("click", () => showDetail(node.data.id));
-        item.appendChild(link);
-        const description = node.data.description || (landing ? `${groupNodes.length} documents` : node.data.path);
-        if (description) {
-          const note = document.createElement("span");
-          note.className = "catalog-description";
-          note.textContent = `— ${description}`;
-          item.appendChild(note);
+  function applyFilters() {
+    const query = search.value.trim().toLowerCase();
+    const type = typeFilter.value;
+    cy.batch(() => {
+      cy.elements().removeClass("dimmed filtered-out");
+      cy.nodes().forEach(node => {
+        const data = node.data();
+        if (!showAgent.checked && isAgent(data)) {
+          node.addClass("filtered-out");
+          return;
         }
-        list.appendChild(item);
-      }
-      section.appendChild(list);
-      container.appendChild(section);
-    }
-    body.appendChild(container);
-    document.getElementById("detail").scrollTop = 0;
+        const haystack = `${data.label} ${data.path} ${data.description || ""}`.toLowerCase();
+        if ((query && !haystack.includes(query)) || (type && data.type !== type)) {
+          node.addClass("dimmed");
+        }
+      });
+      cy.edges().forEach(edge => {
+        if (edge.source().hasClass("filtered-out") || edge.target().hasClass("filtered-out")) {
+          edge.addClass("filtered-out");
+        } else if (edge.source().hasClass("dimmed") || edge.target().hasClass("dimmed")) {
+          edge.addClass("dimmed");
+        }
+      });
+    });
   }
 
-  function showDetail(conceptId) {
-    const data = nodeIndex[conceptId];
-    if (!data) return;
-    if (!audienceMatches(data)) {
-      audienceFilter.value = "all";
-      populateDocumentSelect();
-      applyFilter(document.getElementById("search").value, typeSelect.value);
-    }
-    selectedId = conceptId;
-    if (data.kind === "index" && viewMode.value !== "catalog") {
-      viewMode.value = "catalog";
-      document.body.classList.remove("graph-mode");
-      document.body.classList.add("document-mode", "catalog-mode");
-      populateDocumentSelect();
-    } else if (data.kind !== "index" && viewMode.value === "catalog") {
-      viewMode.value = "document";
-      document.body.classList.remove("catalog-mode", "graph-mode");
-      document.body.classList.add("document-mode");
-      populateDocumentSelect();
-    }
-    cy.elements().unselect();
-    const node = cy.getElementById(conceptId);
-    if (node) node.select();
-    documentSelect.value = conceptId;
+  function appendMeta(term, value, render) {
+    if (!value || (Array.isArray(value) && value.length === 0)) return;
+    const list = document.getElementById("detail-meta");
+    const dt = document.createElement("dt");
+    const dd = document.createElement("dd");
+    dt.textContent = term;
+    render(dd, value);
+    list.append(dt, dd);
+  }
 
-    document.getElementById("detail-empty").hidden = true;
-    document.getElementById("detail-content").hidden = false;
-
-    const chip = document.getElementById("detail-type");
-    chip.textContent = data.type;
-    chip.style.background = data.color;
-    document.getElementById("detail-title").textContent = data.label;
-    document.getElementById("detail-id").textContent = data.path || conceptId;
-
-    const meta = document.getElementById("detail-meta");
-    meta.innerHTML = "";
-    addMeta(meta, "Status", data.status);
-    addMeta(meta, "Updated", data.updated);
-    addMeta(meta, "Audience", data.audience);
-    addMeta(meta, "Project ID", data.projectId);
-    addMeta(meta, "Description", data.description);
-    addResource(meta, data.resource);
-    addTags(meta, data.tags);
-    if (!meta.children.length) meta.hidden = true;
-    else meta.hidden = false;
-
-    renderPacketNav(data);
-
-    const rawBody = bundle.bodies[conceptId] || "";
-    const rendered = marked.parse(rawBody, { breaks: false, gfm: true });
+  function renderMarkdown(id) {
     const body = document.getElementById("detail-body");
-    body.innerHTML = sanitizeHtml(rendered);
-    rewriteLinks(body);
+    body.innerHTML = DOMPurify.sanitize(marked.parse(bundle.bodies[id] || ""));
+    body.querySelectorAll("a").forEach(anchor => {
+      const href = anchor.getAttribute("href") || "";
+      if (href.startsWith("/") && /\.md(?:#|$)/i.test(href)) {
+        const target = decodeURIComponent(href.slice(1).split("#", 1)[0]).replace(/\.md$/i, "");
+        if (byId[target]) {
+          anchor.addEventListener("click", event => {
+            event.preventDefault();
+            showDetail(target);
+          });
+        } else {
+          anchor.removeAttribute("href");
+        }
+      } else if (/^https?:\/\//i.test(href)) {
+        anchor.target = "_blank";
+        anchor.rel = "noopener noreferrer";
+      } else if (!href.startsWith("#") && !href.startsWith("mailto:")) {
+        anchor.removeAttribute("href");
+      }
+    });
+  }
 
-    const sources = (backlinks[conceptId] || []).filter((source) => audienceMatches(nodeIndex[source]));
+  function renderBacklinks(id) {
     const section = document.getElementById("detail-backlinks");
     const list = document.getElementById("backlinks-list");
-    list.innerHTML = "";
+    list.replaceChildren();
+    const sources = (backlinks[id] || []).filter(source => showAgent.checked || !isAgent(byId[source]));
     section.hidden = sources.length === 0;
     for (const source of sources) {
       const item = document.createElement("li");
       const link = document.createElement("a");
-      link.textContent = nodeIndex[source]?.label || source;
-      link.addEventListener("click", () => showDetail(source));
+      link.textContent = byId[source]?.label || source;
+      link.href = `#${encodeURIComponent(source)}`;
+      link.addEventListener("click", event => {
+        event.preventDefault();
+        showDetail(source);
+      });
       item.appendChild(link);
-      const path = document.createElement("span");
-      path.className = "muted";
-      path.textContent = ` · ${nodeIndex[source]?.path || source}`;
-      item.appendChild(path);
       list.appendChild(item);
     }
+  }
 
+  function showDetail(id) {
+    const data = byId[id];
+    if (!data) return;
+    if (isAgent(data) && !showAgent.checked) {
+      showAgent.checked = true;
+      applyFilters();
+      runLayout();
+    }
+    selectedId = id;
+    document.getElementById("detail-empty").hidden = true;
+    document.getElementById("detail-content").hidden = false;
+    const chip = document.getElementById("detail-type");
+    chip.textContent = data.type;
+    chip.style.backgroundColor = data.color;
+    document.getElementById("detail-title").textContent = data.label;
+    document.getElementById("detail-path").textContent = data.path;
+    document.getElementById("detail-meta").replaceChildren();
+    appendMeta("Description", data.description, (element, value) => { element.textContent = value; });
+    appendMeta("Resource", data.resource, (element, value) => {
+      if (/^https?:\/\//i.test(value)) {
+        const link = document.createElement("a");
+        link.href = value;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = value;
+        element.appendChild(link);
+      } else {
+        element.textContent = value;
+      }
+    });
+    appendMeta("Tags", data.tags, (element, values) => {
+      for (const value of values) {
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = value;
+        element.appendChild(tag);
+      }
+    });
+    renderMarkdown(id);
+    renderBacklinks(id);
+    cy.$id(id).select();
     document.getElementById("detail").scrollTop = 0;
   }
 
-  function renderPacketNav(data) {
-    const nav = document.getElementById("packet-nav");
-    nav.innerHTML = "";
-    if (!data.projectId) {
-      nav.hidden = true;
-      return;
+  cy.on("tap", "node", event => showDetail(event.target.id()));
+  search.addEventListener("input", applyFilters);
+  typeFilter.addEventListener("change", applyFilters);
+  layoutSelect.addEventListener("change", runLayout);
+  showAgent.addEventListener("change", () => {
+    applyFilters();
+    if (!showAgent.checked && isAgent(byId[selectedId])) {
+      const fallback = bundle.nodes.find(node => !isAgent(node.data));
+      if (fallback) showDetail(fallback.data.id);
     }
-    const siblings = sortDocuments(bundle.nodes.filter((node) =>
-      node.data.projectId === data.projectId && audienceMatches(node.data) && node.data.kind !== "index"
-    ));
-    nav.hidden = siblings.length < 2;
-    for (const sibling of siblings) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.textContent = (sibling.data.path || sibling.data.id).split("/").pop().replace(/\.md$/i, "");
-      if (sibling.data.id === data.id) button.setAttribute("aria-current", "page");
-      button.addEventListener("click", () => showDetail(sibling.data.id));
-      nav.appendChild(button);
+    runLayout();
+  });
+  readingMode.addEventListener("click", () => {
+    const enabled = document.body.classList.toggle("reading-mode");
+    readingMode.textContent = enabled ? "Graph view" : "Reading view";
+    if (!enabled) {
+      cy.resize();
+      cy.fit(undefined, 36);
     }
-  }
+  });
+  document.getElementById("reset").addEventListener("click", () => {
+    search.value = "";
+    typeFilter.value = "";
+    applyFilters();
+    cy.fit(undefined, 36);
+  });
 
-  function addMeta(list, label, value) {
-    if (!value) return;
-    const term = document.createElement("dt");
-    const detail = document.createElement("dd");
-    term.textContent = label;
-    detail.textContent = value;
-    list.append(term, detail);
-  }
-
-  function addResource(list, value) {
-    if (!value || !/^https?:\/\//i.test(value)) return;
-    const term = document.createElement("dt");
-    const detail = document.createElement("dd");
-    const link = document.createElement("a");
-    term.textContent = "Resource";
-    link.href = value;
-    link.textContent = value;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    detail.appendChild(link);
-    list.append(term, detail);
-  }
-
-  function addTags(list, tags) {
-    if (!tags || !tags.length) return;
-    const term = document.createElement("dt");
-    const detail = document.createElement("dd");
-    term.textContent = "Tags";
-    for (const value of tags) {
-      const tag = document.createElement("span");
-      tag.className = "tag";
-      tag.textContent = value;
-      detail.appendChild(tag);
-    }
-    list.append(term, detail);
-  }
-
-  function sanitizeHtml(html) {
-    const template = document.createElement("template");
-    template.innerHTML = html;
-    template.content.querySelectorAll("script, style, iframe, object, embed, form, button, input, textarea, select, meta, link, base, audio, video, source, picture, svg, math").forEach((element) => element.remove());
-    template.content.querySelectorAll("*").forEach((element) => {
-      for (const attribute of [...element.attributes]) {
-        if (attribute.name.toLowerCase().startsWith("on") || attribute.name.toLowerCase() === "style") {
-          element.removeAttribute(attribute.name);
-        }
-      }
-    });
-    return template.innerHTML;
-  }
-
-  function rewriteLinks(root) {
-    root.querySelectorAll("a[href]").forEach((link) => {
-      const href = link.getAttribute("href") || "";
-      if (href.startsWith("/") && href.includes(".md")) {
-        const target = href.slice(1).split("#", 1)[0].replace(/\.(md|markdown)$/i, "");
-        if (nodeIndex[target]) {
-          link.className = "internal";
-          link.setAttribute("href", "#");
-          link.addEventListener("click", (event) => {
-            event.preventDefault();
-            showDetail(target);
-          });
-          return;
-        }
-      }
-      if (/^(https?:|mailto:)/i.test(href)) {
-        link.className = "external";
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-      } else if (href.startsWith("#")) {
-        link.className = "internal-anchor";
-      } else {
-        link.removeAttribute("href");
-      }
-    });
-  }
-
-  populateTypeSelect();
-  populateDocumentSelect();
-  applyFilter("", "");
-  if (bundle.nodes.length) renderCatalog();
-  else {
-    documentSelect.disabled = true;
-    viewMode.disabled = true;
-    audienceFilter.disabled = true;
-    showEmpty("No Manager documents were found.");
-  }
-})();
+  applyFilters();
+  runLayout();
+  const initial = bundle.nodes.find(node => node.data.type === "Manager Overview" && !isAgent(node.data))
+    || bundle.nodes.find(node => node.data.type === "Project Status" && !isAgent(node.data))
+    || bundle.nodes.find(node => !isAgent(node.data))
+    || bundle.nodes[0];
+  if (initial) showDetail(initial.data.id);
+}());
 </script>
 </body>
 </html>

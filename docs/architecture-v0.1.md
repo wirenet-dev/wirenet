@@ -92,16 +92,18 @@ Each skill keeps its `SKILL.md` concise and places detailed contracts under
 Google Cloud OKF graph-and-detail viewer model. The generator embeds Manager
 Markdown documents without filtering or rewriting their bodies. Templates,
 technical plugin files, skills, scripts, hidden state, and local binding JSON
-never enter the generated page.
+never enter the generated page. Reserved `index.md` files also remain outside
+the projection, matching the reference viewer; they continue to route agents
+and future synchronization consumers.
 
-Markdown links create graph edges. Documents sharing a Project Pack
-`project_id` receive a separate dashed packet relationship. The page renders
-complete Markdown and backlinks. Catalog mode uses OKF index documents for
-progressive disclosure, document mode supports focused reading, and graph mode
-adds search, type filters, and layouts. The audience filter selects human
-documents, agent instructions, or all documents. In agent mode, structural
-routing edges show the nearest-parent hierarchy between `AGENTS.md` files. The
-viewer offers no editing or filesystem API.
+Markdown links create graph edges. The page renders complete Markdown and
+backlinks, with search, type filters, layouts, and a reading view that can hide
+the graph. Human-facing concepts are the default. A single agent-instructions
+toggle adds `AGENTS.md` and explicit agent-facing runtime adapters. Dashed
+routing edges show the nearest-parent `AGENTS.md` hierarchy; the generator
+derives them from paths and never stores a second routing map. The viewer adds
+no packet, catalog, or inferred semantic edges and offers no editing or
+filesystem API.
 
 ### Layer Boundary
 
@@ -115,8 +117,8 @@ it with OKF:
    paths, and classifications; it does not contain instructions or project prose.
 4. OKF frontmatter, `index.md`, `log.md`, and Markdown links add portable
    identity, progressive disclosure, chronology, and graph relationships.
-5. The viewer is a read-only consumer of those layers and never becomes a
-   second source of truth.
+5. The viewer projects non-index concepts without editing or replacing them;
+   agent routing is derived from the existing `AGENTS.md` hierarchy.
 
 The frozen entity and route definitions under `contracts/routing/` make this
 boundary testable. They distinguish committed placeholders from semantically

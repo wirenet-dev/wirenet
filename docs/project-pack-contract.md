@@ -97,8 +97,10 @@ Manager `index.md` declares OKF 0.1 and catalogs the content shelves.
 Markdown links and short descriptions.
 
 Individual packets do not need another index while their structure is small;
-the viewer may synthesize navigation. An agent may add a packet-local index as
-the packet grows. OKF indexes never replace README or AGENTS documents.
+an agent may add a packet-local index as the packet grows. The Google-derived
+viewer deliberately omits reserved indexes and visualizes concept documents
+instead. OKF indexes still route agents and future synchronization consumers;
+they never replace README or AGENTS documents.
 
 ## Viewer Projection
 
@@ -106,14 +108,16 @@ The Project Pack remains inspectable when it contains only the minimum two
 documents. Empty optional files are not created merely to make the structure
 look complete.
 
-The viewer filters whole documents, never sections within a document:
-
-- `Human` shows complete human-facing Manager Markdown that actually exists;
-- `Agent` shows complete `AGENTS.md` and explicit runtime adapters;
-- `All` shows both projections together.
+The viewer shows complete human-facing documents by default and has one toggle
+for complete `AGENTS.md` and explicit agent-facing runtime adapters. It filters
+whole documents, never sections. Normal Markdown links become graph edges. The
+nearest-parent relationship between `AGENTS.md` files becomes a derived dashed
+routing edge only while agent instructions are enabled; no routing relationship
+is persisted separately from the filesystem hierarchy.
 
 Templates, ignored outputs, plugin implementation, and device-local bindings
-remain outside the content projection.
+remain outside the content projection. Reserved indexes remain navigation input
+for agents and future OKF consumers rather than viewer nodes.
 
 ## UltraGoal Worklogs
 
