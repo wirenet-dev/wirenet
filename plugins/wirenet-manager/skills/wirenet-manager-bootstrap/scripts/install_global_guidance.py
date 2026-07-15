@@ -100,14 +100,12 @@ def replace_blocks(
     has_legacy = validate_pair(existing, LEGACY_START, LEGACY_END)
     has_core = validate_pair(existing, CORE_START, CORE_END)
     has_routing = validate_pair(existing, ROUTING_START, ROUTING_END)
-    if has_legacy and has_core:
-        raise ValueError("legacy and current core blocks both exist; inspect the file manually")
-
-    updated = existing
     if has_legacy:
-        updated = replace_managed(updated, LEGACY_START, LEGACY_END, CORE_BLOCK)
-    else:
-        updated = replace_managed(updated, CORE_START, CORE_END, CORE_BLOCK)
+        raise ValueError(
+            "unsupported legacy WireNet Manager block; remove or review it before installing v0.1"
+        )
+
+    updated = replace_managed(existing, CORE_START, CORE_END, CORE_BLOCK)
 
     rendered_routing: str | None = None
     action = "preserved" if has_routing else "absent"

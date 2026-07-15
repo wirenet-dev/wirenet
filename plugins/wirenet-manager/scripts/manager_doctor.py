@@ -12,32 +12,38 @@ from manager_model import (
     BINDINGS_SCHEMA,
     MANAGER_SCHEMA,
     PROJECT_PACK_SCHEMA,
+    RUNTIME_SCHEMA,
     load_json,
     project_id_from_readme,
 )
+from okf_projection import iter_markdown, parse_frontmatter
 
 
-REQUIRED_PATHS = (
+REQUIRED_FILES = (
     ".gitignore",
     "AGENTS.md",
     "index.md",
     "README.md",
     "TODO.md",
     "agent/USER_CONTEXT.md",
-    "archive/README.md",
-    "docs/README.md",
-    "experiments/README.md",
-    "outputs/README.md",
-    "people/README.md",
-    "projects/README.md",
     "projects/index.md",
     "projects/AGENTS.md",
-    "notes/README.md",
-    "sources/README.md",
-    "templates/README.md",
     ".wirenet/manager.json",
     ".wirenet/project-bindings.json",
 )
+REQUIRED_DIRECTORIES = (
+    ".wirenet",
+    "agent",
+    "archive",
+    "docs",
+    "experiments",
+    "notes",
+    "outputs",
+    "people",
+    "projects",
+    "sources",
+)
+FORBIDDEN_PATHS = ("templates",)
 REQUIRED_PACK_FILES = ("README.md", "AGENTS.md")
 RESERVED_OKF_FILES = {"index.md", "log.md"}
 
@@ -56,10 +62,58 @@ def validate_update_log(path: Path) -> list[str]:
 
 
 def inspect(manager_dir: Path) -> dict[str, object]:
-    missing = [item for item in REQUIRED_PATHS if not (manager_dir / item).exists()]
+    missing = [item for item in REQUIRED_FILES if not (manager_dir / item).is_file()]
+    missing.extend(
+        f"{item}/" for item in REQUIRED_DIRECTORIES if not (manager_dir / item).is_dir()
+    )
     errors: list[str] = []
     manager_meta: dict[str, object] = {}
     bindings: dict[str, object] = {}
+
+    for relative in FORBIDDEN_PATHS:
+        if (manager_dir / relative).exists():
+            errors.append(f"{relative}/ is not part of the canonical v0.1 workspace")
+
+    for path in iter_markdown(manager_dir):
+        relative = path.relative_to(manager_dir).as_posix()
+        content = path.read_text(encoding="utf-8")
+        metadata, _ = parse_frontmatter(content)
+        name = path.name.lower()
+        if name == "agents.md":
+            if metadata.get("schema") != RUNTIME_SCHEMA:
+                errors.append(f"{relative} is not on the v0.1 runtime schema")
+            if str(metadata.get("type") or "").strip():
+                errors.append(f"{relative} must remain outside the OKF concept projection")
+            continue
+        if name in RESERVED_OKF_FILES:
+            if str(metadata.get("type") or "").strip():
+                errors.append(f"{relative} is reserved and must not declare an OKF type")
+            if name == "index.md":
+                if set(metadata) - {"okf_version"}:
+                    errors.append(f"{relative} index frontmatter may contain only okf_version")
+                if not re.search(r"(?m)^#\s+\S", content):
+                    errors.append(f"{relative} must contain a section heading")
+            else:
+                if content.startswith("---\n"):
+                    errors.append(f"{relative} is reserved history and must not use frontmatter")
+                errors.extend(f"{relative}: {item}" for item in validate_update_log(path))
+            continue
+        if not str(metadata.get("type") or "").strip():
+            errors.append(f"{relative} is missing a non-empty OKF type")
+
+    root_readme = manager_dir / "README.md"
+    if root_readme.is_file():
+        root_metadata, _ = parse_frontmatter(root_readme.read_text(encoding="utf-8"))
+        if root_metadata.get("type") != "Manager Overview":
+            errors.append("README.md must use OKF type Manager Overview")
+        if root_metadata.get("schema") != MANAGER_SCHEMA:
+            errors.append("README.md is not on the v0.1 Manager schema")
+
+    root_index = manager_dir / "index.md"
+    if root_index.is_file():
+        root_index_metadata, _ = parse_frontmatter(root_index.read_text(encoding="utf-8"))
+        if root_index_metadata.get("okf_version") != "0.1":
+            errors.append("index.md must declare okf_version 0.1")
 
     if (manager_dir / ".wirenet/manager.json").is_file():
         try:
@@ -87,17 +141,12 @@ def inspect(manager_dir: Path) -> dict[str, object]:
     project_ids: set[str] = set()
     projects_dir = manager_dir / "projects"
     project_index = ""
-    project_router = ""
     if (projects_dir / "index.md").is_file():
         project_index = (projects_dir / "index.md").read_text(encoding="utf-8")
         if project_index.startswith("---\n"):
             errors.append("projects/index.md must not contain Project Pack frontmatter")
         if "## Active Project Packs" not in project_index:
             errors.append("projects/index.md is missing the active-packets section")
-    if (projects_dir / "README.md").is_file():
-        project_router = (projects_dir / "README.md").read_text(encoding="utf-8")
-        if "## Active Project Packs" not in project_router:
-            errors.append("projects/README.md is missing the active-packets section")
     if projects_dir.is_dir():
         for packet in sorted(path for path in projects_dir.iterdir() if path.is_dir()):
             packet_missing = [name for name in REQUIRED_PACK_FILES if not (packet / name).is_file()]
@@ -112,9 +161,14 @@ def inspect(manager_dir: Path) -> dict[str, object]:
             concept_files = sorted(
                 path
                 for path in packet.glob("*.md")
-                if path.name not in RESERVED_OKF_FILES
+                if path.name not in RESERVED_OKF_FILES | {"AGENTS.md"}
             )
-            file_project_ids = {path.name: project_id_from_readme(path) for path in concept_files}
+            portable_files = concept_files + [packet / "AGENTS.md"]
+            file_project_ids = {
+                path.name: project_id_from_readme(path)
+                for path in portable_files
+                if path.is_file()
+            }
             if project_id and any(value != project_id for value in file_project_ids.values()):
                 packet_errors.append("all Project Pack concept files must share one project_id")
             for path in concept_files:
@@ -123,12 +177,15 @@ def inspect(manager_dir: Path) -> dict[str, object]:
                     packet_errors.append(f"{path.name} is not on the v0.1 Project Pack schema")
                 if not re.search(r"(?m)^type:\s*[\"']?\S", content):
                     packet_errors.append(f"{path.name} is missing a non-empty OKF type")
-            if (packet / "log.md").is_file():
-                packet_errors.extend(validate_update_log(packet / "log.md"))
+            agents_path = packet / "AGENTS.md"
+            if agents_path.is_file():
+                agents_content = agents_path.read_text(encoding="utf-8")
+                if f'schema: "{RUNTIME_SCHEMA}"' not in agents_content:
+                    packet_errors.append("AGENTS.md is not on the v0.1 runtime schema")
+                if re.search(r"(?m)^type:\s*[\"']?\S", agents_content):
+                    packet_errors.append("AGENTS.md must remain outside the OKF concept projection")
             if project_index and f"({packet.name}/README.md)" not in project_index:
                 packet_errors.append("Project Pack is missing from projects/index.md")
-            if project_router and f"({packet.name}/README.md)" not in project_router:
-                packet_errors.append("Project Pack is missing from projects/README.md")
             packet_reports.append(
                 {
                     "path": str(packet),

@@ -14,6 +14,7 @@ MANAGER_SCHEMA = "wirenet-manager/v0.1"
 PROJECT_PACK_SCHEMA = "wirenet-project-pack/v0.1"
 BINDINGS_SCHEMA = "wirenet-project-bindings/v0.1"
 OKF_PROFILE = "wirenet-okf-project-pack/v0.1"
+RUNTIME_SCHEMA = "wirenet-runtime/v0.1"
 PLUGIN_VERSION = "0.1.2"
 
 
@@ -133,6 +134,23 @@ def common_frontmatter(
     return lines
 
 
+def runtime_frontmatter(*, title: str, project_id: str, stamp: datetime) -> list[str]:
+    return [
+        "---",
+        f"schema: {yaml_string(RUNTIME_SCHEMA)}",
+        f"project_id: {yaml_string(project_id)}",
+        f"title: {yaml_string(title)}",
+        "audience: agent",
+        "visibility: local",
+        "status: active",
+        f"created_at: {iso_date(stamp)}",
+        f"updated_at: {iso_date(stamp)}",
+        f"last_edited: {iso_date(stamp)}",
+        "---",
+        "",
+    ]
+
+
 def render_project_readme(title: str, summary: str, project_id: str, stamp: datetime) -> str:
     lines = common_frontmatter(
         concept_type="Project Status",
@@ -176,14 +194,10 @@ def render_project_readme(title: str, summary: str, project_id: str, stamp: date
 
 
 def render_project_agents(title: str, project_id: str, stamp: datetime) -> str:
-    lines = common_frontmatter(
-        concept_type="Runtime Adapter",
+    lines = runtime_frontmatter(
         title=f"{title} Agent Instructions",
         project_id=project_id,
-        status="active",
         stamp=stamp,
-        visibility="local",
-        audience="agent",
     )
     lines.extend(
         [
@@ -343,26 +357,3 @@ def insert_project_index(
             remainder = content[line_end + 1 :].lstrip("\n")
             updated = content[: line_end + 1] + f"\n{entry}\n" + remainder
     return updated
-
-
-def insert_project_router(
-    content: str,
-    slug: str,
-    title: str,
-    summary: str,
-) -> str:
-    heading = "## Active Project Packs"
-    if heading not in content:
-        raise ValueError(f"project README is missing {heading!r}")
-    description = " ".join(summary.split())
-    entry = f"- [{title}]({slug}/README.md)"
-    if description:
-        entry += f" — {description}"
-    if entry in content.splitlines():
-        return content
-    marker = content.index(heading) + len(heading)
-    line_end = content.find("\n", marker)
-    if line_end < 0:
-        return content + f"\n\n{entry}\n"
-    remainder = content[line_end + 1 :].lstrip("\n")
-    return content[: line_end + 1] + f"\n{entry}\n" + remainder

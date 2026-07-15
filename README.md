@@ -20,8 +20,8 @@ in version-controlled files.
 - Markdown remains the canonical content that humans and agents can inspect.
 - YAML frontmatter gives concepts explicit types, stable IDs, visibility, and
   producer-owned extensions.
-- `AGENTS.md`, indexes, and Markdown links make routing, disclosure, and graph
-  relationships reviewable instead of implicit.
+- `AGENTS.md` keeps runtime routing reviewable without becoming knowledge;
+  indexes and Markdown links make disclosure and concept relationships explicit.
 - Small JSON registries hold only machine-local identity and path resolution,
   never the project prose itself.
 - Schemas, deterministic generators, doctors, routing contracts, and regression
@@ -81,21 +81,20 @@ external project folders           ◀──────▶    └── .wirene
 
 ## Read-Only Manager Viewer
 
-`$wirenet-manager` can open a small branded viewer for the Manager's local OKF
-memory. The viewer renders complete Markdown sources and never removes sections
-or rewrites a document for presentation. Human-facing documents are visible by
-default; one toggle adds `AGENTS.md` and explicit agent-facing runtime adapters.
-Templates, plugin metadata, skills, scripts, hidden state, device-local
-bindings, and reserved `index.md` files remain outside this visual projection.
+`$wirenet-manager` can open a small branded viewer for the Manager's portable
+OKF knowledge projection. A non-reserved Markdown file enters that projection
+only when it has a non-empty OKF `type`; `index.md` and `log.md` remain reserved
+navigation and history. `AGENTS.md`, plugin metadata, skills, scripts, hidden
+state, device-local bindings, and ignored outputs stay outside the knowledge
+graph. The Doctor rejects any other in-scope Markdown without an OKF `type`.
 
 The viewer follows the graph-and-detail model of Google's official OKF HTML
-viewer: each non-index document is a concept node, Markdown links become graph
-relationships, and selecting a concept renders its Markdown and backlinks. A
-reading view hides the graph without creating another content mode. When agent
-instructions are enabled, dashed edges visualize the filesystem's actual
-nearest-parent `AGENTS.md` inheritance. Those routing edges are derived rather
-than stored, so the filesystem remains the only routing authority. The viewer
-is read-only and has no Node runtime, database, watcher, or edit API.
+viewer: typed concepts become nodes, standard Markdown links between concepts
+become directed graph edges, and selecting a concept renders its complete body
+and backlinks. Reserved indexes and logs remain readable through a small Browse
+control but never become graph nodes. A reading view hides the graph without
+creating another content mode. The viewer is read-only and has no synthetic
+routing edges, Node runtime, database, watcher, or edit API.
 
 For local development:
 
@@ -119,25 +118,27 @@ Every v0.1 Project Pack contains:
 | File | Responsibility | WireNet OKF mapping |
 | --- | --- | --- |
 | `README.md` | Current status and next move | `Project Status` |
-| `AGENTS.md` | Read order, sources, safety, update rules | `Runtime Adapter` |
+| `AGENTS.md` | Read order, sources, safety, update rules | runtime sidecar outside OKF |
 
 These two files are the open core, not a fixed form. The Manager may add
 `GOAL.md`, `RESULT.md`, `WORKLOG.md`, reserved `index.md` or `log.md`, and other
-typed concepts when they improve the handoff. All non-reserved concepts share
-one stable `project_id`; reserved files are identified by their packet path and
-carry no duplicate concept metadata. Manager `index.md` and
+typed concepts when they improve the handoff. All concepts and the runtime
+sidecar share one stable `project_id`; reserved files are identified by their
+packet path and carry no duplicate concept metadata. Manager `index.md` and
 `projects/index.md` are required by the WireNet profile as navigational entry
 points, even though OKF itself makes both indexes and logs optional. Packet-local
 indexes and all logs remain optional.
 
 Machine-local paths live only in
-`~/Manager/.wirenet/project-bindings.json`. The mapping is a small WireNet OKF
-profile, not a claim that v0.1 implements the complete OKF mirror system.
+`~/Manager/.wirenet/project-bindings.json`. Project Pack metadata follows a
+small WireNet OKF profile; the binding registry itself is device-local runtime,
+not part of the knowledge bundle or a claim that v0.1 implements the complete
+OKF mirror system.
 
-YAML frontmatter in `AGENTS.md` identifies the document as an OKF `Runtime
-Adapter` with `audience: agent`. Codex still reads the Markdown instructions
-normally; the metadata is not treated as Codex configuration and does not
-replace filesystem instruction inheritance.
+`AGENTS.md` uses the separate `wirenet-runtime/v0.1` metadata schema and has no
+OKF `type`. Codex reads its Markdown instructions normally; the knowledge
+projection and future Knowledge Hub do not reinterpret those instructions as
+concept relationships.
 
 ## Developer Layout
 
@@ -145,7 +146,7 @@ replace filesystem instruction inheritance.
 - `plugins/wirenet-manager/`: installable plugin package.
 - `plugins/wirenet-manager/templates/manager/`: content-only runtime seed.
 - `plugins/wirenet-manager/scripts/`: deterministic shared Manager helpers,
-  including the read-only OKF viewer generator.
+  including the common OKF projection and read-only viewer generator.
 - `plugins/wirenet-manager/viewer/`: one-file viewer template.
 - `docs/architecture-v0.1.md`: file-by-file architecture and routing diagram.
 - `docs/project-pack-contract.md`: Project Pack and OKF profile.
@@ -159,7 +160,7 @@ replace filesystem instruction inheritance.
 - `scripts/compare_upstream.py`: read-only comparison with Jason's upstream.
 - `scripts/compare_routing_contracts.py`: deterministic semantic contract
   comparison without fetching or mutating Git state.
-- `tests/`: plugin, bootstrap, routing, template, and legacy-reference checks.
+- `tests/`: plugin, bootstrap, routing, template, and frozen-reference checks.
 
 ## Upstream Reference
 
@@ -172,8 +173,8 @@ Packs, local bindings, global reconciliation, and OKF-compatible navigation.
 The root `.codex/`, shelves, and template files remain as a downstream reference
 to Jason's original repository while v0.1 is developed. They are not copied
 into the generated Manager by the plugin. This boundary keeps upstream changes
-mechanically reviewable without making the user's runtime depend on legacy
-repo-local skill discovery.
+mechanically reviewable without making the user's runtime depend on the
+repo-local reference implementation.
 
 ## Local Development
 

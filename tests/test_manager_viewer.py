@@ -40,19 +40,35 @@ def write_concept(
     )
 
 
+def write_runtime(path: Path, *, title: str, body: str, project_id: str = "") -> None:
+    project_line = f'project_id: "{project_id}"\n' if project_id else ""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "---\n"
+        'schema: "wirenet-runtime/v0.1"\n'
+        f"{project_line}"
+        f'title: "{title}"\n'
+        "audience: agent\n"
+        "visibility: local\n"
+        "last_edited: 2026-07-15\n"
+        "---\n\n"
+        f"# {title}\n\n{body}\n",
+        encoding="utf-8",
+    )
+
+
 def extract_bundle(html: str) -> dict[str, object]:
     match = re.search(r"window\.BUNDLE = (?P<bundle>\{.*?\});\n</script>", html, re.DOTALL)
     assert match is not None
     return json.loads(match.group("bundle"))
 
 
-def test_viewer_contains_manager_documents_with_audience_and_routing(tmp_path: Path) -> None:
+def test_viewer_projects_only_okf_knowledge_and_keeps_reserved_navigation(tmp_path: Path) -> None:
     manager = tmp_path / "Manager"
-    write_concept(
+    write_runtime(
         manager / "AGENTS.md",
-        concept_type="Runtime Adapter",
         title="Manager Instructions",
-        body="Read the nested instructions.",
+        body="DO_NOT_RENDER_RUNTIME",
     )
     write_concept(
         manager / "README.md",
@@ -87,7 +103,7 @@ def test_viewer_contains_manager_documents_with_audience_and_routing(tmp_path: P
     )
     write_concept(
         manager / "skills/fake/SKILL.md",
-        concept_type="Runtime Adapter",
+        concept_type="Procedure",
         title="Fake Skill",
         body="DO_NOT_RENDER_SKILLS",
     )
@@ -97,11 +113,10 @@ def test_viewer_contains_manager_documents_with_audience_and_routing(tmp_path: P
         title="Hidden State",
         body="DO_NOT_RENDER_HIDDEN_STATE",
     )
-    write_concept(
+    write_runtime(
         manager / "projects/alpha/AGENTS.md",
-        concept_type="Runtime Adapter",
         title="Alpha Agent Instructions",
-        body="RENDER_AGENT_INSTRUCTIONS_IN_AGENT_OR_ALL_MODE",
+        body="DO_NOT_RENDER_PROJECT_RUNTIME",
         project_id="prj_alpha",
     )
     write_concept(
@@ -126,48 +141,52 @@ def test_viewer_contains_manager_documents_with_audience_and_routing(tmp_path: P
         text=True,
     )
 
-    assert "Viewer documents: 8" in result.stdout
+    assert "Viewer concepts: 4" in result.stdout
     html = output.read_text(encoding="utf-8")
     bundle = extract_bundle(html)
     nodes = {node["data"]["path"] for node in bundle["nodes"]}
     assert nodes == {
-        "AGENTS.md",
         "README.md",
         "notes/decision.md",
-        "notes/private.md",
-        "projects/alpha/AGENTS.md",
         "projects/alpha/GOAL.md",
         "projects/alpha/README.md",
-        "projects/alpha/log.md",
     }
-    assert "DO_NOT_RENDER_UNTYPED" in html
+    assert "DO_NOT_RENDER_RUNTIME" not in html
+    assert "DO_NOT_RENDER_PROJECT_RUNTIME" not in html
+    assert "DO_NOT_RENDER_UNTYPED" not in html
     assert "DO_NOT_RENDER_SKILLS" not in html
     assert "DO_NOT_RENDER_HIDDEN_STATE" not in html
-    assert "RENDER_AGENT_INSTRUCTIONS_IN_AGENT_OR_ALL_MODE" in html
     assert "DO_NOT_RENDER_TEMPLATES" not in html
     assert "RENDER_TYPED_DOCUMENTS" in html
     assert str(manager) not in html
-    assert "projects/index.md" not in html
+    assert bundle["indexes"] == ["projects/index"]
+    assert bundle["logs"] == ["projects/alpha/log"]
+    assert set(bundle["documents"]) == {
+        "README",
+        "notes/decision",
+        "projects/alpha/GOAL",
+        "projects/alpha/README",
+        "projects/alpha/log",
+        "projects/index",
+    }
     assert 'id="graph"' in html
     assert 'id="detail"' in html
-    assert 'id="show-agent"' in html
+    assert 'id="browse"' in html
+    assert 'id="show-agent"' not in html
     assert 'id="reading-mode"' in html
     assert 'id="document-select"' not in html
     assert 'id="view-mode"' not in html
     assert 'id="audience-filter"' not in html
 
-    edge_kinds = {edge["data"]["kind"] for edge in bundle["edges"]}
-    assert edge_kinds == {"link", "routing"}
-    assert len(bundle["edges"]) == 2
-
-    node_data = {node["data"]["path"]: node["data"] for node in bundle["nodes"]}
-    assert node_data["AGENTS.md"]["audience"] == "agent"
-    assert node_data["projects/alpha/AGENTS.md"]["audience"] == "agent"
-    routing = next(edge["data"] for edge in bundle["edges"] if edge["data"]["kind"] == "routing")
-    assert (routing["source"], routing["target"]) == (
-        "AGENTS",
-        "projects/alpha/AGENTS",
-    )
+    assert bundle["edges"] == [
+        {
+            "data": {
+                "id": "projects/alpha/README__projects/alpha/GOAL",
+                "source": "projects/alpha/README",
+                "target": "projects/alpha/GOAL",
+            }
+        }
+    ]
 
 
 def test_fresh_project_keeps_complete_source_documents(tmp_path: Path) -> None:
@@ -211,12 +230,15 @@ def test_fresh_project_keeps_complete_source_documents(tmp_path: Path) -> None:
     bundle = extract_bundle(output.read_text(encoding="utf-8"))
 
     nodes = {node["data"]["path"]: node["data"] for node in bundle["nodes"]}
-    assert f"Viewer documents: {len(nodes)}" in result.stdout
-    assert nodes["projects/empty-project/AGENTS.md"]["audience"] == "agent"
-    assert nodes["projects/empty-project/README.md"]["audience"] == "human"
+    assert f"Viewer concepts: {len(nodes)}" in result.stdout
+    assert "projects/empty-project/AGENTS.md" not in nodes
+    assert nodes["README.md"]["type"] == "Manager Overview"
+    assert nodes["projects/empty-project/README.md"]["type"] == "Project Status"
     assert "projects/empty-project/GOAL.md" not in nodes
     assert "projects/empty-project/RESULT.md" not in nodes
     assert "projects/empty-project/log.md" not in nodes
+    assert "index" in bundle["indexes"]
+    assert "projects/index" in bundle["indexes"]
     bodies = "\n".join(bundle["bodies"].values())
     assert "Describe the latest durable state" in bodies
     assert "Add the smallest useful next action" in bodies
@@ -256,8 +278,9 @@ def test_substantive_project_content_appears_without_metadata_toggle(tmp_path: P
     assert {node["data"]["path"] for node in bundle["nodes"]} == {
         "projects/alpha/README.md",
         "projects/alpha/RESULT.md",
-        "projects/alpha/log.md",
     }
+    assert bundle["logs"] == ["projects/alpha/log"]
+    assert "Prototype approved" in bundle["bodies"]["projects/alpha/log"]
 
 
 def test_viewer_does_not_filter_sections_from_generated_documents(tmp_path: Path) -> None:
@@ -307,7 +330,6 @@ def test_viewer_does_not_filter_sections_from_generated_documents(tmp_path: Path
         if node["data"]["path"].startswith("projects/useful-project/")
     }
     assert project_paths == {
-        "projects/useful-project/AGENTS.md",
         "projects/useful-project/README.md",
     }
     assert "Ship the prototype." in bodies
@@ -317,8 +339,13 @@ def test_viewer_does_not_filter_sections_from_generated_documents(tmp_path: Path
     assert "## Next Move" in bodies
 
 
-def test_explicit_audience_marks_an_instruction_document(tmp_path: Path) -> None:
+def test_type_frontmatter_is_the_explicit_concept_boundary(tmp_path: Path) -> None:
     manager = tmp_path / "Manager"
+    (manager / "README.md").parent.mkdir(parents=True)
+    (manager / "README.md").write_text(
+        "---\nlast_edited: 2026-07-15\n---\n\n# Workspace Guide\n",
+        encoding="utf-8",
+    )
     write_concept(
         manager / "people/alex.md",
         concept_type="Person",
@@ -338,23 +365,30 @@ def test_explicit_audience_marks_an_instruction_document(tmp_path: Path) -> None
     bundle = extract_bundle(output.read_text(encoding="utf-8"))
 
     assert [node["data"]["path"] for node in bundle["nodes"]] == ["people/alex.md"]
-    assert bundle["nodes"][0]["data"]["audience"] == "agent"
+    assert bundle["nodes"][0]["data"]["metadata"]["audience"] == "agent"
+    assert "README" not in bundle["documents"]
 
 
-def test_agent_routing_uses_the_nearest_parent_instructions(tmp_path: Path) -> None:
+def test_graph_uses_only_standard_markdown_links_between_concepts(tmp_path: Path) -> None:
     manager = tmp_path / "Manager"
-    for path, title in (
-        ("AGENTS.md", "Manager Instructions"),
-        ("projects/AGENTS.md", "Project Instructions"),
-        ("projects/alpha/AGENTS.md", "Alpha Instructions"),
-    ):
-        write_concept(
-            manager / path,
-            concept_type="Runtime Adapter",
-            title=title,
-            body="Routing instructions.",
-            audience="agent",
-        )
+    write_concept(
+        manager / "projects/alpha/README.md",
+        concept_type="Project Status",
+        title="Alpha",
+        body="See the [goal](GOAL.md). A wiki link [[RESULT]] is not OKF graph syntax.",
+    )
+    write_concept(
+        manager / "projects/alpha/GOAL.md",
+        concept_type="Project Brief",
+        title="Goal",
+        body="Ship Alpha.",
+    )
+    write_concept(
+        manager / "projects/alpha/RESULT.md",
+        concept_type="Project Result",
+        title="Result",
+        body="Not linked with standard Markdown.",
+    )
 
     output = tmp_path / "viewer.html"
     subprocess.run(
@@ -365,16 +399,15 @@ def test_agent_routing_uses_the_nearest_parent_instructions(tmp_path: Path) -> N
         text=True,
     )
     bundle = extract_bundle(output.read_text(encoding="utf-8"))
-    routes = {
-        (edge["data"]["source"], edge["data"]["target"])
-        for edge in bundle["edges"]
-        if edge["data"]["kind"] == "routing"
-    }
-
-    assert routes == {
-        ("AGENTS", "projects/AGENTS"),
-        ("projects/AGENTS", "projects/alpha/AGENTS"),
-    }
+    assert bundle["edges"] == [
+        {
+            "data": {
+                "id": "projects/alpha/README__projects/alpha/GOAL",
+                "source": "projects/alpha/README",
+                "target": "projects/alpha/GOAL",
+            }
+        }
+    ]
 
 
 def test_viewer_rejects_links_that_escape_the_manager(tmp_path: Path) -> None:

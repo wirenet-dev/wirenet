@@ -13,7 +13,7 @@ requiring the user to understand its folders.
 - `$wirenet-manager` uses this contract for orientation and writes made inside
   the Manager.
 - `$wirenet-manager-sync` uses it for durable handoffs from external workspaces.
-- `$wirenet-manager-bootstrap` seeds the matching folders and installs the
+- `$wirenet-manager-bootstrap` materializes the matching shelves and installs the
   minimal managed global `AGENTS.md` trigger after approval.
 
 Keep this shared reference instead of creating a separate routing skill. The
@@ -32,7 +32,9 @@ and make inferred changes reviewable. Do not hide canonical meaning in chat,
 bindings, or application state, and do not let metadata replace readable prose
 or inherited `AGENTS.md` instructions.
 
-The shelves are defaults rather than a closed taxonomy:
+The shelves are defaults rather than a closed taxonomy. Their reusable meaning
+lives here and in the runtime `AGENTS.md`; do not copy generic explanatory
+README files into an instance.
 
 | Destination | Use it for | Do not use it for |
 | --- | --- | --- |
@@ -69,15 +71,32 @@ remain path-scoped. Preserve unknown frontmatter keys.
 
 ## Index And README
 
-README files retain Jason Liu's human and agent routing roles. Never rename or
-remove them merely to introduce OKF.
+WireNet keeps only README files that carry instance knowledge:
 
-- Manager `index.md` provides the bundle-level catalog and declares OKF 0.1.
-- `projects/README.md` remains the human and Jason-compatible collection guide.
-- `projects/index.md` is the additive OKF catalog generated from packet state.
-- A packet-local `index.md` is optional. The Google-derived viewer deliberately
-  omits reserved indexes; agents and future synchronization consumers still use
-  them for progressive disclosure.
+- Root `README.md` is a typed `Manager Overview` and the human landing page for
+  this Manager instance.
+- A Project Pack `README.md` is typed `Project Status` and remains its compact
+  operational handoff.
+- Generic shelf explanations and product manuals belong to the plugin and
+  runtime instructions, not untyped README placeholders.
+
+Manager `index.md` declares OKF 0.1 and catalogs the bundle.
+`projects/index.md` is the canonical active-packet catalog. Other shelf or
+packet indexes are created only when real content benefits from progressive
+disclosure. Reserved indexes and logs are readable support documents but not
+graph nodes.
+
+## Canonical Markdown Boundary
+
+- `AGENTS.md` is runtime, uses `wirenet-runtime/v0.1`, and never declares a
+  concept `type`.
+- `index.md` and `log.md` are reserved OKF support documents and never declare
+  a concept `type`.
+- Every other Markdown document in an in-scope Manager shelf is a typed OKF
+  concept. The Doctor treats an untyped document as invalid rather than silently
+  maintaining a compatibility exception.
+- `outputs/`, hidden local state, and plugin implementation are outside the
+  portable projection.
 
 ## UltraGoal And OKF History
 

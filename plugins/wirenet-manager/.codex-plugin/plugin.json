@@ -13,7 +13,7 @@
   "interface": {
     "displayName": "WireNet Manager",
     "shortDescription": "Local work memory and Project Pack routing",
-    "longDescription": "Bootstrap a content-only local Manager, keep external projects connected through local bindings, and maintain portable Project Packs with four state documents plus an OKF update log.",
+    "longDescription": "Bootstrap a content-only local Manager, keep external projects connected through local bindings, and maintain portable typed Project Packs with a transparent runtime overlay.",
     "developerName": "WireNet",
     "category": "Productivity",
     "websiteURL": "https://wirenet.dev",

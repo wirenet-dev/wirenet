@@ -1,6 +1,5 @@
 ---
-type: "Runtime Adapter"
-schema: "wirenet-manager/v0.1"
+schema: "wirenet-runtime/v0.1"
 visibility: local
 audience: agent
 status: active
@@ -16,10 +15,9 @@ reviewable, and useful to the next task.
 
 ## Read Order
 
-1. `index.md` and `README.md` for the Manager map and boundaries.
+1. `README.md` and `index.md` for the human overview and knowledge catalog.
 2. `TODO.md` for the immediate stack.
-3. `projects/README.md` for collection rules and `projects/index.md` for active
-   workstreams.
+3. `projects/index.md` for active workstreams.
 4. The relevant Project Pack's `README.md` and `AGENTS.md`.
 5. Optional `GOAL.md`, `RESULT.md`, `WORKLOG.md`, `log.md`, and additional
    concepts only when present and relevant.
@@ -42,6 +40,23 @@ reviewable, and useful to the next task.
 - Human collaboration notes belong in `people/`.
 - Quick durable scratch knowledge belongs in `notes/`; structured standalone
   documents may use `docs/` when no more specific home is stronger.
+- Curated retained evidence belongs in `sources/`; short-lived spikes belong in
+  `experiments/`; inactive durable context belongs in `archive/`.
+- Generated intermediates may use ignored `outputs/`, but canonical meaning
+  must be promoted into a typed knowledge document.
+
+## Workspace Contract
+
+- `AGENTS.md` files are the runtime instruction hierarchy. They use
+  `schema: "wirenet-runtime/v0.1"` and never declare an OKF `type`.
+- `index.md` and `log.md` are reserved OKF support documents and never declare
+  a concept `type`.
+- Every other Markdown document in the Manager is a typed OKF concept.
+- Keep reusable behavior, schemas, generation rules, and canonical templates in
+  the installed WireNet Manager plugin rather than copying them into this
+  workspace.
+- Create a shelf-local `index.md` only when actual content benefits from a
+  catalog. Do not create explanatory shelf README placeholders.
 
 ## Update Threshold
 
@@ -54,7 +69,7 @@ artifact. Prefer one compact handoff after a meaningful work phase.
 
 - Preserve external project locations and raw source material.
 - Treat `sources/` as the curated Knowledge Shelf and `outputs/` as ignored,
-  device-local working memory; promote durable meaning into canonical concepts.
+  device-local working memory.
 - Never write secrets, credentials, account numbers, or private keys.
 - Preview inferred durable updates and ask before writing unless the user has
   already approved the exact change.

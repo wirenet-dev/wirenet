@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import re
 import sys
 from pathlib import Path
 
@@ -17,43 +16,12 @@ sys.path.insert(0, str(PLUGIN_ROOT / "scripts"))
 from manager_model import load_bindings, project_packet_for_id  # noqa: E402
 
 
-ROUTE_RE = re.compile(r"^- `(?P<path>.+)` \| (?P<kind>experiment|ignored)$")
-
-
 def is_within(path: Path, parent: Path) -> bool:
     try:
         path.relative_to(parent)
     except ValueError:
         return False
     return True
-
-
-def legacy_frontmatter_workspace_paths(path: Path) -> list[Path]:
-    """Read pre-v0.1 workspace_paths without writing them back."""
-    if not path.is_file():
-        return []
-    text = path.read_text(encoding="utf-8")
-    if not text.startswith("---\n") or text.count("---") < 2:
-        return []
-    raw = text.split("---", 2)[1]
-    collecting = False
-    paths: list[Path] = []
-    for line in raw.splitlines():
-        if line == "workspace_paths:":
-            collecting = True
-            continue
-        if collecting and line.startswith("  - "):
-            value = line[4:].strip()
-            try:
-                decoded = json.loads(value)
-            except json.JSONDecodeError:
-                decoded = value.strip("'\"")
-            if isinstance(decoded, str) and decoded:
-                paths.append(Path(decoded).expanduser().resolve(strict=False))
-            continue
-        if collecting and line and not line[0].isspace():
-            break
-    return paths
 
 
 def binding_matches(manager_dir: Path, workspace: Path) -> list[tuple[Path, str, Path]]:
@@ -70,11 +38,6 @@ def binding_matches(manager_dir: Path, workspace: Path) -> list[tuple[Path, str,
         packet = project_packet_for_id(manager_dir, project_id)
         if packet and is_within(workspace, linked_path):
             matches.append((linked_path, project_id, packet))
-
-    for readme in sorted((manager_dir / "projects").glob("*/README.md")):
-        for linked_path in legacy_frontmatter_workspace_paths(readme):
-            if is_within(workspace, linked_path):
-                matches.append((linked_path, "legacy-workspace-path", readme.parent))
     return sorted(matches, key=lambda item: len(item[0].parts), reverse=True)
 
 
@@ -91,16 +54,6 @@ def route_matches(manager_dir: Path, workspace: Path) -> list[tuple[Path, str]]:
         routed_path = Path(raw_path).expanduser().resolve(strict=False)
         if is_within(workspace, routed_path):
             matches.append((routed_path, classification))
-
-    legacy_file = manager_dir / "notes/project-routing.md"
-    if legacy_file.is_file():
-        for line in legacy_file.read_text(encoding="utf-8").splitlines():
-            match = ROUTE_RE.match(line)
-            if not match:
-                continue
-            routed_path = Path(match.group("path")).expanduser().resolve(strict=False)
-            if is_within(workspace, routed_path):
-                matches.append((routed_path, match.group("kind")))
     return sorted(matches, key=lambda item: len(item[0].parts), reverse=True)
 
 

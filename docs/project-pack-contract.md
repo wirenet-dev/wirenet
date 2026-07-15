@@ -50,7 +50,7 @@ so it has no Project Pack frontmatter and does not duplicate `project_id`. Do
 not create it merely because a packet exists, and do not mirror UltraGoal's
 more detailed `WORKLOG.md`.
 
-## Frontmatter
+## Metadata Boundary
 
 Every non-reserved Project Pack concept shares:
 
@@ -67,8 +67,10 @@ Each concept adds its semantic `type`, title, status, visibility, timestamp,
 and edited dates. Producer-defined fields are preserved. Reserved `index.md`
 and `log.md` follow OKF's path-scoped formats and carry no concept metadata.
 
-YAML frontmatter does not interfere with `AGENTS.md`. Codex reads the whole file
-as Markdown instructions; the metadata is not Codex configuration.
+`AGENTS.md` is the required runtime sidecar, not a concept. It carries the same
+`project_id` under `schema: "wirenet-runtime/v0.1"` but deliberately has no
+`type`. Codex reads it as Markdown instructions; the OKF viewer and future
+knowledge sync do not reinterpret its routing as a concept relationship.
 
 ## OKF Mapping
 
@@ -78,7 +80,7 @@ WireNet maps them semantically without making the optional files mandatory:
 | Local file | Profile type |
 | --- | --- |
 | `README.md` | `Project Status` |
-| `AGENTS.md` | `Runtime Adapter` |
+| `AGENTS.md` | runtime sidecar outside OKF |
 | optional `GOAL.md` | `Project Brief` |
 | optional `RESULT.md` | `Project Result` |
 | optional `WORKLOG.md` | producer-defined worklog concept |
@@ -92,9 +94,9 @@ complete file vocabulary.
 ## Additive Indexes
 
 Manager `index.md` declares OKF 0.1 and catalogs the content shelves.
-`projects/README.md` remains the human and Jason-compatible collection guide.
-`projects/index.md` additively lists active Project Packs using normal relative
-Markdown links and short descriptions.
+`projects/index.md` lists active Project Packs using normal relative Markdown
+links and short descriptions. Other shelves receive an index only after real
+content benefits from progressive disclosure; no empty shelf guide is seeded.
 
 Individual packets do not need another index while their structure is small;
 an agent may add a packet-local index as the packet grows. The Google-derived
@@ -104,20 +106,19 @@ they never replace README or AGENTS documents.
 
 ## Viewer Projection
 
-The Project Pack remains inspectable when it contains only the minimum two
-documents. Empty optional files are not created merely to make the structure
-look complete.
+The Project Pack remains useful when it contains only the minimum two documents,
+but only its typed `README.md` enters the OKF graph at that point. Empty optional
+files are not created merely to make the structure look complete.
 
-The viewer shows complete human-facing documents by default and has one toggle
-for complete `AGENTS.md` and explicit agent-facing runtime adapters. It filters
-whole documents, never sections. Normal Markdown links become graph edges. The
-nearest-parent relationship between `AGENTS.md` files becomes a derived dashed
-routing edge only while agent instructions are enabled; no routing relationship
-is persisted separately from the filesystem hierarchy.
+The viewer, future export, and future Knowledge Hub use the same deterministic
+projection: non-reserved Markdown with non-empty `type` is a concept;
+`index.md` and `log.md` are reserved supporting documents; `AGENTS.md` is the
+runtime overlay. Any other untyped in-scope Markdown is invalid. Standard
+Markdown links between concepts become the only graph edges. Reserved indexes
+and logs remain readable as catalog and history, never nodes.
 
-Templates, ignored outputs, plugin implementation, and device-local bindings
-remain outside the content projection. Reserved indexes remain navigation input
-for agents and future OKF consumers rather than viewer nodes.
+Templates, ignored outputs, plugin implementation, device-local bindings, and
+runtime instructions remain outside the knowledge projection.
 
 ## UltraGoal Worklogs
 

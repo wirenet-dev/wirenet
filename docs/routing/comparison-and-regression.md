@@ -20,16 +20,16 @@ python3 scripts/compare_routing_contracts.py --json
 | Jason mechanism | WireNet v0.1 | Preservation rule |
 | --- | --- | --- |
 | Root and nearest `AGENTS.md` | Same | Markdown instructions remain the executable routing layer. |
-| Root `README.md` | Same human role | It is not replaced by an index. |
-| `projects/README.md` | Same collection-guide and active-packet role | WireNet keeps it and adds a separate OKF index. |
+| Root `README.md` | Same human role | It remains the landing page and becomes typed `Manager Overview`. |
+| `projects/README.md` | Role preserved, file replaced | Collection navigation moves to `projects/index.md`; reusable rules move to runtime and plugin contracts. |
 | Project `README.md` | Same canonical current-state role | It gains OKF metadata but remains full project prose. |
 | Project `AGENTS.md` | Same local routing role | It is generated with the packet core. |
 | `GOAL.md` | Same optional long-objective role | It remains optional and works with UltraGoal. |
 | `RESULT.md` | Same optional completed-evidence role | It remains optional and works with UltraGoal. |
 | Open project folders | Same extensibility | Agents may add useful documents instead of filling a fixed form. |
 | `people/*.md` | Same durable collaborator role | WireNet keeps evidence and privacy boundaries. |
-| `notes/` | Same durable-scratch role | WireNet adds a visible README and viewer projection. |
-| `sources/` | Same retained-evidence role | WireNet adds a visible README and preserves read-only-by-default. |
+| `notes/` | Same durable-scratch role | WireNet types real content and avoids placeholder guides. |
+| `sources/` | Same retained-evidence role | WireNet types real content and preserves read-only-by-default. |
 | Repo-local skills as procedures | Same conceptual separation | WireNet packages generic Manager behavior globally instead of copying it into personal content. |
 | Git-backed reviewable memory | Same | Manager Git remains local history in v0.1. |
 
@@ -40,11 +40,12 @@ python3 scripts/compare_routing_contracts.py --json
 | Plugin behavior is separate from personal Manager content | One updateable product can serve many users and external projects. | Bootstrap must never copy skills into Manager or overwrite personal content. |
 | External workspaces are bound by stable project ID and local path | Media, code, and data stay in their proper working folders. | Portable packet files must never leak absolute paths. |
 | Every Project Pack starts with `README.md` and `AGENTS.md` | A small stable core preserves Jason's open model while making local handoff reliable. | Generator, doctor, sync, and viewer must accept optional extensions without requiring empty documents. |
-| Root and project collection `index.md` files are WireNet-required | Stable catalog entry points improve portability and agent navigation even though OKF makes them optional. | They must remain additive and never replace README or AGENTS routing. |
+| Root and project collection `index.md` files are WireNet-required | Stable catalog entry points improve portability and agent navigation even though OKF makes them optional. | They must remain canonical navigation and never replace project README state or AGENTS routing. |
 | Optional `log.md` adds a sparse time axis when useful | OKF history can improve portable handoff and later sync. | It must stay newest-first and semantic, never become mandatory activity logging. |
 | Global managed core block triggers reconciliation outside Manager | Repo-local skill recall cannot update packets from arbitrary workspaces reliably. | The block must be idempotent, minimal, approval-gated, and independent from optional workspace routing. |
 | `docs/`, `outputs/`, and `archive/` receive explicit policies | Jason's placeholders otherwise have no usable routing semantics. | Policies must stay open and must not turn working output into canonical knowledge. |
-| Viewer adds an optional agent-instructions projection | Humans need inspectable content and developers need visible instruction inheritance without changing source files. | The viewer must render complete documents, derive nearest-parent AGENTS routing exactly, and exclude indexes, hidden bindings, and implementation files. |
+| Viewer exposes the OKF bundle without runtime | Humans need a faithful view of portable knowledge without inventing semantic or routing edges. | It must render complete concepts, use only Markdown-link edges, keep indexes/logs readable, and exclude AGENTS/runtime state. |
+| Generic shelf README files are removed | Reusable rules belong to plugin/runtime; instance Markdown should be actual typed knowledge. | The Doctor must reject every untyped non-reserved in-scope Markdown file. |
 
 ## Added
 
@@ -66,44 +67,43 @@ python3 scripts/compare_routing_contracts.py --json
   and packet is removed. Manager holds the packet; the binding points to work.
 
 The original `.codex/` and template trees remain in the product repository only
-as inspectable downstream reference material while the migration is developed.
+as inspectable downstream reference material.
 
-## Why OKF Indexes Do Not Destroy Jason's README Routing
+## Why Replacing Shelf README Routing Is Safe
 
-Jason has two different README roles:
+Jason has two useful README roles:
 
 1. `projects/README.md` is created during onboarding as a collection router with
    a short explanation and active-packet links.
 2. `projects/<slug>/README.md` is the canonical project document.
 
-WireNet preserves both roles. It adds root `index.md` and
-`projects/index.md` as reserved OKF navigation documents. The collection README
-retains its explanation and active-packet links; the additive index provides a
-minimal progressive-disclosure catalog. The packet README remains canonical
-project state.
+WireNet preserves the meaning but separates the concerns. The typed root
+`README.md` remains the human Manager overview. Each typed packet `README.md`
+remains canonical project state. `projects/index.md` becomes the single
+collection catalog, while its creation and routing rules live in the installed
+plugin and inherited `projects/AGENTS.md`.
 
-This is safe only while tests enforce all three facts:
+This is safe only while tests enforce these facts:
 
-- `projects/README.md` and `projects/index.md` both exist and receive relative
-  packet links;
+- `projects/index.md` exists and receives every relative packet link;
 - every packet still contains its own complete `README.md`.
+- generic shelf README placeholders remain absent and the Doctor rejects any
+  other untyped Markdown drift.
 
 ## OKF Scope Decision
 
 The clean v0.1 interpretation is:
 
-- `~/Manager` is the local content container and viewer root;
+- `~/Manager` is one canonical OKF bundle plus a transparent runtime overlay;
 - each Project Pack is a self-contained portable synchronization unit;
 - root `index.md` catalogs the Manager's content shelves;
-- `projects/README.md` preserves collection guidance and `projects/index.md`
-  additively catalogs those units;
+- `projects/index.md` catalogs those units while plugin and runtime rules govern
+  creation;
 - other typed Manager notes can participate in graph navigation;
-- strict whole-tree OKF conformance is deferred until authoring and migration
-  rules can guarantee metadata for every user-created Markdown file.
+- every other in-scope Markdown file is a typed concept by contract.
 
-This avoids declaring the entire personal workspace a single indivisible bundle
-while preserving the option to export a Project Pack, a shelf, or a curated
-Manager subset to a future Knowledge Hub.
+The full bundle remains portable while Project Packs, shelves, or curated
+subgraphs can still be selected as future synchronization units.
 
 ## Regression Suite
 
@@ -117,13 +117,16 @@ The suite checks:
 3. WireNet's seed contains every declared runtime entry point;
 4. Project Pack generation produces `README.md` and `AGENTS.md` with stable IDs
    and accepts optional typed concepts;
-5. collection navigation updates both `projects/README.md` and
-   `projects/index.md` without replacing packet READMEs;
+5. collection navigation updates `projects/index.md` without replacing packet
+   READMEs;
 6. root, collection, and project AGENTS files remain the routing hierarchy;
 7. local bindings contain paths but no project prose or instructions;
 8. the global core block supplies the cross-workspace trigger;
-9. viewer link and derived AGENTS-routing behavior remain a projection, not a write path;
-10. contract comparison makes added, removed, and changed entities visible.
+9. the viewer uses only typed OKF concepts and real Markdown-link edges;
+   `AGENTS.md` remains outside the knowledge projection;
+10. the Doctor rejects untyped non-reserved Markdown anywhere in the in-scope
+    knowledge tree;
+11. contract comparison makes added, removed, and changed entities visible.
 
 When upstream changes, first run `scripts/compare_upstream.py --fetch`, inspect
 the commits, and deliberately update the frozen Jason contract only when its
@@ -136,5 +139,3 @@ documented routing really changed.
 - Revisit whether the WireNet-required root and projects indexes remain useful
   after real bootstrap and viewer use; OKF itself does not require them.
 - Define the future Knowledge Hub merge model before claiming multi-device sync.
-- Decide whether all new free-form notes must become typed OKF concepts or
-  whether the consumer should continue tolerating untyped Markdown.

@@ -1,6 +1,5 @@
 ---
-type: "Runtime Adapter"
-schema: "wirenet-manager/v0.1"
+schema: "wirenet-runtime/v0.1"
 visibility: local
 audience: agent
 status: active
@@ -14,7 +13,7 @@ last_edited: 2026-07-15
 Every active Project Pack starts with:
 
 1. `README.md` — current project state; OKF `Project Status`.
-2. `AGENTS.md` — local read order and routing; OKF `Runtime Adapter`.
+2. `AGENTS.md` — local read order and routing; runtime sidecar outside OKF.
 
 ## Optional Conventions
 
@@ -31,11 +30,12 @@ Every active Project Pack starts with:
   Reserved `index.md` and `log.md` are path-scoped and carry no concept
   frontmatter.
 - Keep local filesystem paths out of portable Project Pack files.
-- Update both `projects/README.md` and `projects/index.md` when creating or
-  archiving a packet.
+- Update `projects/index.md` when creating or archiving a packet.
 - Create `GOAL.md`, `RESULT.md`, `WORKLOG.md`, `log.md`, or another concept only
   when it earns a separate durable role.
 - Never mirror UltraGoal `WORKLOG.md` detail into `log.md`; the latter is only a
   sparse portable chronology when useful.
 - Keep packets useful as handoffs without restricting agents to a fixed file set.
+- Every non-reserved Markdown document other than `AGENTS.md` must be a typed
+  OKF concept. Do not add untyped explanatory README files.
 - Preserve unknown frontmatter keys when editing.

@@ -65,10 +65,12 @@ def test_manager_seed_contains_content_but_no_embedded_skills() -> None:
     assert (seed / ".gitignore").is_file()
     assert (seed / "AGENTS.md").is_file()
     assert (seed / "index.md").is_file()
-    assert (seed / "docs/README.md").is_file()
+    assert 'type: "Manager Overview"' in (seed / "README.md").read_text(encoding="utf-8")
     assert (seed / "projects/AGENTS.md").is_file()
     assert (seed / "projects/index.md").is_file()
-    assert (seed / "projects/README.md").is_file()
+    for shelf in ("archive", "docs", "experiments", "notes", "outputs", "people", "projects", "sources"):
+        assert not (seed / shelf / "README.md").exists()
+    assert not (seed / "templates").exists()
     assert (seed / ".wirenet/project-bindings.json").is_file()
     assert not (seed / ".agents").exists()
     assert not (seed / ".codex").exists()
@@ -87,7 +89,8 @@ def test_manager_skills_share_one_content_routing_contract() -> None:
     assert "../wirenet-manager/references/content-routing.md" in sync
     assert "README.md" in bootstrap and "AGENTS.md" in bootstrap
     assert "Keep this shared reference instead of creating a separate routing skill" in contract
-    assert "Manager `index.md` provides the bundle-level catalog" in contract
+    assert "Manager `index.md` declares OKF 0.1" in contract
+    assert "Every other Markdown document" in contract
     assert "Neither file is required merely because a packet exists" in contract
 
 

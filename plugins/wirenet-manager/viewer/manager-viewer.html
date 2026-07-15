@@ -62,7 +62,7 @@ button, input, select { font: inherit; }
   text-transform: uppercase;
 }
 .controls { justify-content: flex-end; gap: 7px; flex-wrap: wrap; }
-.controls input, .controls select, .controls button, .toggle {
+.controls input, .controls select, .controls button {
   min-height: 34px;
   border: 1px solid #d1d1ce;
   border-radius: 4px;
@@ -74,8 +74,6 @@ button, input, select { font: inherit; }
 .controls button { padding: 0 10px; cursor: pointer; }
 .controls button:hover { border-color: var(--ink); }
 .controls :focus-visible { outline: 2px solid rgba(255, 92, 26, .25); outline-offset: 1px; }
-.toggle { display: flex; align-items: center; gap: 6px; padding: 0 9px; cursor: pointer; }
-.toggle input { width: auto; min-height: 0; margin: 0; accent-color: var(--accent); }
 main { min-height: 0; flex: 1 1 auto; display: flex; }
 #graph {
   flex: 1 1 60%;
@@ -190,9 +188,12 @@ body.reading-mode #load-error { width: min(100%, 820px); margin-left: auto; marg
     <span class="read-only">read only</span>
   </div>
   <div class="controls" aria-label="Viewer controls">
-    <input id="search" type="search" placeholder="Search graph" aria-label="Search graph">
-    <select id="filter-type" aria-label="Filter graph by type">
-      <option value="">All types</option>
+    <select id="browse" aria-label="Browse catalogs and history">
+      <option value="">Browse</option>
+    </select>
+    <input id="search" type="search" placeholder="Search concepts" aria-label="Search concepts">
+    <select id="filter-type" aria-label="Filter concepts by type">
+      <option value="">All concept types</option>
     </select>
     <select id="layout" aria-label="Graph layout">
       <option value="cose">Connected</option>
@@ -201,7 +202,6 @@ body.reading-mode #load-error { width: min(100%, 820px); margin-left: auto; marg
       <option value="circle">Circle</option>
       <option value="grid">Grid</option>
     </select>
-    <label class="toggle"><input id="show-agent" type="checkbox"> Agent instructions</label>
     <button id="reading-mode" type="button">Reading view</button>
     <button id="reset" type="button">Reset</button>
   </div>
@@ -211,7 +211,7 @@ body.reading-mode #load-error { width: min(100%, 820px); margin-left: auto; marg
   <section id="graph" aria-label="OKF knowledge graph"></section>
   <section id="detail" aria-live="polite">
     <div id="load-error" hidden></div>
-    <div id="detail-empty">No Manager documents are ready yet.</div>
+    <div id="detail-empty">No OKF concepts are ready yet.</div>
     <article id="detail-content" hidden>
       <header class="detail-header">
         <span class="type-chip" id="detail-type"></span>
@@ -238,15 +238,13 @@ window.BUNDLE = __BUNDLE_DATA__;
 
   const bundle = window.BUNDLE || { nodes: [], edges: [], bodies: {}, types: [] };
   const name = window.BUNDLE_NAME || "Manager";
-  const byId = Object.fromEntries(bundle.nodes.map(node => [node.data.id, node.data]));
+  const byId = bundle.documents || Object.fromEntries(bundle.nodes.map(node => [node.data.id, node.data]));
   const backlinks = {};
-  let selectedId = "";
 
   document.title = `WireNet Manager — ${name}`;
   document.getElementById("bundle-name").textContent = name;
 
   for (const edge of bundle.edges) {
-    if (edge.data.kind !== "link") continue;
     (backlinks[edge.data.target] ||= []).push(edge.data.source);
   }
 
@@ -261,8 +259,24 @@ window.BUNDLE = __BUNDLE_DATA__;
   const search = document.getElementById("search");
   const typeFilter = document.getElementById("filter-type");
   const layoutSelect = document.getElementById("layout");
-  const showAgent = document.getElementById("show-agent");
+  const browse = document.getElementById("browse");
   const readingMode = document.getElementById("reading-mode");
+
+  function appendBrowseGroup(label, ids) {
+    if (!ids.length) return;
+    const group = document.createElement("optgroup");
+    group.label = label;
+    for (const id of ids) {
+      const option = document.createElement("option");
+      option.value = id;
+      option.textContent = byId[id]?.label || id;
+      group.appendChild(option);
+    }
+    browse.appendChild(group);
+  }
+
+  appendBrowseGroup("Catalogs", bundle.indexes || []);
+  appendBrowseGroup("History", bundle.logs || []);
 
   for (const type of bundle.types) {
     const option = document.createElement("option");
@@ -308,23 +322,10 @@ window.BUNDLE = __BUNDLE_DATA__;
           "arrow-scale": .75
         }
       },
-      {
-        selector: "edge[kind = 'routing']",
-        style: {
-          "line-style": "dashed",
-          "line-color": "#ff5c1a",
-          "target-arrow-color": "#ff5c1a"
-        }
-      },
       { selector: ".dimmed", style: { "opacity": .14 } },
-      { selector: ".filtered-out", style: { "display": "none" } }
     ],
     layout: { name: "cose", animate: false, fit: true, padding: 36 }
   });
-
-  function isAgent(data) {
-    return data && data.audience === "agent";
-  }
 
   function runLayout() {
     cy.layout({ name: layoutSelect.value, animate: false, fit: true, padding: 36 }).run();
@@ -334,22 +335,16 @@ window.BUNDLE = __BUNDLE_DATA__;
     const query = search.value.trim().toLowerCase();
     const type = typeFilter.value;
     cy.batch(() => {
-      cy.elements().removeClass("dimmed filtered-out");
+      cy.elements().removeClass("dimmed");
       cy.nodes().forEach(node => {
         const data = node.data();
-        if (!showAgent.checked && isAgent(data)) {
-          node.addClass("filtered-out");
-          return;
-        }
         const haystack = `${data.label} ${data.path} ${data.description || ""}`.toLowerCase();
         if ((query && !haystack.includes(query)) || (type && data.type !== type)) {
           node.addClass("dimmed");
         }
       });
       cy.edges().forEach(edge => {
-        if (edge.source().hasClass("filtered-out") || edge.target().hasClass("filtered-out")) {
-          edge.addClass("filtered-out");
-        } else if (edge.source().hasClass("dimmed") || edge.target().hasClass("dimmed")) {
+        if (edge.source().hasClass("dimmed") || edge.target().hasClass("dimmed")) {
           edge.addClass("dimmed");
         }
       });
@@ -394,7 +389,7 @@ window.BUNDLE = __BUNDLE_DATA__;
     const section = document.getElementById("detail-backlinks");
     const list = document.getElementById("backlinks-list");
     list.replaceChildren();
-    const sources = (backlinks[id] || []).filter(source => showAgent.checked || !isAgent(byId[source]));
+    const sources = backlinks[id] || [];
     section.hidden = sources.length === 0;
     for (const source of sources) {
       const item = document.createElement("li");
@@ -413,12 +408,6 @@ window.BUNDLE = __BUNDLE_DATA__;
   function showDetail(id) {
     const data = byId[id];
     if (!data) return;
-    if (isAgent(data) && !showAgent.checked) {
-      showAgent.checked = true;
-      applyFilters();
-      runLayout();
-    }
-    selectedId = id;
     document.getElementById("detail-empty").hidden = true;
     document.getElementById("detail-content").hidden = false;
     const chip = document.getElementById("detail-type");
@@ -450,7 +439,13 @@ window.BUNDLE = __BUNDLE_DATA__;
     });
     renderMarkdown(id);
     renderBacklinks(id);
-    cy.$id(id).select();
+    if (cy.$id(id).length) {
+      cy.$id(id).select();
+      browse.value = "";
+    } else {
+      cy.$(":selected").unselect();
+      browse.value = id;
+    }
     document.getElementById("detail").scrollTop = 0;
   }
 
@@ -458,13 +453,8 @@ window.BUNDLE = __BUNDLE_DATA__;
   search.addEventListener("input", applyFilters);
   typeFilter.addEventListener("change", applyFilters);
   layoutSelect.addEventListener("change", runLayout);
-  showAgent.addEventListener("change", () => {
-    applyFilters();
-    if (!showAgent.checked && isAgent(byId[selectedId])) {
-      const fallback = bundle.nodes.find(node => !isAgent(node.data));
-      if (fallback) showDetail(fallback.data.id);
-    }
-    runLayout();
+  browse.addEventListener("change", () => {
+    if (browse.value) showDetail(browse.value);
   });
   readingMode.addEventListener("click", () => {
     const enabled = document.body.classList.toggle("reading-mode");
@@ -483,11 +473,10 @@ window.BUNDLE = __BUNDLE_DATA__;
 
   applyFilters();
   runLayout();
-  const initial = bundle.nodes.find(node => node.data.type === "Manager Overview" && !isAgent(node.data))
-    || bundle.nodes.find(node => node.data.type === "Project Status" && !isAgent(node.data))
-    || bundle.nodes.find(node => !isAgent(node.data))
-    || bundle.nodes[0];
-  if (initial) showDetail(initial.data.id);
+  const initialId = (bundle.indexes || []).find(id => id === "index")
+    || bundle.nodes.find(node => node.data.type === "Project Status")?.data.id
+    || bundle.nodes[0]?.data.id;
+  if (initialId) showDetail(initialId);
 }());
 </script>
 </body>

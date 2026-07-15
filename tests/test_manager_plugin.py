@@ -141,7 +141,7 @@ def test_global_guidance_can_remove_only_optional_routing(tmp_path: Path) -> Non
     assert "<!-- wirenet-manager:routing:start -->" not in content
 
 
-def test_global_guidance_migrates_legacy_core_markers(tmp_path: Path) -> None:
+def test_global_guidance_rejects_legacy_core_markers(tmp_path: Path) -> None:
     agents = tmp_path / "AGENTS.md"
     agents.write_text(
         "<!-- wirenet-manager:start -->\nOld rule\n<!-- wirenet-manager:end -->\n",
@@ -149,12 +149,13 @@ def test_global_guidance_migrates_legacy_core_markers(tmp_path: Path) -> None:
     )
 
     result = json.loads(
-        run_script(GUIDANCE, "--agents-file", str(agents), "--apply").stdout
+        run_script(GUIDANCE, "--agents-file", str(agents), "--apply", check=False).stdout
     )
-    content = agents.read_text(encoding="utf-8")
-    assert result["changed"] is True
-    assert "<!-- wirenet-manager:start -->" not in content
-    assert content.count("<!-- wirenet-manager:core:start -->") == 1
+    assert result["ok"] is False
+    assert "unsupported legacy" in result["error"]
+    assert agents.read_text(encoding="utf-8") == (
+        "<!-- wirenet-manager:start -->\nOld rule\n<!-- wirenet-manager:end -->\n"
+    )
 
 
 def test_bootstrap_materializes_content_only_manager_with_local_git(tmp_path: Path) -> None:
@@ -173,6 +174,10 @@ def test_bootstrap_materializes_content_only_manager_with_local_git(tmp_path: Pa
     assert not (destination / ".agents").exists()
     assert not (destination / "plugins").exists()
     assert not (destination / "scripts").exists()
+    for shelf in ("agent", "archive", "docs", "experiments", "notes", "outputs", "people", "projects", "sources"):
+        assert (destination / shelf).is_dir()
+    assert not (destination / "templates").exists()
+    assert frontmatter_value(destination / "README.md", "type") == "Manager Overview"
     assert subprocess.run(
         ["git", "remote"], cwd=destination, check=True, capture_output=True, text=True
     ).stdout.strip() == ""
@@ -275,7 +280,8 @@ def test_project_pack_is_open_and_supports_optional_concepts_and_local_routing(t
     assert frontmatter_value(child_packet / "GOAL.md", "type") == "Project Brief"
     assert frontmatter_value(child_packet / "README.md", "type") == "Project Status"
     assert frontmatter_value(child_packet / "RESULT.md", "type") == "Project Result"
-    assert frontmatter_value(child_packet / "AGENTS.md", "type") == "Runtime Adapter"
+    assert frontmatter_value(child_packet / "AGENTS.md", "type") is None
+    assert frontmatter_value(child_packet / "AGENTS.md", "schema") == "wirenet-runtime/v0.1"
     assert frontmatter_value(child_packet / "AGENTS.md", "audience") == "agent"
     log = (child_packet / "log.md").read_text(encoding="utf-8")
     assert not log.startswith("---")
@@ -303,13 +309,11 @@ def test_project_pack_is_open_and_supports_optional_concepts_and_local_routing(t
     campaign_readme = Path(str(child_result["packet"])) / "README.md"
     assert str(child.resolve()) not in campaign_readme.read_text(encoding="utf-8")
     index = (manager / "projects/index.md").read_text(encoding="utf-8")
-    router = (manager / "projects/README.md").read_text(encoding="utf-8")
     assert not index.startswith("---")
     assert index.endswith("\n")
     assert "[Client](client/README.md) — Parent packet" in index
     assert "[Campaign](campaign/README.md) — Nested packet" in index
-    assert "[Client](client/README.md) — Parent packet" in router
-    assert "[Campaign](campaign/README.md) — Nested packet" in router
+    assert not (manager / "projects/README.md").exists()
     registry = json.loads(
         (manager / ".wirenet/project-bindings.json").read_text(encoding="utf-8")
     )
@@ -395,13 +399,72 @@ def test_manager_doctor_rejects_an_untyped_project_concept(tmp_path: Path) -> No
     assert any("NOTE.md is missing a non-empty OKF type" in error for error in diagnosis["errors"])
 
 
+def test_manager_doctor_rejects_untyped_markdown_in_any_knowledge_shelf(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    (manager / "notes/idea.md").write_text("# Idea\n\nUntyped drift.\n", encoding="utf-8")
+
+    diagnosis = json.loads(
+        run_script(DOCTOR, "--manager-dir", str(manager), check=False).stdout
+    )
+    assert diagnosis["ok"] is False
+    assert "notes/idea.md is missing a non-empty OKF type" in diagnosis["errors"]
+
+
+def test_fresh_manager_markdown_has_one_canonical_role(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+
+    for path in manager.rglob("*.md"):
+        if ".git" in path.parts or ".wirenet" in path.parts or "outputs" in path.parts:
+            continue
+        concept_type = frontmatter_value(path, "type")
+        if path.name == "AGENTS.md":
+            assert concept_type is None
+            assert frontmatter_value(path, "schema") == "wirenet-runtime/v0.1"
+        elif path.name in {"index.md", "log.md"}:
+            assert concept_type is None
+        else:
+            assert concept_type, path
+
+
+def test_manager_doctor_rejects_local_template_shelf(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    (manager / "templates").mkdir()
+
+    diagnosis = json.loads(
+        run_script(DOCTOR, "--manager-dir", str(manager), check=False).stdout
+    )
+    assert diagnosis["ok"] is False
+    assert "templates/ is not part of the canonical v0.1 workspace" in diagnosis["errors"]
+
+
+def test_manager_doctor_rejects_typed_runtime_instructions(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    agents = manager / "AGENTS.md"
+    agents.write_text(
+        agents.read_text(encoding="utf-8").replace(
+            'schema: "wirenet-runtime/v0.1"',
+            'schema: "wirenet-runtime/v0.1"\ntype: "Runtime Instruction"',
+        ),
+        encoding="utf-8",
+    )
+
+    diagnosis = json.loads(
+        run_script(DOCTOR, "--manager-dir", str(manager), check=False).stdout
+    )
+    assert diagnosis["ok"] is False
+    assert "AGENTS.md must remain outside the OKF concept projection" in diagnosis["errors"]
+
+
 def test_project_preview_and_rejected_overlap_are_side_effect_free(tmp_path: Path) -> None:
     manager = tmp_path / "Manager"
     bootstrap(manager)
     workspace = tmp_path / "workspace"
     workspace.mkdir()
     tracked_paths = (
-        manager / "projects/README.md",
         manager / "projects/index.md",
         manager / ".wirenet/project-bindings.json",
     )
@@ -457,22 +520,22 @@ def test_project_preview_and_rejected_overlap_are_side_effect_free(tmp_path: Pat
     assert Path(str(created["packet"])).is_dir()
 
 
-def test_manager_doctor_detects_collection_router_drift(tmp_path: Path) -> None:
+def test_manager_doctor_detects_project_index_drift(tmp_path: Path) -> None:
     manager = tmp_path / "Manager"
     bootstrap(manager)
     result = json.loads(
         run_script(
             CREATE_PROJECT,
-            "Router Drift",
+            "Index Drift",
             "--summary",
-            "Must appear in both routes",
+            "Must appear in the canonical index",
             "--manager-dir",
             str(manager),
             "--apply",
         ).stdout
     )
     index = manager / "projects/index.md"
-    entry = "- [Router Drift](router-drift/README.md) — Must appear in both routes\n"
+    entry = "- [Index Drift](index-drift/README.md) — Must appear in the canonical index\n"
     index.write_text(index.read_text(encoding="utf-8").replace(entry, ""), encoding="utf-8")
 
     diagnosis = json.loads(
@@ -480,7 +543,7 @@ def test_manager_doctor_detects_collection_router_drift(tmp_path: Path) -> None:
     )
     assert diagnosis["ok"] is False
     assert any(
-        "router-drift: Project Pack is missing from projects/index.md" in error
+        "index-drift: Project Pack is missing from projects/index.md" in error
         for error in diagnosis["errors"]
     )
     assert Path(str(result["packet"])).is_dir()
@@ -573,3 +636,33 @@ def test_project_discovery_is_shallow_and_marker_only(tmp_path: Path) -> None:
     result = json.loads(run_script(DISCOVER, str(root), "--max-depth", "1").stdout)
     assert result["ok"] is True
     assert [row["path"] for row in result["candidates"]] == [str(marked.resolve())]
+
+
+def test_workspace_inspection_uses_only_canonical_bindings(tmp_path: Path) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    workspace = tmp_path / "legacy-workspace"
+    workspace.mkdir()
+    created = json.loads(
+        run_script(
+            CREATE_PROJECT,
+            "No Legacy Fallback",
+            "--summary",
+            "Only bindings may classify a workspace",
+            "--manager-dir",
+            str(manager),
+            "--apply",
+        ).stdout
+    )
+    readme = Path(str(created["packet"])) / "README.md"
+    readme.write_text(
+        readme.read_text(encoding="utf-8").replace(
+            "title:", f'workspace_paths:\n  - "{workspace}"\ntitle:', 1
+        ),
+        encoding="utf-8",
+    )
+
+    result = json.loads(
+        run_script(INSPECT, "--manager-dir", str(manager), "--workspace", str(workspace)).stdout
+    )
+    assert result["classification"] == "untracked"

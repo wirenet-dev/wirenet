@@ -90,19 +90,17 @@ def test_wirenet_seed_paths_declared_by_contract_exist() -> None:
             assert local.exists(), f"missing WireNet contract evidence: {evidence}"
 
 
-def test_projects_index_is_additive_to_collection_router() -> None:
+def test_projects_index_is_the_canonical_collection_router() -> None:
     entities = by_id(load(WIRENET)["entities"])
-    assert entities["projects-collection"]["path"] == "projects/README.md"
+    assert entities["projects-collection"]["path"] == "projects/"
     assert entities["projects-okf-index"]["path"] == "projects/index.md"
     assert entities["project-status"]["path"] == "projects/<slug>/README.md"
 
     index = (SEED / "projects/index.md").read_text(encoding="utf-8")
-    router = (SEED / "projects/README.md").read_text(encoding="utf-8")
     assert not index.startswith("---\n")
     assert "progressive disclosure" in index
     assert "## Active Project Packs" in index
-    assert "## Active Project Packs" in router
-    assert "Jason-compatible collection guide" in router
+    assert not (SEED / "projects/README.md").exists()
 
 
 def test_agents_files_remain_the_executable_routing_hierarchy() -> None:
@@ -110,7 +108,7 @@ def test_agents_files_remain_the_executable_routing_hierarchy() -> None:
     projects_agents = (SEED / "projects/AGENTS.md").read_text(encoding="utf-8")
 
     assert "## Read Order" in root_agents
-    assert "projects/README.md" in root_agents
+    assert "projects/README.md" not in root_agents
     assert "projects/index.md" in root_agents
     assert "The relevant Project Pack's `README.md` and `AGENTS.md`" in root_agents
     assert "## Minimum Contract" in projects_agents
@@ -119,9 +117,18 @@ def test_agents_files_remain_the_executable_routing_hierarchy() -> None:
 
     entities = by_id(load(WIRENET)["entities"])
     assert entities["root-agent-instructions"]["authority"] == "routing"
+    assert entities["root-agent-instructions"]["kind"] == "runtime-instruction"
     assert entities["project-agent-instructions"]["authority"] == "local-routing"
-    assert entities["projects-collection"]["authority"] == "collection-guide"
+    assert entities["project-agent-instructions"]["kind"] == "runtime-instruction"
+    assert entities["projects-collection"]["authority"] == "project-collection"
+    assert entities["projects-collection"]["kind"] == "knowledge-shelf"
     assert entities["projects-okf-index"]["authority"] == "navigation"
+    assert "\ntype:" not in root_agents
+    assert "\ntype:" not in projects_agents
+    assert 'schema: "wirenet-runtime/v0.1"' in root_agents
+    assert 'schema: "wirenet-runtime/v0.1"' in projects_agents
+    assert entities["root-manager-overview"]["kind"] == "concept"
+    assert 'type: "Manager Overview"' in (SEED / "README.md").read_text(encoding="utf-8")
 
 
 def test_contract_delta_exposes_wirenet_additions_and_changed_roles() -> None:
@@ -137,6 +144,7 @@ def test_contract_delta_exposes_wirenet_additions_and_changed_roles() -> None:
 
     added_entities = set(report["entities"]["added"])
     assert {
+        "root-manager-overview",
         "project-log",
         "project-worklog",
         "projects-okf-index",
@@ -146,6 +154,7 @@ def test_contract_delta_exposes_wirenet_additions_and_changed_roles() -> None:
         "external-workspace",
         "viewer",
     } <= added_entities
+    assert "root-human-guide" in set(report["entities"]["removed"])
 
     changed_entities = {row["id"]: set(row["fields"]) for row in report["entities"]["changed"]}
     assert "projects-collection" in changed_entities
@@ -158,14 +167,16 @@ def test_contract_delta_exposes_wirenet_additions_and_changed_roles() -> None:
     assert {"cross-workspace-sync", "okf-navigation", "viewer-projection"} <= added_routes
 
 
-def test_wirenet_contract_keeps_okf_as_overlay_not_instruction_replacement() -> None:
+def test_wirenet_contract_separates_workspace_runtime_and_okf_projection() -> None:
     contract = load(WIRENET)
     scope = contract["scope"]
-    assert "OKF-compatible" in scope["okf"]
-    assert "full-bundle OKF conformance is not yet claimed" in scope["okf"]
+    assert "canonical OKF bundle" in scope["okf"]
+    assert "one canonical OKF bundle" in scope["okf"]
+    assert "every other in-scope Markdown file requires a non-empty type" in scope["okf"]
 
     routes = by_id(contract["routes"])
-    assert "do not replace canonical prose or instructions" in routes["okf-navigation"]["description"]
+    assert "without interpreting runtime instructions as knowledge" in routes["okf-navigation"]["description"]
+    assert "AGENTS.md" in routes["viewer-projection"]["description"]
     assert routes["viewer-projection"]["writes"] == ["temporary single-file HTML projection"]
 
 

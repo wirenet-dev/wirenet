@@ -43,9 +43,10 @@ state, and do not let structured metadata replace canonical human prose or
 
 Generated Project Packs must begin with `README.md` and `AGENTS.md`. Agents may
 add `GOAL.md`, `RESULT.md`, `WORKLOG.md`, reserved `index.md` or `log.md`, and
-other useful concepts when the work earns them. Every non-reserved concept in a
-packet shares one stable `project_id` and has a descriptive OKF `type`;
-reserved files are scoped by their path and carry no concept frontmatter.
+other useful concepts when the work earns them. Every concept in a packet shares
+one stable `project_id` and has a descriptive OKF `type`; `AGENTS.md` shares the
+ID as a `wirenet-runtime/v0.1` sidecar without `type`; reserved files are scoped
+by their path and carry no concept frontmatter.
 Portable files must not contain machine-local paths; store those only in
 `.wirenet/project-bindings.json`.
 
@@ -69,8 +70,8 @@ reset, or push to upstream.
 
 ## Development Safety
 
-- Use disposable temporary directories for bootstrap and migration tests.
-- Never bootstrap or migrate the live `/Users/gitt/Vault` or a live `~/Manager`
+- Use disposable temporary directories for bootstrap and repair tests.
+- Never bootstrap or repair the live `/Users/gitt/Vault` or a live `~/Manager`
   during automated tests.
 - Bootstrap and repair must be dry-run-first and create-only for existing
   folders.

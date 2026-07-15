@@ -12,7 +12,7 @@
   "scope": {
     "workspace_model": "An installed plugin owns behavior; a content-only local Manager owns personal memory; implementation work remains in external workspaces connected through device-local bindings.",
     "project_location": "Portable Project Packs live in Manager/projects/<slug>; code, media, data, and operational files remain at bound external paths.",
-    "okf": "The Manager is an OKF-compatible content tree. WireNet requires root and project-collection indexes as stable entry points; packet-local indexes and all logs remain optional. Project Packs are the portable synchronization units; full-bundle OKF conformance is not yet claimed."
+    "okf": "The Manager is one canonical OKF bundle with a transparent runtime overlay. index.md and log.md are reserved support documents; AGENTS.md is runtime; every other in-scope Markdown file requires a non-empty type. Project Packs are the intended portable synchronization units."
   },
   "entities": [
     {
@@ -22,19 +22,19 @@
       "presence": "seed",
       "authority": "local-working-state",
       "audience": "agent",
-      "description": "Keeps device-local outputs and platform noise out of portable Manager history while retaining the shelf guide.",
+      "description": "Keeps device-local outputs and platform noise out of portable Manager history.",
       "produced_by": ["Manager seed"],
       "consumed_by": ["local Git"],
       "evidence": ["plugins/wirenet-manager/templates/manager/.gitignore"]
     },
     {
-      "id": "root-human-guide",
+      "id": "root-manager-overview",
       "path": "README.md",
       "kind": "concept",
       "presence": "seed",
-      "authority": "human-guide",
-      "audience": "human",
-      "description": "Human entry point for Manager purpose, shelves, Project Pack contract, and local/portable boundaries.",
+      "authority": "manager-overview",
+      "audience": "human-and-agent",
+      "description": "Typed Manager Overview and human entry point for this instance, its shelves, and local/portable boundary.",
       "produced_by": ["Manager seed", "repair only when missing"],
       "consumed_by": ["human", "Manager orientation"],
       "evidence": ["plugins/wirenet-manager/templates/manager/README.md"]
@@ -42,11 +42,11 @@
     {
       "id": "root-agent-instructions",
       "path": "AGENTS.md",
-      "kind": "concept-and-instruction",
+      "kind": "runtime-instruction",
       "presence": "seed",
       "authority": "routing",
       "audience": "agent",
-      "description": "Manager-local read order, durable-state destinations, update threshold, and safety rules. OKF metadata does not replace its Markdown instructions.",
+      "description": "Manager-local read order, durable-state destinations, update threshold, and safety rules under the runtime schema; deliberately outside the OKF projection.",
       "produced_by": ["Manager seed", "repair only when missing", "approved durable routing changes"],
       "consumed_by": ["Codex instruction inheritance", "wirenet-manager skill"],
       "evidence": ["plugins/wirenet-manager/templates/manager/AGENTS.md", "plugins/wirenet-manager/skills/wirenet-manager/SKILL.md"]
@@ -89,15 +89,15 @@
     },
     {
       "id": "projects-collection",
-      "path": "projects/README.md",
-      "kind": "concept",
-      "presence": "seed",
-      "authority": "collection-guide",
+      "path": "projects/",
+      "kind": "knowledge-shelf",
+      "presence": "bootstrap-generated-directory",
+      "authority": "project-collection",
       "audience": "human-and-agent",
-      "description": "Jason-compatible human and agent collection guide with active Project Pack links.",
-      "produced_by": ["Manager seed", "create-project-pack helper"],
-      "consumed_by": ["wirenet-manager skill", "human viewer", "agents"],
-      "evidence": ["plugins/wirenet-manager/templates/manager/projects/README.md", "plugins/wirenet-manager/scripts/create_project_pack.py"]
+      "description": "Canonical shelf for portable Project Packs; navigation lives in projects/index.md and runtime rules in projects/AGENTS.md.",
+      "produced_by": ["bootstrap"],
+      "consumed_by": ["wirenet-manager skill", "human", "agents"],
+      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py", "plugins/wirenet-manager/templates/manager/projects/AGENTS.md"]
     },
     {
       "id": "projects-okf-index",
@@ -106,7 +106,7 @@
       "presence": "seed",
       "authority": "navigation",
       "audience": "human-and-agent",
-      "description": "WireNet-required additive progressive-disclosure catalog for active Project Packs. OKF itself permits it to be absent.",
+      "description": "WireNet-required canonical progressive-disclosure catalog for active Project Packs. OKF itself permits it to be absent.",
       "produced_by": ["Manager seed", "create-project-pack helper"],
       "consumed_by": ["wirenet-manager skill", "agents", "future OKF consumers"],
       "evidence": ["plugins/wirenet-manager/templates/manager/projects/index.md", "plugins/wirenet-manager/scripts/create_project_pack.py"]
@@ -114,7 +114,7 @@
     {
       "id": "projects-collection-instructions",
       "path": "projects/AGENTS.md",
-      "kind": "concept-and-instruction",
+      "kind": "runtime-instruction",
       "presence": "seed",
       "authority": "collection-routing",
       "audience": "agent",
@@ -138,13 +138,13 @@
     {
       "id": "project-agent-instructions",
       "path": "projects/<slug>/AGENTS.md",
-      "kind": "concept-and-instruction",
+      "kind": "runtime-instruction",
       "presence": "generated-required",
       "authority": "local-routing",
       "audience": "agent",
       "description": "Project read order, recurring source routes, safety gates, and per-file update thresholds.",
       "produced_by": ["create-project-pack helper", "approved routing changes"],
-      "consumed_by": ["Codex instruction inheritance", "wirenet-manager-sync", "human viewer when agent instructions are enabled"],
+      "consumed_by": ["Codex instruction inheritance", "wirenet-manager-sync"],
       "evidence": ["plugins/wirenet-manager/scripts/manager_model.py", "plugins/wirenet-manager/templates/manager/projects/AGENTS.md"]
     },
     {
@@ -197,15 +197,15 @@
     },
     {
       "id": "people-collection",
-      "path": "people/README.md",
-      "kind": "concept",
-      "presence": "seed",
-      "authority": "collection-policy",
+      "path": "people/",
+      "kind": "knowledge-shelf",
+      "presence": "bootstrap-generated-directory",
+      "authority": "relationship-context",
       "audience": "human-and-agent",
-      "description": "Concise policy for evidence-backed canonical collaborator notes.",
-      "produced_by": ["Manager seed"],
-      "consumed_by": ["Manager", "human viewer"],
-      "evidence": ["plugins/wirenet-manager/templates/manager/people/README.md"]
+      "description": "Shelf for typed, evidence-backed canonical collaborator concepts.",
+      "produced_by": ["bootstrap"],
+      "consumed_by": ["Manager", "human"],
+      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md", "plugins/wirenet-manager/templates/manager/AGENTS.md"]
     },
     {
       "id": "person-note",
@@ -217,79 +217,79 @@
       "description": "Canonical evidence-backed collaborator context when useful.",
       "produced_by": ["approved Manager update"],
       "consumed_by": ["Manager", "project packets", "human viewer"],
-      "evidence": ["plugins/wirenet-manager/templates/manager/AGENTS.md", "plugins/wirenet-manager/templates/manager/people/README.md"]
+      "evidence": ["plugins/wirenet-manager/templates/manager/AGENTS.md", "plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md"]
     },
     {
       "id": "notes-collection",
-      "path": "notes/README.md",
-      "kind": "concept",
-      "presence": "seed",
+      "path": "notes/",
+      "kind": "knowledge-shelf",
+      "presence": "bootstrap-generated-directory",
       "authority": "scratch-state",
       "audience": "human-and-agent",
       "description": "Durable scratch notes without a better canonical home; stable project state is promoted into its packet.",
-      "produced_by": ["Manager seed", "approved Manager updates"],
-      "consumed_by": ["Manager when no better canonical destination exists", "human viewer"],
-      "evidence": ["plugins/wirenet-manager/templates/manager/notes/README.md"]
+      "produced_by": ["bootstrap", "approved Manager updates"],
+      "consumed_by": ["Manager when no better canonical destination exists", "human"],
+      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md", "plugins/wirenet-manager/templates/manager/AGENTS.md"]
     },
     {
       "id": "sources-collection",
-      "path": "sources/README.md",
-      "kind": "concept",
-      "presence": "seed",
+      "path": "sources/",
+      "kind": "knowledge-shelf",
+      "presence": "bootstrap-generated-directory",
       "authority": "knowledge-shelf",
       "audience": "human-and-agent",
       "description": "Curated Knowledge Shelf for retained evidence and source context, read-only by default and link-first; excludes private, large, or operational source trees.",
-      "produced_by": ["Manager seed", "explicitly approved imports"],
-      "consumed_by": ["Manager when evidence is needed", "human viewer"],
-      "evidence": ["plugins/wirenet-manager/templates/manager/sources/README.md"]
+      "produced_by": ["bootstrap", "explicitly approved imports"],
+      "consumed_by": ["Manager when evidence is needed", "human"],
+      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md", "plugins/wirenet-manager/templates/manager/AGENTS.md"]
     },
     {
       "id": "docs-collection",
-      "path": "docs/README.md",
-      "kind": "concept",
-      "presence": "seed",
+      "path": "docs/",
+      "kind": "knowledge-shelf",
+      "presence": "bootstrap-generated-directory",
       "authority": "open-structured-content",
       "audience": "human-and-agent",
       "description": "Optional structured documents without a stronger project, person, or source home; no fixed taxonomy is imposed.",
-      "produced_by": ["Manager seed", "approved Manager updates"],
-      "consumed_by": ["Manager when structured durable content needs a home", "human viewer"],
-      "evidence": ["plugins/wirenet-manager/templates/manager/docs/README.md"]
+      "produced_by": ["bootstrap", "approved Manager updates"],
+      "consumed_by": ["Manager when structured durable content needs a home", "human"],
+      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md", "plugins/wirenet-manager/templates/manager/AGENTS.md"]
     },
     {
       "id": "experiments-collection",
-      "path": "experiments/README.md",
-      "kind": "concept",
-      "presence": "seed",
+      "path": "experiments/",
+      "kind": "knowledge-shelf",
+      "presence": "bootstrap-generated-directory",
       "authority": "classification-policy",
       "audience": "human-and-agent",
       "description": "Policy for short-lived spikes; external experiment paths are remembered without creating full packets.",
-      "produced_by": ["Manager seed", "approved route records"],
-      "consumed_by": ["wirenet-manager-sync", "human viewer"],
-      "evidence": ["plugins/wirenet-manager/templates/manager/experiments/README.md", "plugins/wirenet-manager/skills/wirenet-manager-sync/SKILL.md"]
+      "produced_by": ["bootstrap", "approved route records"],
+      "consumed_by": ["wirenet-manager-sync", "human"],
+      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md", "plugins/wirenet-manager/skills/wirenet-manager-sync/SKILL.md"]
     },
     {
       "id": "outputs-collection",
-      "path": "outputs/README.md",
-      "kind": "concept",
-      "presence": "seed",
+      "path": "outputs/",
+      "kind": "local-shelf",
+      "presence": "bootstrap-generated-directory",
       "authority": "local-working-memory",
       "audience": "agent",
       "description": "Ignored device-local working memory for generated intermediates; never canonical or synchronized by default.",
-      "produced_by": ["Manager seed", "local task output"],
+      "produced_by": ["bootstrap", "local task output"],
       "consumed_by": ["local tasks only"],
-      "evidence": ["plugins/wirenet-manager/templates/manager/outputs/README.md"]
+      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md", "plugins/wirenet-manager/templates/manager/.gitignore"]
     },
     {
       "id": "archive-collection",
-      "path": "archive/README.md",
-      "kind": "concept",
-      "presence": "seed",
+      "path": "archive/",
+      "kind": "knowledge-shelf",
+      "presence": "bootstrap-generated-directory",
       "authority": "retention-policy",
       "audience": "human-and-agent",
       "description": "Inactive durable context preserved for history rather than deleted.",
-      "produced_by": ["Manager seed", "approved archival moves"],
-      "consumed_by": ["Manager when historical context is needed", "human viewer"],
-      "evidence": ["plugins/wirenet-manager/templates/manager/archive/README.md"]
+      "produced_by": ["bootstrap", "approved archival moves"],
+      "consumed_by": ["Manager when historical context is needed", "human"],
+      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md", "plugins/wirenet-manager/templates/manager/AGENTS.md"]
     },
     {
       "id": "capability-shelf",
@@ -316,18 +316,6 @@
       "evidence": ["plugins/wirenet-manager/templates/manager/", "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py"]
     },
     {
-      "id": "local-template-guide",
-      "path": "templates/README.md",
-      "kind": "concept-and-instruction",
-      "presence": "seed",
-      "authority": "creation-guide",
-      "audience": "agent",
-      "description": "Explains that canonical generation logic remains in the installed plugin and routes packet creation through the sync skill or helper.",
-      "produced_by": ["Manager seed", "repair only when missing"],
-      "consumed_by": ["human or agent inspecting local packet creation"],
-      "evidence": ["plugins/wirenet-manager/templates/manager/templates/README.md"]
-    },
-    {
       "id": "local-bindings",
       "path": ".wirenet/project-bindings.json",
       "kind": "device-local-registry",
@@ -348,7 +336,7 @@
       "audience": "agent",
       "description": "Manager ID, schema, plugin version, Project Pack profile, and OKF profile.",
       "produced_by": ["bootstrap"],
-      "consumed_by": ["manager doctor", "future migration and sync tooling"],
+      "consumed_by": ["manager doctor", "future sync tooling"],
       "evidence": ["plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py", "plugins/wirenet-manager/scripts/manager_model.py"]
     },
     {
@@ -370,7 +358,7 @@
       "presence": "generated-on-demand",
       "authority": "none",
       "audience": "human",
-      "description": "Read-only Google-derived graph-and-detail projection of non-index Manager content with reading mode and optional derived AGENTS.md routing.",
+      "description": "Read-only Google-derived graph-and-detail view of typed OKF concepts and real Markdown-link edges, with reserved catalogs and histories available outside the graph.",
       "produced_by": ["generate-manager-viewer helper"],
       "consumed_by": ["human in built-in Browser"],
       "evidence": ["plugins/wirenet-manager/scripts/generate_manager_viewer.py", "plugins/wirenet-manager/viewer/manager-viewer.html"]
@@ -380,7 +368,7 @@
     {
       "id": "discovery",
       "trigger": "The Manager skill is invoked or a task opens inside Manager.",
-      "reads": ["global AGENTS.md managed core block", "Manager/AGENTS.md", "Manager/index.md", "TODO.md", "projects/README.md", "projects/index.md", "relevant Project Pack"],
+      "reads": ["global AGENTS.md managed core block", "Manager/AGENTS.md", "Manager/README.md", "Manager/index.md", "TODO.md", "projects/index.md", "relevant Project Pack"],
       "writes": [],
       "approval": "not-required-for-read",
       "description": "Resolve Manager, read the ordered current stack and catalog, then disclose only the relevant packet and sources.",
@@ -398,8 +386,8 @@
     {
       "id": "project-create",
       "trigger": "An approved external workspace is classified as a durable project.",
-      "reads": ["projects/README.md", "projects/index.md", ".wirenet/project-bindings.json", "approved workspace path"],
-      "writes": ["README.md", "AGENTS.md", "projects/README.md entry", "projects/index.md entry", "local binding", "requested optional concepts"],
+      "reads": ["projects/index.md", ".wirenet/project-bindings.json", "approved workspace path"],
+      "writes": ["README.md", "AGENTS.md", "projects/index.md entry", "local binding", "requested optional concepts"],
       "approval": "dry-run preview then explicit apply approval",
       "description": "Create the portable open packet core and bind it to external implementation work without copying that work into Manager.",
       "evidence": ["plugins/wirenet-manager/scripts/create_project_pack.py", "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/SKILL.md"]
@@ -407,15 +395,15 @@
     {
       "id": "person-create",
       "trigger": "A recurring collaborator needs durable context.",
-      "reads": ["people/README.md", "relevant grounded evidence"],
+      "reads": ["Manager runtime shelf rules", "relevant grounded evidence"],
       "writes": ["people/<person>.md"],
       "approval": "explicit approval for durable inferred memory",
       "description": "Create or update a single canonical evidence-backed note.",
-      "evidence": ["plugins/wirenet-manager/templates/manager/people/README.md", "plugins/wirenet-manager/templates/manager/AGENTS.md"]
+      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md", "plugins/wirenet-manager/templates/manager/AGENTS.md"]
     },
     {
       "id": "onboarding",
-      "trigger": "WireNet Manager is installed, missing, unhealthy, or being migrated.",
+      "trigger": "WireNet Manager is installed, missing, unhealthy, or being repaired.",
       "reads": ["installed plugin seed", "approved project roots", "existing Manager when repairing"],
       "writes": ["content-only Manager", ".wirenet/manager.json", ".wirenet/project-bindings.json", "optional global managed blocks"],
       "approval": "dry-run first; approval before apply, project-root inspection, or global guidance",
@@ -446,21 +434,21 @@
       "reads": ["Manager/index.md", "projects/index.md", "concept frontmatter", "Markdown links", "optional log.md"],
       "writes": [],
       "approval": "not-required-for-read",
-      "description": "Use reserved indexes, stable concept metadata, links, and sparse history as a portable overlay; do not replace canonical prose or instructions.",
-      "evidence": ["docs/project-pack-contract.md", "plugins/wirenet-manager/scripts/generate_manager_viewer.py"]
+      "description": "Use the deterministic typed-concept projection, reserved indexes, stable metadata, real links, and sparse history without interpreting runtime instructions as knowledge.",
+      "evidence": ["docs/project-pack-contract.md", "plugins/wirenet-manager/scripts/okf_projection.py"]
     },
     {
       "id": "viewer-projection",
       "trigger": "The user asks to inspect Manager visually.",
-      "reads": ["Manager Markdown content excluding templates, skills, scripts, hidden state, and bindings"],
+      "reads": ["typed Manager concepts plus reserved index.md and log.md documents"],
       "writes": ["temporary single-file HTML projection"],
       "approval": "not-required-for-local-read-only-generation",
-      "description": "Render complete non-index source documents, real Markdown-link edges, and optional nearest-parent AGENTS.md routing; hide implementation and local state.",
-      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager/SKILL.md", "plugins/wirenet-manager/scripts/generate_manager_viewer.py"]
+      "description": "Render the shared OKF projection with complete concept bodies, real Markdown-link edges, and readable reserved navigation; exclude the AGENTS.md runtime overlay, implementation, outputs, and local state.",
+      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager/SKILL.md", "plugins/wirenet-manager/scripts/okf_projection.py", "plugins/wirenet-manager/scripts/generate_manager_viewer.py"]
     }
   ],
   "known_ambiguities": [
-    "The whole Manager is OKF-compatible but v0.1 does not yet enforce that every future user-authored Markdown file is a conformant OKF concept.",
+    "The Manager is one OKF bundle plus a transparent AGENTS.md and device-local runtime overlay; only typed concepts and reserved index or log files are knowledge-sync candidates.",
     "Project Packs are designed as future synchronization units, but no database or multi-device merge protocol exists in v0.1.",
     "docs/, outputs/, archive/, and notes/ now have explicit WireNet policies; their long-term retention and synchronization behavior needs usage evidence.",
     "Root and project-collection indexes are required by the WireNet profile for stable navigation even though OKF permits them to be absent; packet-local indexes remain optional."

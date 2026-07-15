@@ -5,9 +5,10 @@ last_edited: 2026-07-15
 # Testing Markdown As Code
 
 WireNet Manager treats natural-language workspace behavior as a software
-product. Markdown bodies carry human meaning and agent instructions;
-frontmatter carries machine-readable identity; links define graph edges; folder
-placement and inherited `AGENTS.md` files define routing. Changes to those
+product. Markdown bodies carry human meaning and agent instructions; non-empty
+`type` frontmatter is required for every non-reserved knowledge document;
+standard Markdown links define knowledge-graph edges; folder placement and inherited
+`AGENTS.md` files define a separate runtime-routing plane. Changes to those
 surfaces can therefore be breaking changes even when no Python code changes.
 
 The central product principle is **Metadata as Code**: identity, type,
@@ -44,13 +45,13 @@ sentence that intentionally acts as a routing contract.
 | Layer | Question | Primary checks |
 | --- | --- | --- |
 | Syntax | Can tools parse the product? | Markdown metadata, JSON, plugin and skill validation |
-| Schema | Are required identities and reserved files valid? | OKF `type`, packet schema, `project_id`, index and log shape |
+| Schema | Are required identities and reserved files valid? | OKF `type`, runtime sidecars, packet `project_id`, index and log shape |
 | Routing | Does each durable concept have one canonical owner? | Frozen routing contracts, read/write routes, approval gates |
-| Production | Do generators materialize the contract? | Bootstrap seed, open Project Pack core, optional concepts, both collection routes |
+| Production | Do generators materialize the contract? | Bootstrap seed, open Project Pack core, optional concepts, canonical project index |
 | Safety | Are previews and repair non-destructive? | Dry-run has no writes, repair is create-only, rejected routes leave no partial packet |
 | Reconciliation | Does an external path resolve predictably? | Longest binding, experiment and ignored routes, untracked classification |
-| Consumption | Can humans and agents inspect the same source? | Full Markdown rendering, agent toggle, real link edges, derived AGENTS routing, hidden-state exclusion |
-| Compatibility | Did WireNet accidentally erase Jason's behavior? | Frozen upstream contract and explicit semantic delta |
+| Consumption | Can humans inspect the portable knowledge source? | Full Markdown rendering, typed concepts, real link edges, reserved navigation, runtime and hidden-state exclusion |
+| Reference | Did WireNet accidentally erase a useful Jason behavior? | Frozen upstream contract and explicit semantic delta |
 
 ## Core Regression Invariants
 
@@ -60,10 +61,13 @@ sentence that intentionally acts as a routing contract.
   never overwrites personalized content.
 - Project creation preview writes nothing. A rejected duplicate path, slug, or
   project ID leaves indexes, bindings, and packets unchanged.
-- Every packet starts with `README.md` and `AGENTS.md`; optional concepts are
-  accepted only with the packet schema, non-empty OKF `type`, and shared
-  `project_id`.
-- `projects/README.md` and `projects/index.md` both route every active packet.
+- Every packet starts with typed `README.md` and runtime `AGENTS.md`; optional
+  concepts require the packet schema and non-empty OKF `type`; the sidecar and
+  concepts share one `project_id`.
+- `projects/index.md` routes every active packet; no generic shelf README
+  placeholder exists.
+- Every in-scope Markdown file is either typed knowledge, reserved `index.md` or
+  `log.md`, or runtime `AGENTS.md`; the Doctor rejects any other case.
 - Reserved `log.md` files, when present, use newest-first ISO dates and remain
   free of concept frontmatter.
 - Read-only routes have no canonical writes. Mutating routes declare preview or
@@ -71,9 +75,10 @@ sentence that intentionally acts as a routing contract.
 - The global managed block recalls the sync skill only when it is installed and
   enabled; disabling the plugin does not block ordinary tasks.
 - The viewer never becomes a source of truth and never exposes hidden bindings,
-  reserved indexes, templates, plugin implementation, or ignored outputs.
-- Viewer routing edges follow the nearest `AGENTS.md` parent exactly and are
-  never persisted as a second routing authority.
+  runtime `AGENTS.md`, plugin implementation, or ignored outputs.
+- Reserved indexes and logs remain readable but never become graph nodes.
+- Every graph edge comes from a standard Markdown link between two typed
+  concepts; no runtime, folder, packet, or inferred edge may be synthesized.
 
 ## Change Rule
 

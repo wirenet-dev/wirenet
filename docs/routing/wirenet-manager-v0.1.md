@@ -22,11 +22,10 @@ installed WireNet Manager plugin
 ~/Manager/
 ├── AGENTS.md                  Manager-local routing
 ├── index.md                   required WireNet bundle catalog
-├── README.md                  human workspace guide
+├── README.md                  typed Manager Overview
 ├── TODO.md                    ordered cross-project stack
 ├── agent/USER_CONTEXT.md      durable working context
-├── projects/README.md         Jason-compatible collection guide
-├── projects/index.md          additive OKF collection catalog
+├── projects/index.md          canonical OKF collection catalog
 ├── projects/<slug>/           portable Project Pack
 ├── people/, notes/, docs/, sources/
 │                               supporting personal knowledge
@@ -50,16 +49,15 @@ content seed.
 
 | Entity | Canonical role | Created how | Routing authority |
 | --- | --- | --- | --- |
-| Root `AGENTS.md` | Manager read order, destinations, thresholds, safety | Seed; repair only if missing | Yes, inside Manager |
+| Root `AGENTS.md` | Manager read order, destinations, thresholds, safety; runtime sidecar outside OKF | Seed; repair only if missing | Yes, inside Manager |
 | Root `index.md` | Required WireNet bundle catalog and OKF version declaration | Seed | Navigation |
-| Root `README.md` | Human explanation and shelf map | Seed | Human guide only |
+| Root `README.md` | Typed Manager Overview and human landing page | Seed | Canonical instance overview |
 | `TODO.md` | Ordered current stack | Seed and approved updates | State, not instructions |
 | `agent/USER_CONTEXT.md` | Confirmed user and operating context | Seed and approved updates | Context, not instructions |
-| `projects/README.md` | Jason-compatible collection guide and active-packet router | Seed and packet generator | Human and agent guide |
-| `projects/index.md` | Additive OKF active-packet catalog | Seed and packet generator | Navigation |
-| `projects/AGENTS.md` | Open packet core, identity, portability, and extension rules | Seed | Yes, inherited for projects |
+| `projects/index.md` | Canonical OKF active-packet catalog | Seed and packet generator | Navigation |
+| `projects/AGENTS.md` | Runtime rules for the open packet core, identity, portability, and extensions | Seed | Yes, inherited for projects |
 | Project `README.md` | Current operational handoff | Packet generator and sync | Canonical project state |
-| Project `AGENTS.md` | Read order, sources, safety, update rules | Packet generator and approved changes | Yes, inherited locally |
+| Project `AGENTS.md` | Runtime sidecar for read order, sources, safety, and update rules | Packet generator and approved changes | Yes, inherited locally |
 | Optional Project concept | Goal, result, worklog, decision, or another useful typed document | Agent when useful | Purpose-specific content |
 | Optional Project `index.md` | Packet-local progressive disclosure once the packet grows | Agent or consumer when useful | Navigation |
 | Optional Project `log.md` | Sparse meaningful chronology | Agent or sync when useful | History, not current state |
@@ -73,7 +71,6 @@ content seed.
 | Global managed core block | Cross-workspace reconciliation trigger | Optional bootstrap step after approval | Yes, outside Manager |
 | Installed plugin skills | Bootstrap, ongoing Manager, and sync behavior | Plugin install/update | Procedural authority globally |
 | Installed plugin seed | Canonical bootstrap and repair scaffold | Plugin install/update | Creation input |
-| Local `templates/README.md` | Routes packet creation back to plugin logic | Seed | Creation guide only |
 
 ## Agent Routing
 
@@ -105,9 +102,10 @@ global AGENTS.md managed core block
         └── log.md     optional sparse meaningful transition
 ```
 
-`AGENTS.md` remains the executable routing layer. OKF metadata describes and
-links documents for portable consumers; it does not carry behavioral
-instructions.
+`AGENTS.md` remains the executable routing layer under the separate
+`wirenet-runtime/v0.1` schema. It deliberately has no OKF `type`. OKF metadata
+describes and links knowledge documents for portable consumers; it does not
+carry behavioral instructions.
 
 ## Project Creation
 
@@ -121,11 +119,10 @@ projects/<slug>/
 
 Agents add `GOAL.md`, `RESULT.md`, `WORKLOG.md`, a packet-local `index.md`,
 reserved `log.md`, or other typed concepts only when they make the handoff
-clearer. Every non-reserved concept shares the packet's stable `project_id`;
-reserved files are scoped by directory and have no concept frontmatter. The
-generator adds the packet to both `projects/README.md` and `projects/index.md`,
-then writes the absolute external path only to the device-local binding
-registry.
+clearer. Every concept and the `AGENTS.md` runtime sidecar share the packet's
+stable `project_id`; reserved files are scoped by directory and have no concept frontmatter. The
+generator adds the packet to `projects/index.md`, then writes the absolute
+external path only to the device-local binding registry.
 
 ## Supporting Shelves
 
@@ -142,6 +139,9 @@ registry.
   v0.1 does not copy experiment work into Manager.
 
 These are WireNet policies, not retroactive claims about Jason's intent.
+Their reusable explanations live in the plugin and runtime `AGENTS.md`, not in
+generic shelf README placeholders. A shelf receives `index.md` only after real
+content benefits from progressive disclosure.
 
 ## OKF Overlay
 
@@ -150,20 +150,24 @@ with `index.md` for optional progressive disclosure, `log.md` for optional
 history, YAML `type` metadata on concept documents, and Markdown links for graph
 relationships.
 
-WireNet applies that model as an overlay:
+WireNet makes the Manager the canonical OKF bundle with a transparent runtime
+overlay:
 
-1. Existing human and agent documents remain canonical Markdown.
-2. Concept frontmatter adds stable type, project identity, and producer fields.
-3. Root `index.md` and `projects/index.md` are required by the WireNet profile
+1. Every in-scope non-reserved Markdown file requires non-empty `type`
+   frontmatter; the Doctor rejects untyped drift.
+2. `AGENTS.md`, ignored outputs, plugin implementation, and device-local state
+   remain outside the projection.
+3. Concept frontmatter adds stable type, project identity, and producer fields.
+4. Root `index.md` and `projects/index.md` are required by the WireNet profile
    as stable entry points, although OKF itself makes indexes optional.
-4. Packet-local indexes and all `log.md` files remain optional.
-5. Normal Markdown links create portable relationships.
-6. The viewer projects non-index concepts without editing or replacing them;
-   optional AGENTS routing is derived from filesystem inheritance.
+5. Packet-local indexes and all `log.md` files remain optional reserved
+   supporting documents, not concepts.
+6. Standard Markdown links between concepts create the only graph relationships.
+7. Viewer, future export, and future sync consumers share this one projection.
 
-The portable Project Pack is the intended future synchronization unit. The
-whole Manager is currently an OKF-compatible content tree, not a strict claim
-that every future user-authored Markdown file will automatically be conformant.
+Project Packs are the intended first synchronization units, but the complete
+typed Manager knowledge tree is one OKF bundle. The runtime overlay remains
+local and inspectable without being synchronized as knowledge.
 
 ## Memory Update Strategy
 

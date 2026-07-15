@@ -14,8 +14,7 @@ log.
 1. Resolve the Manager from `WIRENET_MANAGER_DIR`, then `~/Manager`.
 2. If it is missing or unhealthy, use `$wirenet-manager-bootstrap`.
 3. Read root `AGENTS.md`, `index.md`, `README.md`, and `TODO.md`.
-4. Read `projects/README.md` for collection rules and `projects/index.md` for
-   active packets.
+4. Read `projects/index.md` for active packets.
 5. Read only the Project Packs and recurring sources relevant to the request.
 6. If the current task is outside the Manager, use `$wirenet-manager-sync` to
    classify or reconcile that workspace.
@@ -56,13 +55,11 @@ When the user asks to browse, inspect, or open the Manager memory visually:
 3. Open the printed `127.0.0.1` URL in ChatGPT's built-in Browser.
 4. Stop the local server when the viewer is no longer needed.
 
-The viewer is read-only and must render selected source documents completely.
-Human-facing documents are visible by default. Use the agent-instructions toggle
-to add complete `AGENTS.md` documents and their derived nearest-parent routing
-edges. Reading view hides the graph for focused inspection; graph view shows
-real Markdown-link relationships and backlinks. Reserved indexes, templates,
-plugin metadata, skills, scripts, local bindings, and hidden Manager state must
-not appear in the projection.
+The viewer is read-only and renders the canonical OKF projection: typed concepts
+as graph nodes, real Markdown links as edges, and reserved `index.md` and
+`log.md` documents as readable support pages. Reading view hides the graph for
+focused inspection. Runtime `AGENTS.md`, plugin implementation, local bindings,
+ignored outputs, and hidden Manager state must not enter the projection.
 
 ## Reference
 

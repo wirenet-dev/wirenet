@@ -21,6 +21,17 @@ from manager_model import manager_metadata, write_json  # noqa: E402
 
 
 DEFAULT_TEMPLATE = PLUGIN_ROOT / "templates/manager"
+CANONICAL_DIRECTORIES = (
+    "agent",
+    "archive",
+    "docs",
+    "experiments",
+    "notes",
+    "outputs",
+    "people",
+    "projects",
+    "sources",
+)
 
 
 def run(
@@ -51,6 +62,17 @@ def copy_missing(template: Path, destination: Path) -> list[str]:
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
         created.append(relative.as_posix())
+    return created
+
+
+def create_missing_directories(destination: Path) -> list[str]:
+    created: list[str] = []
+    for relative in CANONICAL_DIRECTORIES:
+        target = destination / relative
+        if target.is_dir():
+            continue
+        target.mkdir(parents=True, exist_ok=True)
+        created.append(f"{relative}/")
     return created
 
 
@@ -144,7 +166,8 @@ def main() -> int:
         manager_dir.mkdir(parents=True)
 
     try:
-        created_paths = copy_missing(template_dir, manager_dir)
+        created_paths = create_missing_directories(manager_dir)
+        created_paths.extend(copy_missing(template_dir, manager_dir))
         metadata_path = manager_dir / ".wirenet/manager.json"
         if not metadata_path.exists():
             write_json(metadata_path, manager_metadata())

@@ -1,6 +1,6 @@
 ---
 name: wirenet-manager-bootstrap
-description: Set up, inspect, repair, or explain a local WireNet Manager workspace. Use when someone installs WireNet Manager, bootstraps ~/Manager, checks Manager health, migrates from an earlier Artbeats Seed or vault, connects existing project folders, or installs the global Project Pack trigger.
+description: Set up, inspect, repair, or explain a canonical local WireNet Manager workspace. Use when someone installs WireNet Manager, bootstraps ~/Manager, checks Manager health, connects existing project folders, or installs the global Project Pack trigger.
 ---
 
 # WireNet Manager Bootstrap
@@ -25,9 +25,9 @@ personal Manager.
    experiment, or ignored.
 9. For approved projects, preview then apply the plugin-root
    `scripts/create_project_pack.py`. It creates an open packet with `README.md`
-   and `AGENTS.md`, updates both the Jason-compatible README router and additive
-   OKF index, and stores one stable `project_id`. Add optional goal, result, log,
-   worklog, index, or other concepts only when useful.
+   and `AGENTS.md`, updates the canonical `projects/index.md`, and stores one
+   stable `project_id`. Add optional goal, result, log, worklog, index, or other
+   concepts only when useful.
 10. Preview `scripts/install_global_guidance.py`; ask before applying the core
     managed block to the user's global `AGENTS.md`.
 11. Ask one optional routing question: does the user already have a stable
@@ -52,13 +52,14 @@ personal Manager.
 - Change or remove routing only after explicit approval. Never reorganize a
   user's folders merely because their current system looks inconsistent.
 - Never silently add a Git remote, cloud database, or sync service.
-- For older vaults, propose a disposable reviewed migration before changing the
-  live folder.
+- v0.1 has no compatibility or migration layer. If an existing folder fails the
+  canonical Doctor contract, leave it untouched and bootstrap a fresh target for
+  explicit review instead of translating legacy structure.
 
 ## Resources
 
 - `scripts/bootstrap_manager.py`: dry-run-first seed, local Git initialization,
   repair, and doctor wrapper.
 - `scripts/install_global_guidance.py`: idempotent core and optional routing
-  block installer, including migration from the earlier single block.
+  block installer.
 - `references/manager-model.md`: canonical v0.1 structure and routing model.

@@ -21,8 +21,9 @@ reliable cross-project trigger.
    - `untracked`: ask once whether the folder is a project, experiment, or
      ignored.
 3. For a new project, preview the plugin-root `scripts/create_project_pack.py`.
-   Apply it only after approval. It writes `README.md`, `AGENTS.md`, both
-   collection routes, and a local binding. Add optional concepts only when useful.
+   Apply it only after approval. It writes `README.md`, `AGENTS.md`, the
+   `projects/index.md` entry, and a local binding. Add optional concepts only
+   when useful.
 4. For a tracked project, propose only the smallest durable diff:
    - `README.md` for status, owner, decision, blocker, deadline, source, or next move;
    - `AGENTS.md` for read order, recurring sources, safety, or routing changes.
@@ -40,7 +41,8 @@ reliable cross-project trigger.
    approval so future tasks stay quiet.
 9. For durable context not owned by a Project Pack, follow
    `../wirenet-manager/references/content-routing.md` and route it to the
-   appropriate Manager shelf.
+   appropriate Manager shelf as a typed concept. Create a shelf `index.md` only
+   when real content benefits from progressive disclosure.
 
 ## Update Threshold
 

@@ -10,7 +10,6 @@ from pathlib import Path
 from manager_model import (
     BINDINGS_SCHEMA,
     insert_project_index,
-    insert_project_router,
     iso_timestamp,
     load_bindings,
     load_json,
@@ -83,14 +82,10 @@ def main() -> int:
         return 2
 
     index_path = manager_dir / "projects/index.md"
-    router_path = manager_dir / "projects/README.md"
     stamp = now()
     try:
         updated_index = insert_project_index(
             index_path.read_text(encoding="utf-8"), slug, args.name, args.summary
-        )
-        updated_router = insert_project_router(
-            router_path.read_text(encoding="utf-8"), slug, args.name, args.summary
         )
         bindings = load_bindings(manager_dir)
         manager_metadata = load_json(manager_dir / ".wirenet/manager.json")
@@ -131,7 +126,6 @@ def main() -> int:
         (packet / "log.md").write_text(render_project_log(args.name, stamp), encoding="utf-8")
 
     index_path.write_text(updated_index, encoding="utf-8")
-    router_path.write_text(updated_router, encoding="utf-8")
 
     binding_path = manager_dir / ".wirenet/project-bindings.json"
     bindings["schema_version"] = BINDINGS_SCHEMA
