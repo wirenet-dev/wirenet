@@ -111,8 +111,8 @@ approvals allow:
    folders as projects, experiments, or ignored;
 10. proposes one core Manager check-in, then optional project, people, or daily
     monitor tasks with 09:00 and 16:00 suggested checkpoints;
-11. offers `$write-like-me-bootstrap` when approved sent-message evidence is
-    sufficient;
+11. detects an existing global or approved repo-local `write-like-me` profile
+    before offering migration, refresh, or a fresh approved sent-message scan;
 12. explains shared memory and daily use, offers to rename or pin the Manager
     task, and closes with `You can just talk to your Manager now.`
 

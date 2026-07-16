@@ -129,9 +129,15 @@ healthy, `$wirenet-manager-onboarding` runs the personal first meeting: first
 map, one-question-at-a-time interview, targeted source reads, durable context
 proposals, check-ins, optional monitors, and optional writing-voice setup. Every
 install, connection, source read, durable write, global instruction, task
-change, generated skill, and automation keeps an explicit approval gate. See
+change, generated or migrated skill, and automation keeps an explicit approval
+gate. See
 [`docs/installing-wirenet-manager.md`](docs/installing-wirenet-manager.md) for
 the full flow.
+
+When the current task becomes the long-running Manager home, onboarding uses a
+thin task contract for conversation continuity and the approved check-in. It
+does not duplicate people, projects, priorities, or source maps from
+`~/Manager`, which remains the canonical durable memory.
 
 ## v0.2 Boundary
 
@@ -164,10 +170,17 @@ external project folders           ◀──────▶    └── ignored
   checks, repair, QMD, project discovery helpers, and managed global guidance.
 - `$wirenet-manager-onboarding`: Jason-inspired first meeting, work map,
   interview, targeted source orientation, continuity offers, and handoff.
-- `$wirenet-manager-sync`: classify external workspaces and reconcile meaningful
-  Project or Experiment Pack changes.
+- `$wirenet-manager-project`: explicit creation, classification, binding,
+  promotion, and lifecycle transitions for Project and Experiment Packs.
+- `$wirenet-manager-person`: supporting skill for evidence-backed person
+  concepts and durable human handoffs without raw communication archives.
+- `$wirenet-manager-sync`: focused reconciliation from an existing external
+  workspace into its tracked Project or Experiment Pack.
+- `$loop`: general-purpose recurring checks, retries, and monitors attached to
+  the current task, with an explicit completion condition and clean shutdown.
 - `$write-like-me-bootstrap`: optional personal writing-style skill generation
-  from approved user-authored sent messages.
+  from approved user-authored sent messages or migration of an existing
+  repo-local profile to the global skill location.
 - `$ultragoal`: explicit-only persistent goal execution. It is installed with
   the plugin but cannot be selected implicitly.
 
@@ -343,7 +356,8 @@ python3 scripts/compare_routing_contracts.py
 
 ## Release Status
 
-Plugin `0.2.5` is the current implementation of the v0.2 lifecycle architecture,
+Plugin `0.2.6` is the current implementation of the v0.2 lifecycle architecture,
 its explicit workspace-upgrade path, optional QMD retrieval setup, Jason-inspired
-personal onboarding, and optional personal writing-voice bootstrap.
+personal onboarding, explicit project and person workflows, recurring task
+loops, and optional global personal writing-voice bootstrap or migration.
 The repository's `main` branch is the canonical installation source.

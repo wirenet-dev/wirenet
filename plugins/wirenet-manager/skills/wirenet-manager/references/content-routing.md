@@ -4,15 +4,19 @@ last_edited: 2026-07-15
 
 # Manager Content Routing
 
-This is the shared content contract for `$wirenet-manager` and
-`$wirenet-manager-sync`. It helps the agent maintain the Manager without
-requiring the user to understand its folders.
+This is the shared content contract for the WireNet Manager core skills. It
+helps the agent maintain the Manager without requiring the user to understand
+its folders.
 
 ## Skill Ownership
 
 - `$wirenet-manager` uses this contract for orientation and writes made inside
   the Manager.
-- `$wirenet-manager-sync` uses it for durable handoffs from external workspaces.
+- `$wirenet-manager-project` uses it for Project and Experiment classification,
+  creation, bindings, and lifecycle.
+- `$wirenet-manager-person` uses it for canonical collaborator context.
+- `$wirenet-manager-sync` uses it for durable handoffs from already tracked
+  external workspaces.
 - `$wirenet-manager-bootstrap` materializes the matching shelves and installs the
   minimal managed global `AGENTS.md` trigger after approval.
 

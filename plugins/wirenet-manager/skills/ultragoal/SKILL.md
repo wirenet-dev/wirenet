@@ -24,8 +24,9 @@ unless the user explicitly requests one.
 1. Resolve the current WireNet Manager through `WIRENET_MANAGER_DIR`, then
    `~/Manager`.
 2. If the current workspace is outside Manager, use
-   `$wirenet-manager-sync` to resolve its Project Pack. If it is untracked, do
-   not activate until the user classifies it.
+   `$wirenet-manager-sync` to resolve an existing Project Pack. If it is
+   untracked, use `$wirenet-manager-project` to classify it and do not activate
+   until the user approves that classification.
 3. If the task is already inside a Project Pack, use that packet.
 4. If no Manager or Project Pack applies, follow the nearest repository
    conventions without creating a Manager binding implicitly.
@@ -85,4 +86,5 @@ When activation was explicitly requested:
   when no meaningful progress remains.
 - On completion, distill the durable outcome into `RESULT.md` and reconcile the
   Project Pack through `$wirenet-manager-sync` when future work would otherwise
-  resume incorrectly.
+  resume incorrectly. Route the final lifecycle transition through
+  `$wirenet-manager-project`.

@@ -27,4 +27,13 @@ analysis. When the user corrects the voice, update the profile after approval.
 ```
 
 Create matching `agents/openai.yaml` metadata with a short, drafting-oriented
-description and default prompt.
+description and default prompt. Keep implicit invocation explicit:
+
+```yaml
+interface:
+  display_name: "Write Like Me"
+  short_description: "Draft in my personal writing voice"
+  default_prompt: "Use $write-like-me to draft this message in my voice."
+policy:
+  allow_implicit_invocation: true
+```

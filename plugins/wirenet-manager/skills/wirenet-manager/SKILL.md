@@ -1,6 +1,6 @@
 ---
 name: wirenet-manager
-description: Run the user's ongoing WireNet Manager workspace. Use when the user opens or invokes WireNet Manager, asks what is currently on their plate, wants project and signal awareness, needs a concise current stack, asks to create, start, or track a new project or experiment, asks the Manager to keep durable work context organized, or resumes a long-running Manager task.
+description: Run and orchestrate the user's ongoing WireNet Manager workspace. Use when the user opens or invokes WireNet Manager, asks what is currently on their plate or what they should know, wants proactive work awareness, asks to keep an eye on work, needs follow-up or check-in help, needs a concise current stack, asks the Manager to organize durable work context, or resumes a long-running Manager task. Delegate explicit project lifecycle work to wirenet-manager-project, person memory to wirenet-manager-person, and external workspace handoffs to wirenet-manager-sync.
 ---
 
 # WireNet Manager
@@ -21,8 +21,10 @@ log.
    bounded spike.
 6. Read only the Project Packs, Experiment Packs, and recurring sources relevant
    to the request.
-7. If the current task is outside the Manager, use `$wirenet-manager-sync` to
-   classify or reconcile that workspace.
+7. Delegate explicit project or experiment lifecycle work to
+   `$wirenet-manager-project`, person context to `$wirenet-manager-person`, and
+   meaningful handoffs from an external tracked workspace to
+   `$wirenet-manager-sync`.
 
 ## Retrieve With QMD
 
@@ -48,6 +50,8 @@ as an explicit maintenance action.
 ## Day-To-Day Behavior
 
 - Preserve the user's stated order instead of flattening everything by project.
+- Treat “what should I know?”, “keep an eye on this”, dropped-ball, follow-up,
+  and check-in requests as normal Manager work rather than setup requests.
 - Surface a compact current stack when requested or configured by a recurring
   Manager task.
 - Connect new messages, meetings, files, or repository signals directly to the
@@ -57,9 +61,10 @@ as an explicit maintenance action.
 - Allow knowledge-first projects to remain Manager-native. Require an external
   workspace only when code, media, large data, deliverables, or a separate
   toolchain need their own working tree.
-- When the user asks to create, start, or track new work, follow the
-  `$wirenet-manager-sync` creation workflow to classify it as a project,
-  bounded experiment, or ignored work and use the matching packet generator.
+- When the user asks to create, start, classify, connect, promote, complete, or
+  archive work, use `$wirenet-manager-project`.
+- When the user asks to remember or update a recurring collaborator, use
+  `$wirenet-manager-person`.
 - Route non-project durable context through `references/content-routing.md`
   without asking the user to choose a folder unless the destination is genuinely
   ambiguous or consequential.

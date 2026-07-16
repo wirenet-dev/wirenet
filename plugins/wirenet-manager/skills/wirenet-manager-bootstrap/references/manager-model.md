@@ -82,8 +82,11 @@ and creates a linked Project Pack.
 ## Trigger Layers
 
 1. Global instruction checks for meaningful durable state before a task ends.
-2. `$wirenet-manager-sync` classifies the workspace and proposes a focused diff.
-3. A long-running Manager task reconciles TODOs, packets, and signals.
+2. `$wirenet-manager-project` classifies an untracked workspace once.
+3. `$wirenet-manager-sync` reconciles an already tracked workspace with the
+   smallest durable diff.
+4. A long-running `$wirenet-manager` task reconciles TODOs, packets, people,
+   and signals.
 
 There is no hidden filesystem watcher in v0.2.
 

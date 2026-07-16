@@ -1,6 +1,6 @@
 {
   "name": "wirenet-manager",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Set up and run local work memory with personal onboarding, Project Packs, bounded experiments, and explicit persistent goals.",
   "author": {
     "name": "WireNet",
@@ -13,7 +13,7 @@
   "interface": {
     "displayName": "WireNet Manager",
     "shortDescription": "Local work memory and Project Pack routing",
-    "longDescription": "Bootstrap a content-only local Manager, run a personal first meeting, maintain Manager-native or externally bound Project Packs, learn an optional personal writing voice, run bounded Experiment Packs, and explicitly activate persistent UltraGoals without implicit triggering.",
+    "longDescription": "Bootstrap a content-only local Manager, run a personal first meeting, maintain Manager-native or externally bound Project Packs, learn an optional personal writing voice, run quiet recurring task loops, and explicitly activate persistent UltraGoals without implicit triggering.",
     "developerName": "WireNet",
     "category": "Productivity",
     "websiteURL": "https://wirenet.dev",
@@ -26,10 +26,13 @@
       "Bootstrap a local Manager",
       "Upgrade existing Manager workspaces safely",
       "Run a personal first Manager meeting",
+      "Manage Project and Experiment Pack lifecycles",
+      "Support evidence-backed people context",
       "Learn an optional personal writing voice",
       "Route external workspaces",
       "Maintain reviewable Project Packs",
       "Run bounded experiments",
+      "Run recurring task loops",
       "Activate persistent goals explicitly",
       "Inspect local OKF memory",
       "Search Manager knowledge with optional QMD retrieval"
@@ -39,7 +42,9 @@
       "Use $wirenet-manager to open my Manager viewer.",
       "Use $wirenet-manager-bootstrap to set up my local Manager.",
       "Use $wirenet-manager-onboarding to start my personal first Manager meeting.",
+      "Use $wirenet-manager-project to create or manage a project or experiment.",
       "Use $wirenet-manager-bootstrap to check and upgrade my existing Manager.",
+      "Use $loop to keep checking this task until its stop condition is met.",
       "Use $write-like-me-bootstrap to learn my writing voice from approved sent messages.",
       "Use $ultragoal to explicitly activate a persistent goal."
     ]

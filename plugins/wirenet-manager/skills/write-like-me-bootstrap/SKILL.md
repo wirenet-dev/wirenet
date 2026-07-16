@@ -1,6 +1,6 @@
 ---
 name: write-like-me-bootstrap
-description: Create or refresh a global personal write-like-me skill from the user's approved authored email and Slack writing. Use during WireNet Manager onboarding after source access is approved, or when the user asks the Manager to learn their voice, infer writing postures, analyze sent messages, or generate a reusable personal drafting skill.
+description: Create, migrate, or refresh a global personal write-like-me skill from an existing profile or the user's approved authored email and Slack writing. Use during WireNet Manager onboarding after source access is approved, when a repo-local writing profile should become globally available, or when the user asks the Manager to learn their voice, infer writing postures, analyze sent messages, or generate a reusable personal drafting skill.
 ---
 
 # Write Like Me Bootstrap
@@ -25,6 +25,20 @@ Use:
 Read `references/generated-skill-template.md` and
 `references/style-profile-template.md` before drafting the files.
 
+## Existing Skill First
+
+1. Check `~/.agents/skills/write-like-me/` before proposing generation.
+2. Inspect only the current workspace and other user-approved project roots for
+   existing `.agents/skills/write-like-me/` or legacy
+   `.codex/skills/write-like-me/` profiles. Never scan the whole home directory.
+3. If a global skill exists, validate it and offer a focused refresh only when
+   new evidence or user corrections justify one.
+4. If only a repo-local profile exists, offer to migrate it to the global path.
+   Preserve its grounded style profile and synthetic examples, normalize its
+   `SKILL.md` to current official frontmatter, and preview the destination diff.
+5. Never overwrite or silently merge an existing global profile. Ask which
+   version should remain canonical when two profiles differ materially.
+
 ## Source Scan
 
 Use only source scopes the user explicitly approved for this purpose. Prefer:
@@ -39,16 +53,18 @@ offer to retry later.
 
 ## Workflow
 
-1. Identify user-authored messages and separate them by channel and intent.
-2. Cluster writing into postures such as quick reply, pushback, delegation,
+1. Resolve whether this is a reuse, migration, refresh, or fresh source scan.
+2. For a fresh scan or evidence-backed refresh, identify user-authored messages
+   and separate them by channel and intent.
+3. Cluster writing into postures such as quick reply, pushback, delegation,
    status update, email reply, intro, scheduling, and repair.
-3. Infer pacing, directness, warmth, humor, formality, asks, tradeoffs,
+4. Infer pacing, directness, warmth, humor, formality, asks, tradeoffs,
    disagreement, urgency, recurring moves, and things the user avoids.
-4. Preserve differences between channels and audiences.
-5. Draft the generated skill and style profile using synthetic examples only.
-6. Show a concise posture preview and the exact destination.
-7. Ask before creating or updating the global personal skill.
-8. After approval, write the files and validate the generated skill with the
+5. Preserve differences between channels and audiences.
+6. Draft the generated skill and style profile using synthetic examples only.
+7. Show a concise posture preview and the exact destination.
+8. Ask before creating or updating the global personal skill.
+9. After approval, write the files and validate the generated skill with the
    official skill validator when available.
 
 ## Privacy And Safety
@@ -59,5 +75,7 @@ offer to retry later.
   March–June 2026`.
 - Treat source reading and writing the generated skill as separate approvals.
 - Preview changes before replacing an existing personal style profile.
+- Keep only current official `SKILL.md` frontmatter fields; do not carry legacy
+  `last_edited` metadata into a migrated skill.
 - Do not install or enable the generated skill without approval when the runtime
   treats that as a separate action.

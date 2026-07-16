@@ -67,12 +67,12 @@ External task ends
                   ▼
         $wirenet-manager-sync
                   │
-         classify local path
-          ┌───────┼───────────┬───────────┐
-          ▼       ▼           ▼           ▼
-       tracked  new pack  experiment    ignored
-          │       │           │           │
-          │   create pack  reconcile    stay quiet
+          inspect local binding
+          ┌───────┼───────────┐
+          ▼       ▼           ▼
+       tracked experiment  untracked
+          │       │           │
+          │   reconcile        └──▶ $wirenet-manager-project
           ▼
    propose smallest diff
           │
@@ -86,7 +86,7 @@ External task ends
 ### Marketplace And Manifest
 
 - `.agents/plugins/marketplace.json` exposes the local plugin package.
-- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.2.5,
+- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.2.6,
   bundled skills, interface copy, and starter prompts.
 
 ### Skills
@@ -95,11 +95,20 @@ External task ends
 - `skills/wirenet-manager-bootstrap/`: technical seed, repair, QMD, discovery
   helpers, and global rules.
 - `skills/wirenet-manager-onboarding/`: first map, interview, approved source
-  orientation, continuity setup, and personal handoff.
-- `skills/wirenet-manager-sync/`: cross-workspace classification and durable
-  reconciliation.
+  orientation, thin long-running Manager-task setup, continuity, and personal
+  handoff. The task remains a conversational shell; `~/Manager` remains the
+  canonical durable state.
+- `skills/wirenet-manager-project/`: explicit Project and Experiment Pack
+  creation, classification, binding, promotion, and lifecycle transitions.
+- `skills/wirenet-manager-person/`: evidence-backed person concept creation and
+  maintenance.
+- `skills/wirenet-manager-sync/`: cross-workspace durable reconciliation for
+  an existing tracked packet.
+- `skills/loop/`: general-purpose task-attached recurring checks with explicit
+  completion and cleanup behavior.
 - `skills/write-like-me-bootstrap/`: optional generation of a global personal
-  writing behavior skill from approved authored messages.
+  writing behavior skill from approved authored messages, or migration of an
+  existing repo-local profile.
 - `skills/ultragoal/`: explicitly invoked persistent goal execution. Its
   `agents/openai.yaml` disables implicit invocation.
 
@@ -112,6 +121,7 @@ does not enter the Manager OKF bundle and is not copied into `~/Manager`.
 ### Deterministic Scripts
 
 - `scripts/manager_model.py`: schemas, IDs, JSON helpers, and packet renderers.
+- `scripts/create_person_note.py`: dry-run-first typed person concept generator.
 - `scripts/manager_doctor.py`: read-only Manager, Project Pack, Experiment Pack,
   binding, and lifecycle validation.
 - `scripts/manager_qmd.py`: dry-run-first QMD health, approved installation,

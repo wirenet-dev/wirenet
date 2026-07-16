@@ -242,11 +242,19 @@ def test_contract_delta_exposes_wirenet_additions_and_changed_roles() -> None:
     assert "technical-bootstrap" in routes
     assert "personal-onboarding" in routes
     assert "writing-voice-bootstrap" in routes
+    assert "recurring-loop" in routes
     assert "onboarding" not in routes
 
     entities = by_id(load(WIRENET)["entities"])
     assert entities["personal-writing-skill"]["path"] == (
         "~/.agents/skills/write-like-me/"
+    )
+    assert "create_person_note.py" in " ".join(entities["person-note"]["evidence"])
+    assert "relationship context" in str(entities["person-note"]["description"])
+    assert "wirenet-manager-project" in " ".join(routes["project-create"]["evidence"])
+    assert "wirenet-manager-person" in " ".join(routes["person-create"]["evidence"])
+    assert "delegate untracked classification" in str(
+        routes["cross-workspace-sync"]["approval"]
     )
 
     added_routes = set(report["routes"]["added"])
@@ -255,6 +263,7 @@ def test_contract_delta_exposes_wirenet_additions_and_changed_roles() -> None:
         "experiment-create",
         "experiment-promote",
         "packet-lifecycle-transition",
+        "recurring-loop",
         "ultragoal-activation",
         "workspace-upgrade",
         "okf-navigation",
@@ -294,6 +303,11 @@ def test_routing_contract_separates_read_only_and_approval_gated_routes() -> Non
     assert "explicit" in str(routes["workspace-upgrade"]["approval"])
     assert "clean local Git" in str(routes["workspace-upgrade"]["approval"])
     assert "preview" in str(routes["cross-workspace-sync"]["approval"])
+    assert "explicit loop request" in str(routes["recurring-loop"]["approval"])
+    assert routes["recurring-loop"]["writes"] == [
+        "one current-task heartbeat automation",
+        "optional loop or done task title",
+    ]
     assert routes["viewer-projection"]["writes"] == [
         "temporary single-file HTML projection"
     ]

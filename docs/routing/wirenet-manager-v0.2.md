@@ -74,7 +74,7 @@ content seed.
 | Optional Experiment `RESULT.md` | Conclusion and decision evidence | Agent when useful | Purpose-specific content |
 | `.wirenet/workspace-bindings.json` | Project and experiment IDs, paths, and ignored routes | Bootstrap and routing helpers | Device-local path resolution only |
 | Global managed core block | Cross-workspace reconciliation trigger | Optional bootstrap step after approval | Yes, outside Manager |
-| Installed plugin skills | Technical bootstrap, personal onboarding, ongoing Manager, sync, optional writing-voice bootstrap, and explicit-only UltraGoal behavior | Plugin install/update | Procedural authority globally |
+| Installed plugin skills | Technical bootstrap, personal onboarding, ongoing orchestration, Project and Experiment lifecycle, supporting person context, external-workspace reconciliation, recurring task loops, optional writing-voice bootstrap or migration, and explicit-only UltraGoal behavior | Plugin install/update | Procedural authority globally |
 | Generated personal writing skill | User-specific drafting behavior outside Manager knowledge | Explicit write-like-me bootstrap | Personal procedural authority globally |
 | Installed plugin seed | Canonical bootstrap and repair scaffold | Plugin install/update | Creation input |
 | Installed workspace updater | Version negotiation and supported structural migrations | Plugin install/update | Migration authority only after dry-run and approval |
@@ -99,9 +99,9 @@ global AGENTS.md managed core block
         ▼           ▼            ▼            ▼
      tracked     untracked   experiment    ignored
         │           │            │            │
-        │       ask once      reconcile    stay quiet
+        │       delegate      reconcile    stay quiet
         ▼
- packet AGENTS.md determines read order and destinations
+packet AGENTS.md determines read order and destinations
         │
         ├── README.md  current state and next move
         ├── AGENTS.md  local routing and safety
@@ -109,10 +109,23 @@ global AGENTS.md managed core block
         └── log.md     optional sparse meaningful transition
 ```
 
+Untracked classification and all packet lifecycle changes route through
+`$wirenet-manager-project`; canonical collaborator context routes through
+`$wirenet-manager-person`. Sync remains the narrow external-workspace handoff.
+
 `AGENTS.md` remains the executable routing layer under the separate
 `wirenet-runtime/v0.1` schema. It deliberately has no OKF `type`. OKF metadata
 describes and links knowledge documents for portable consumers; it does not
 carry behavioral instructions.
+
+## Recurring Task Loops
+
+`$loop` is a general plugin utility rather than Manager memory. An explicit
+request creates or updates one heartbeat on the current task, preserves the
+task's existing action boundaries, stays quiet when nothing useful changed,
+and removes itself after a verified completion condition. Broad portfolio
+awareness remains the Manager check-in; persistent goal execution remains
+UltraGoal.
 
 ## Project Creation
 

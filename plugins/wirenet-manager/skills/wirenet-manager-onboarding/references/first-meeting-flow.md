@@ -31,6 +31,11 @@ Decide quietly whether onboarding is brand new, partial, or established. Check:
 - existing Manager tasks, check-ins, or monitor tasks when visible;
 - an existing global or personal `write-like-me` skill.
 
+Check the global `~/.agents/skills/write-like-me/` location first. Inspect
+repo-local `.agents/skills/write-like-me/` or legacy
+`.codex/skills/write-like-me/` only in the current workspace or another project
+root the user approved; never scan the whole home directory for personal skills.
+
 If the Manager is missing or unhealthy, hand back to
 `$wirenet-manager-bootstrap`. Do not mix repair conversation into the first
 meeting.
@@ -163,15 +168,16 @@ not create, rename, pin, or automate a task without approval.
 
 ## 8. Write Like Me
 
-When approved Slack or email scans contain enough user-authored sent writing,
-offer:
+If an existing repo-local profile is found, offer to migrate and validate it at
+the global location without overwriting another global profile. Otherwise, when
+approved Slack or email scans contain enough user-authored sent writing, offer:
 
 ```text
 I can also bootstrap a write-like-me skill from your sent email and Slack messages, split by posture like quick replies, pushback, delegation, intros, and status updates. Want me to do that?
 ```
 
-If accepted, use `$write-like-me-bootstrap`. Its source read and its generated
-global personal skill write remain separate approval gates.
+If accepted, use `$write-like-me-bootstrap`. Migration, source reads, profile
+refreshes, and global personal skill writes remain explicit approval gates.
 
 ## 9. Shared Memory And Daily Use
 
@@ -187,7 +193,10 @@ Give four adapted examples:
 - `Update the Manager with this handoff.`
 
 Offer to rename or pin the current task as the Manager home. Each change needs
-explicit approval.
+explicit approval. If durable task instructions are useful, use the thin
+`references/manager-task-template.md` contract: keep conversation continuity and
+the check-in in the task while `~/Manager` remains the only canonical durable
+work memory.
 
 ## 10. Close
 

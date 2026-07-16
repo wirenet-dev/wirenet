@@ -41,11 +41,10 @@ Do not create empty optional documents.
 
 ## Workspace Classification
 
-- `project`: create a packet after approval and bind its `project_id` to the
-  local path.
-- `experiment`: create a lightweight Experiment Pack, bind its local path, and
-  promote it if the work becomes a durable project.
-- `ignored`: store the local route and do not ask again.
+- `$wirenet-manager-project` classifies an untracked workspace as `project`,
+  `experiment`, or `ignored`, then uses the deterministic helper after approval.
+- `$wirenet-manager-sync` consumes that established classification; it does not
+  create, promote, archive, or reactivate packets.
 
 Bindings and routes are device-local. They belong in
 `.wirenet/workspace-bindings.json`, not portable packet frontmatter.
@@ -55,8 +54,9 @@ Bindings and routes are device-local. They belong in
 - Project transitions are `active`, `waiting`, `blocked`, `completed`, and
   `archived`.
 - Experiment transitions are `active`, `concluded`, `promoted`, and `archived`.
-- Use deterministic transition and promotion helpers after the agent has judged
-  the semantic transition ready.
+- Route transitions and promotions through `$wirenet-manager-project`, which
+  uses deterministic helpers after the agent has judged the semantic transition
+  ready.
 - Never archive merely because work is blocked or waiting.
 
 For non-project durable context, follow the shared content-routing contract in

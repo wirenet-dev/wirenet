@@ -119,7 +119,7 @@
       "audience": "agent",
       "description": "Defines the open packet core, shared project identity, additive indexes, optional extensions, portability, and log thresholds.",
       "produced_by": ["Manager seed", "repair only when missing", "approved collection-routing changes"],
-      "consumed_by": ["Codex instruction inheritance", "create-project-pack helper", "wirenet-manager-sync"],
+      "consumed_by": ["Codex instruction inheritance", "create-project-pack helper", "wirenet-manager-project", "wirenet-manager-sync"],
       "evidence": ["plugins/wirenet-manager/templates/manager/projects/AGENTS.md"]
     },
     {
@@ -130,9 +130,9 @@
       "authority": "project-state",
       "audience": "human-and-agent",
       "description": "Current operational handoff: purpose, status, next move, owners, decisions, blockers, and canonical sources.",
-      "produced_by": ["create-project-pack helper", "wirenet-manager-sync after approval"],
-      "consumed_by": ["project AGENTS.md", "wirenet-manager-sync", "human viewer", "future tasks"],
-      "evidence": ["plugins/wirenet-manager/scripts/manager_model.py", "plugins/wirenet-manager/skills/wirenet-manager-sync/SKILL.md"]
+      "produced_by": ["create-project-pack helper", "wirenet-manager-project after approval", "wirenet-manager-sync after approval"],
+      "consumed_by": ["project AGENTS.md", "wirenet-manager-project", "wirenet-manager-sync", "human viewer", "future tasks"],
+      "evidence": ["plugins/wirenet-manager/scripts/manager_model.py", "plugins/wirenet-manager/skills/wirenet-manager-project/SKILL.md", "plugins/wirenet-manager/skills/wirenet-manager-sync/SKILL.md"]
     },
     {
       "id": "project-agent-instructions",
@@ -143,7 +143,7 @@
       "audience": "agent",
       "description": "Project read order, recurring source routes, safety gates, and per-file update thresholds.",
       "produced_by": ["create-project-pack helper", "approved routing changes"],
-      "consumed_by": ["Codex instruction inheritance", "wirenet-manager-sync"],
+      "consumed_by": ["Codex instruction inheritance", "wirenet-manager-project", "wirenet-manager-sync"],
       "evidence": ["plugins/wirenet-manager/scripts/manager_model.py", "plugins/wirenet-manager/templates/manager/projects/AGENTS.md"]
     },
     {
@@ -155,7 +155,7 @@
       "audience": "human-and-agent",
       "description": "Stable outcome contract, baseline, completion criteria, constraints, non-goals, and approval gates.",
       "produced_by": ["create-project-pack helper", "wirenet-manager-sync after approval"],
-      "consumed_by": ["project AGENTS.md", "wirenet-manager-sync", "human viewer", "future tasks"],
+      "consumed_by": ["project AGENTS.md", "wirenet-manager-project", "wirenet-manager-sync", "human viewer", "future tasks"],
       "evidence": ["plugins/wirenet-manager/scripts/manager_model.py", "docs/project-pack-contract.md"]
     },
     {
@@ -167,7 +167,7 @@
       "audience": "human-and-agent",
       "description": "Completed outcomes and verification evidence without duplicating active status.",
       "produced_by": ["create-project-pack helper", "wirenet-manager-sync after approval"],
-      "consumed_by": ["project AGENTS.md", "wirenet-manager-sync", "human viewer", "future tasks"],
+      "consumed_by": ["project AGENTS.md", "wirenet-manager-project", "wirenet-manager-sync", "human viewer", "future tasks"],
       "evidence": ["plugins/wirenet-manager/scripts/manager_model.py", "docs/project-pack-contract.md"]
     },
     {
@@ -210,13 +210,13 @@
       "id": "person-note",
       "path": "people/<person>.md",
       "kind": "concept",
-      "presence": "optional-user-content",
+      "presence": "optional-generated-or-agent-created",
       "authority": "relationship-context",
       "audience": "human-and-agent",
-      "description": "Canonical evidence-backed collaborator context when useful.",
-      "produced_by": ["approved Manager update"],
-      "consumed_by": ["Manager", "project packets", "human viewer"],
-      "evidence": ["plugins/wirenet-manager/templates/manager/AGENTS.md", "plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md"]
+      "description": "Canonical evidence-backed work relationship context: role, responsibilities, confirmed preferences, handoffs, and links to relevant projects.",
+      "produced_by": ["create-person-note helper", "wirenet-manager-person after approval"],
+      "consumed_by": ["wirenet-manager", "wirenet-manager-person", "relevant Project Packs", "human viewer", "future tasks"],
+      "evidence": ["plugins/wirenet-manager/scripts/create_person_note.py", "plugins/wirenet-manager/skills/wirenet-manager-person/SKILL.md"]
     },
     {
       "id": "notes-collection",
@@ -354,13 +354,13 @@
       "id": "personal-writing-skill",
       "path": "~/.agents/skills/write-like-me/",
       "kind": "capability",
-      "presence": "optional-generated",
+      "presence": "optional-generated-or-migrated",
       "authority": "personal-writing-procedure",
       "audience": "agent",
-      "description": "User-specific writing behavior generated from approved authored-message evidence. It remains outside Manager knowledge and contains no raw source messages.",
-      "produced_by": ["write-like-me-bootstrap after explicit approval"],
+      "description": "Current globally discoverable user-specific writing behavior generated from approved authored-message evidence or migrated from a grounded repo-local profile. It remains outside Manager knowledge and contains no raw source messages.",
+      "produced_by": ["write-like-me-bootstrap generation, migration, or refresh after explicit approval"],
       "consumed_by": ["Codex global skill discovery"],
-      "evidence": ["plugins/wirenet-manager/skills/write-like-me-bootstrap/SKILL.md"]
+      "evidence": ["plugins/wirenet-manager/skills/write-like-me-bootstrap/SKILL.md", "plugins/wirenet-manager/skills/write-like-me-bootstrap/references/generated-skill-template.md"]
     },
     {
       "id": "template-shelf",
@@ -449,7 +449,7 @@
       "writes": ["README.md", "AGENTS.md", "projects/index.md entry", "optional local binding", "requested optional concepts"],
       "approval": "dry-run preview then explicit apply approval",
       "description": "Create the portable open packet core; bind external implementation work when present, while Manager-native work needs no device binding.",
-      "evidence": ["plugins/wirenet-manager/scripts/create_project_pack.py", "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/SKILL.md"]
+      "evidence": ["plugins/wirenet-manager/scripts/create_project_pack.py", "plugins/wirenet-manager/skills/wirenet-manager-project/SKILL.md"]
     },
     {
       "id": "person-create",
@@ -458,7 +458,7 @@
       "writes": ["people/<person>.md"],
       "approval": "explicit approval for durable inferred memory",
       "description": "Create or update a single canonical evidence-backed note.",
-      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md", "plugins/wirenet-manager/templates/manager/AGENTS.md"]
+      "evidence": ["plugins/wirenet-manager/scripts/create_person_note.py", "plugins/wirenet-manager/skills/wirenet-manager-person/SKILL.md"]
     },
     {
       "id": "experiment-create",
@@ -467,7 +467,7 @@
       "writes": ["Experiment Pack README.md", "Experiment Pack AGENTS.md", "experiments/index.md", "optional local binding", "optional RESULT.md"],
       "approval": "dry-run preview then explicit apply approval",
       "description": "Create a lightweight Experiment Pack that can be concluded, archived, or promoted without prematurely creating a Project Pack.",
-      "evidence": ["plugins/wirenet-manager/scripts/create_experiment_pack.py", "plugins/wirenet-manager/contracts/lifecycle-v0.2.json"]
+      "evidence": ["plugins/wirenet-manager/scripts/create_experiment_pack.py", "plugins/wirenet-manager/skills/wirenet-manager-project/SKILL.md", "plugins/wirenet-manager/contracts/lifecycle-v0.2.json"]
     },
     {
       "id": "experiment-promote",
@@ -476,7 +476,7 @@
       "writes": ["linked Project Pack", "promoted Experiment Pack status", "transferred workspace bindings", "project and experiment indexes"],
       "approval": "dry-run preview then explicit apply approval",
       "description": "Preserve the experiment as origin evidence, create a durable Project Pack, and transfer any device-local workspace route.",
-      "evidence": ["plugins/wirenet-manager/scripts/promote_experiment.py", "plugins/wirenet-manager/contracts/lifecycle-v0.2.json"]
+      "evidence": ["plugins/wirenet-manager/scripts/promote_experiment.py", "plugins/wirenet-manager/skills/wirenet-manager-project/SKILL.md", "plugins/wirenet-manager/contracts/lifecycle-v0.2.json"]
     },
     {
       "id": "packet-lifecycle-transition",
@@ -485,7 +485,16 @@
       "writes": ["validated status", "updated collection index"],
       "approval": "dry-run preview then explicit apply approval",
       "description": "Apply only an allowed Project or Experiment transition; semantic archive and promotion criteria remain agent-judged and reviewable.",
-      "evidence": ["plugins/wirenet-manager/scripts/transition_packet.py", "plugins/wirenet-manager/contracts/lifecycle-v0.2.json"]
+      "evidence": ["plugins/wirenet-manager/scripts/transition_packet.py", "plugins/wirenet-manager/skills/wirenet-manager-project/SKILL.md", "plugins/wirenet-manager/contracts/lifecycle-v0.2.json"]
+    },
+    {
+      "id": "recurring-loop",
+      "trigger": "The user explicitly invokes $loop or asks the current task to check, retry, follow up, monitor, or resume on a recurring cadence.",
+      "reads": ["current task context", "existing matching automation when present", "only the sources already approved for the task"],
+      "writes": ["one current-task heartbeat automation", "optional loop or done task title"],
+      "approval": "the explicit loop request authorizes creation; ask only when cadence or completion is materially ambiguous",
+      "description": "Translate a plain-language recurring request into one quiet task-attached heartbeat, preserve action boundaries, update rather than duplicate it, and delete it after verified completion.",
+      "evidence": ["plugins/wirenet-manager/skills/loop/SKILL.md", "plugins/wirenet-manager/skills/loop/agents/openai.yaml"]
     },
     {
       "id": "ultragoal-activation",
@@ -509,19 +518,19 @@
       "id": "personal-onboarding",
       "trigger": "A healthy Manager is brand new or its personal first meeting is incomplete.",
       "reads": ["current task context", "local Manager context", "installed source capability state", "explicitly approved connected-source scopes", "approved project roots"],
-      "writes": ["approved Manager concepts", "approved Project or Experiment Packs", "optional communication-and-files concept", "optional global managed blocks", "approved tasks and check-ins"],
+      "writes": ["approved Manager concepts", "approved Project or Experiment Packs", "optional communication-and-files concept", "optional global managed blocks", "approved thin Manager task instructions", "approved tasks and check-ins"],
       "approval": "separate approval for connection, source read, durable write, global instruction, task change, and automation",
       "description": "Mirror Jason Liu's first-meeting sequence: greet, show a grounded map, interview one question at a time, perform targeted rereads, propose continuity, and close with a clear handoff.",
-      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager-onboarding/SKILL.md", "plugins/wirenet-manager/skills/wirenet-manager-onboarding/references/first-meeting-flow.md"]
+      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager-onboarding/SKILL.md", "plugins/wirenet-manager/skills/wirenet-manager-onboarding/references/first-meeting-flow.md", "plugins/wirenet-manager/skills/wirenet-manager-onboarding/references/manager-task-template.md"]
     },
     {
       "id": "writing-voice-bootstrap",
-      "trigger": "The user approves learning their writing voice from authored sent messages.",
-      "reads": ["explicitly approved user-authored sent email or Slack scope"],
+      "trigger": "The user approves learning their writing voice or migrating an existing repo-local write-like-me profile.",
+      "reads": ["existing global profile", "repo-local profile only in current or approved project roots", "explicitly approved user-authored sent email or Slack scope when generation or refresh needs it"],
       "writes": ["previewed global personal write-like-me skill"],
-      "approval": "separate source-read and generated-skill-write approvals",
-      "description": "Infer channel-specific writing postures without preserving raw private messages in durable behavior files.",
-      "evidence": ["plugins/wirenet-manager/skills/write-like-me-bootstrap/SKILL.md", "plugins/wirenet-manager/skills/write-like-me-bootstrap/references/style-profile-template.md"]
+      "approval": "separate profile migration, source-read, refresh, and generated-skill-write approvals; never overwrite an existing global profile",
+      "description": "Reuse grounded style evidence when available or infer channel-specific postures without preserving raw private messages; install current valid globally discoverable behavior with explicit implicit-invocation metadata.",
+      "evidence": ["plugins/wirenet-manager/skills/write-like-me-bootstrap/SKILL.md", "plugins/wirenet-manager/skills/write-like-me-bootstrap/references/generated-skill-template.md", "plugins/wirenet-manager/skills/write-like-me-bootstrap/references/style-profile-template.md"]
     },
     {
       "id": "workspace-upgrade",
@@ -545,9 +554,9 @@
       "id": "cross-workspace-sync",
       "trigger": "A task runs in an external workspace and reaches a meaningful handoff, or the global core block requests reconciliation.",
       "reads": ["global AGENTS.md managed core block", "current workspace", ".wirenet/workspace-bindings.json", "matched Project or Experiment Pack"],
-      "writes": ["approved Project or Experiment Pack diff", "approved ignored route"],
-      "approval": "ask once for untracked classification; preview durable writes",
-      "description": "Classify Manager-native, externally tracked, experiment, ignored, or untracked work and update only when durable meaning changed.",
+      "writes": ["approved Project or Experiment Pack diff"],
+      "approval": "preview durable writes; delegate untracked classification",
+      "description": "Reconcile only meaningful durable progress for an existing tracked Project or Experiment Pack; delegate untracked classification and lifecycle changes to wirenet-manager-project.",
       "evidence": ["plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/install_global_guidance.py", "plugins/wirenet-manager/skills/wirenet-manager-sync/SKILL.md"]
     },
     {

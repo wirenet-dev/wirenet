@@ -10,6 +10,8 @@ world, not a setup wizard. Preserve Jason Liu's onboarding sequence while using
 WireNet's explicit source and write approvals.
 
 Read `references/first-meeting-flow.md` completely before starting.
+Read `references/manager-task-template.md` before proposing durable instructions,
+renaming, pinning, or a recurring check-in for the long-running Manager task.
 
 ## Setup State
 
@@ -36,8 +38,9 @@ Classify quietly:
    interview and map rather than producing a generic source digest.
 5. After calibration, propose the specific Manager concepts and runtime routes
    that future work needs. Ask before writing inferred durable content. For
-   approved project roots, use the bootstrap discovery helpers and classify
-   each candidate before creating a Project or Experiment Pack. Preview the
+   approved project roots, use the bootstrap discovery helpers, then delegate
+   classification and packet creation to `$wirenet-manager-project`. Delegate
+   canonical collaborator concepts to `$wirenet-manager-person`. Preview the
    global core guidance and optional user-owned routing only when useful.
 6. Propose one core Manager check-in and what it will watch.
 7. Offer narrow project, people, or daily monitor tasks only when they reduce

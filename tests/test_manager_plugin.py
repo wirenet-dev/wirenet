@@ -18,6 +18,7 @@ INSPECT = PLUGIN / "skills/wirenet-manager-sync/scripts/inspect_workspace.py"
 IGNORE = PLUGIN / "skills/wirenet-manager-sync/scripts/record_ignored_workspace.py"
 CREATE_PROJECT = PLUGIN_SCRIPTS / "create_project_pack.py"
 CREATE_EXPERIMENT = PLUGIN_SCRIPTS / "create_experiment_pack.py"
+CREATE_PERSON = PLUGIN_SCRIPTS / "create_person_note.py"
 PROMOTE_EXPERIMENT = PLUGIN_SCRIPTS / "promote_experiment.py"
 TRANSITION = PLUGIN_SCRIPTS / "transition_packet.py"
 DISCOVER = PLUGIN_SCRIPTS / "discover_projects.py"
@@ -331,7 +332,7 @@ def test_bootstrap_materializes_content_only_manager_with_local_git(
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
     assert metadata["project_pack_profile"] == "wirenet-project-pack/v0.1"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
-    assert metadata["plugin_version"] == "0.2.5"
+    assert metadata["plugin_version"] == "0.2.6"
     assert metadata["manager_id"].startswith("mgr_")
     assert (
         "Continue with $wirenet-manager-onboarding for the personal first meeting."
@@ -466,7 +467,7 @@ def test_upgrade_migrates_v01_without_rewriting_personal_content(
         (manager / ".wirenet/manager.json").read_text(encoding="utf-8")
     )
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
-    assert metadata["plugin_version"] == "0.2.5"
+    assert metadata["plugin_version"] == "0.2.6"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
     assert metadata["okf_profiles"] == [
         "wirenet-okf-project-pack/v0.1",
@@ -875,6 +876,64 @@ def test_manager_doctor_rejects_typed_runtime_instructions(tmp_path: Path) -> No
         "AGENTS.md must remain outside the OKF concept projection"
         in diagnosis["errors"]
     )
+
+
+def test_person_generator_is_dry_run_first_and_creates_typed_context(
+    tmp_path: Path,
+) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+
+    preview = json.loads(
+        run_script(
+            CREATE_PERSON,
+            "Alex Example",
+            "--context",
+            "Alex owns the final review for the launch.",
+            "--manager-dir",
+            str(manager),
+        ).stdout
+    )
+    path = Path(str(preview["path"]))
+    assert preview["dry_run"] is True
+    assert not path.exists()
+
+    applied = json.loads(
+        run_script(
+            CREATE_PERSON,
+            "Alex Example",
+            "--context",
+            "Alex owns the final review for the launch.",
+            "--manager-dir",
+            str(manager),
+            "--apply",
+        ).stdout
+    )
+    assert applied["ok"] is True
+    assert path.is_file()
+    content = path.read_text(encoding="utf-8")
+    assert frontmatter_value(path, "type") == "Person"
+    assert frontmatter_value(path, "schema") == "wirenet-manager/v0.2"
+    assert frontmatter_value(path, "title") == "Alex Example"
+    assert "Alex owns the final review for the launch." in content
+    assert "## Context" in content
+
+    duplicate = run_script(
+        CREATE_PERSON,
+        "Alex Example",
+        "--context",
+        "Must not overwrite the existing concept.",
+        "--manager-dir",
+        str(manager),
+        "--apply",
+        check=False,
+    )
+    assert duplicate.returncode == 2
+    assert "already exists" in duplicate.stdout
+    assert "Must not overwrite" not in path.read_text(encoding="utf-8")
+
+    diagnosis = json.loads(run_script(DOCTOR, "--manager-dir", str(manager)).stdout)
+    assert diagnosis["ok"] is True
 
 
 def test_project_preview_and_rejected_overlap_are_side_effect_free(
