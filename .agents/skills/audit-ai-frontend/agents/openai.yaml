@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI frontend audit"
+  short_description: "Find UI slop and frontend architecture drift"
+  default_prompt: "Use $audit-ai-frontend to audit this interface and its implementation."

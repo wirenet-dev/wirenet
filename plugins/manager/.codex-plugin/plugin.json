@@ -1,9 +1,9 @@
 {
   "name": "manager",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "A durable local workspace for projects, context, and next actions.",
   "author": {
-    "name": "WireNet",
+    "name": "wirenet",
     "url": "https://wirenet.dev"
   },
   "homepage": "https://wirenet.dev",
@@ -12,10 +12,10 @@
   "keywords": ["manager", "workspace", "project-packs", "work-memory", "okf"],
   "skills": "./skills/",
   "interface": {
-    "displayName": "WireNet Manager",
+    "displayName": "wirenet manager",
     "shortDescription": "Your workspace for projects, context, and next actions",
-    "longDescription": "WireNet Manager gives Codex a durable local workspace for understanding what is on your plate, keeping projects current, and carrying useful context across tasks. It combines personal onboarding, reviewable Project Packs, bounded experiments, recurring check-ins, and optional local knowledge search while keeping your content on your computer.",
-    "developerName": "WireNet",
+    "longDescription": "wirenet manager gives Codex a durable local workspace for understanding what is on your plate, keeping projects current, and carrying useful context across tasks. It combines personal onboarding, reviewable Project Packs, bounded experiments, cross-workspace routing, and optional local knowledge search while keeping your content on your computer.",
+    "developerName": "wirenet",
     "category": "Productivity",
     "websiteURL": "https://wirenet.dev",
     "brandColor": "#FF5C1A",
@@ -26,11 +26,11 @@
       "Personal onboarding",
       "Project and experiment tracking",
       "Cross-workspace context routing",
-      "Recurring check-ins",
+      "Personal context and people",
       "Local knowledge search"
     ],
     "defaultPrompt": [
-      "Set up my local WireNet Manager.",
+      "Set up my local wirenet manager.",
       "Show my current stack and next actions.",
       "Review my active projects and open loops."
     ]

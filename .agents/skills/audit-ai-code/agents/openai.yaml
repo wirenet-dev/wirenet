@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI code audit"
+  short_description: "Find and repair AI-shaped code risks"
+  default_prompt: "Use $audit-ai-code to audit this implementation for AI-shaped code problems."

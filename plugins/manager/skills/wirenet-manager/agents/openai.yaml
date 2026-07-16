@@ -1,4 +1,0 @@
-interface:
-  display_name: "WireNet Manager"
-  short_description: "Orientiert Arbeit und hält den Manager fokussiert"
-  default_prompt: "Use $wirenet-manager to orient me and show the next useful move."

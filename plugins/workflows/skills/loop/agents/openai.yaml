@@ -1,0 +1,7 @@
+interface:
+  display_name: "loop"
+  short_description: "Run recurring checks in the current task"
+  default_prompt: "Use $loop to keep checking this task until the condition is met."
+
+policy:
+  allow_implicit_invocation: true

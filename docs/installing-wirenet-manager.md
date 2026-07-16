@@ -1,8 +1,8 @@
 ---
-last_edited: 2026-07-15
+last_edited: 2026-07-16
 ---
 
-# Installing WireNet Manager v0.2
+# Installing wirenet manager v0.2
 
 ## Fast Start With An Appshot
 
@@ -19,13 +19,13 @@ conversation and new human-readable Manager prose; stable system structure and
 metadata remain English. If the language is ambiguous, bootstrap asks once.
 
 This works from a task with no selected project and an empty global `AGENTS.md`.
-It does not assume an existing WireNet skill. The first task reads the public
+It does not assume an existing wirenet skill. The first task reads the public
 contract, previews the marketplace and plugin commands, and installs only after
 approval. Because newly installed plugins become available to fresh tasks,
 restart ChatGPT if requested and continue in a new task with:
 
 ```text
-$wirenet-manager-bootstrap Set up my local Manager, then continue with onboarding.
+$manager-setup Set up my local Manager, then continue with onboarding.
 ```
 
 The restart boundary is intentional. An Appshot can carry the visible GitHub
@@ -33,7 +33,7 @@ page and its text into a task, but it does not install a plugin by itself.
 
 ## Distribution
 
-WireNet Manager is distributed through a Codex plugin marketplace from
+wirenet Manager is distributed through a Codex plugin marketplace from
 [`wirenet-dev/wirenet-manager`](https://github.com/wirenet-dev/wirenet-manager).
 Users do not clone the product repository into `~/Manager` and do not need to
 work with GitHub, Git, Python, Node.js, or a terminal themselves. A public
@@ -52,12 +52,23 @@ codex plugin add manager@wirenet
 Restart the ChatGPT desktop app when requested, then start the technical setup
 and personal first meeting.
 
+The same marketplace also offers two optional cross-project plugins:
+
+```sh
+codex plugin add workflows@wirenet
+codex plugin add content-tools@wirenet
+```
+
+They are deliberately not prerequisites for Manager bootstrap. Customer-private
+plugins remain separate marketplaces and Developer-only skills remain local to
+their repositories.
+
 ## Bootstrap The Local Manager
 
 Start a new task and use:
 
 ```text
-$wirenet-manager-bootstrap Set up my WireNet Manager in ~/Manager.
+$manager-setup Set up my wirenet manager in ~/Manager.
 ```
 
 The skill previews the operation. After approval, it:
@@ -76,7 +87,7 @@ After the workspace is healthy, bootstrap checks QMD separately. It previews
 registration of `~/Manager` as `qmd://manager/`. If QMD is missing or unhealthy,
 the user can approve installation or repair of the pinned tested package through
 resolved `npm` or bundled `pnpm`. Because QMD officially targets npm, the pnpm
-fallback first bootstraps a pinned npm in a dedicated user-local WireNet
+fallback first bootstraps a pinned npm in a dedicated user-local wirenet
 directory, then uses it to install QMD with the required native build scripts.
 It does not alter shell startup files. QMD configuration remains outside the
 Manager and does not enter its Git history.
@@ -91,13 +102,13 @@ Plugin code is not copied into the Manager. Reinstalling or upgrading the
 plugin therefore cannot overwrite personal Project Packs.
 
 When this technical baseline is healthy, bootstrap hands the same task to
-`$wirenet-manager-onboarding`. It does not treat a Doctor report as completed
+`$manager-setup`. It does not treat a Doctor report as completed
 personal onboarding.
 
 ## Personal First Meeting
 
 The onboarding should feel like a useful first conversation, not a filesystem
-wizard. It follows Jason Liu's sequence as closely as WireNet's explicit source
+wizard. It follows Jason Liu's sequence as closely as wirenet's explicit source
 approvals allow:
 
 1. opens with `Hi, I'm your Manager.` or its selected-language equivalent;
@@ -153,15 +164,15 @@ work directly in their packet when no external code, media, data, or operational
 folder is needed. Externally bound and Manager-native packets otherwise follow
 the same knowledge contract.
 
-UltraGoal is installed with the plugin but cannot be invoked implicitly. It is
-available only when the user explicitly names or activates a persistent goal;
-only then may it create or update `WORKLOG.md`.
+UltraGoal is installed through `workflows@wirenet`, not Manager core, and cannot
+be invoked implicitly. It is available only when the user explicitly names or
+activates a persistent goal; only then may it create or update `WORKLOG.md`.
 
 ## Install Global Guidance
 
 During approved onboarding setup, the bootstrap helper adds a core managed
 block to the user's global
-Codex `AGENTS.md`. It invokes `$wirenet-manager-sync` only when a future task
+Codex `AGENTS.md`. It invokes `$manager` only when a future task
 would otherwise misunderstand durable project state.
 
 The block is conditional on the skill being installed and enabled. Disabling
@@ -184,7 +195,7 @@ Updating the marketplace or plugin installs newer reusable skills, scripts,
 templates, and checks. It does not mutate an already materialized `~/Manager`.
 The local workspace records its own schema in `.wirenet/manager.json`.
 
-After a plugin update, invoke `$wirenet-manager-bootstrap`. It previews
+After a plugin update, invoke `$manager-setup`. It previews
 `scripts/upgrade_manager.py` before the ordinary health check. A current schema
 needs no local write. A supported older schema receives an explicit migration
 plan; apply requires approval and a clean local Git checkpoint. The updater
@@ -199,7 +210,7 @@ manual review rather than being guessed.
 
 ## Business Workspace Boundary
 
-Workspace admins may control plugin installation and sharing. WireNet Manager
-can be installed from a marketplace without giving WireNet membership in a
+Workspace admins may control plugin installation and sharing. wirenet Manager
+can be installed from a marketplace without giving wirenet membership in a
 customer's ChatGPT workspace. Customer-private capability plugins remain
 separate and are installed by an authorized workspace member.

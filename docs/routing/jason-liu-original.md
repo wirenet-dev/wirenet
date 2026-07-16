@@ -1,5 +1,5 @@
 ---
-last_edited: 2026-07-15
+last_edited: 2026-07-16
 ---
 
 # Jason Liu Original Routing Contract
@@ -108,7 +108,7 @@ The original contains two different project creators that write into the same
 
 Neither generator creates `GOAL.md` or `RESULT.md`, even though the root
 instructions route long objectives and completed evidence to those files and
-templates for both exist. This is an original gap, not WireNet behavior.
+templates for both exist. This is an original gap, not wirenet behavior.
 
 ## What The Supporting Shelves Actually Mean
 

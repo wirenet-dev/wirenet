@@ -1,0 +1,7 @@
+interface:
+  display_name: "yeet"
+  short_description: "Commit, push, and open a pull request"
+  default_prompt: "Use $yeet to publish these changes as a pull request."
+
+policy:
+  allow_implicit_invocation: false

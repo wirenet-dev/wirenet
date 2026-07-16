@@ -1,4 +1,0 @@
-interface:
-  display_name: "WireNet Manager Person"
-  short_description: "Maintain evidence-backed people context"
-  default_prompt: "Use $wirenet-manager-person to remember or update this person."

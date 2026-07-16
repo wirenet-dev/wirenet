@@ -2,7 +2,7 @@
 okf_version: "0.1"
 ---
 
-# WireNet Manager
+# wirenet Manager
 
 - [Manager overview](README.md) — human entry point and workspace boundary.
 - [Current stack](TODO.md) — ordered commitments and waiting items.

@@ -1,14 +1,14 @@
 ---
 type: "Manager Overview"
 schema: "wirenet-manager/v0.2"
-title: "WireNet Manager"
+title: "wirenet Manager"
 visibility: private
 status: active
 content_language: "en"
-last_edited: 2026-07-15
+last_edited: 2026-07-16
 ---
 
-# WireNet Manager
+# wirenet Manager
 
 This is the human landing page for the user's local, durable work memory.
 Knowledge-first projects may live entirely in this Manager. Code, media, large
@@ -73,5 +73,5 @@ a linked Project Pack.
 - Keep actual `outputs/` content local and ignored. Link or distill anything
   durable into a Project Pack, `sources/`, or `notes/`.
 - Product instructions, generation rules, and canonical templates live in the
-  installed WireNet Manager plugin rather than being copied into this folder.
+  installed wirenet Manager plugin rather than being copied into this folder.
 - Git is local history by default. No remote or cloud sync is configured by v0.2.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI writing audit"
+  short_description: "Find and repair weak AI-shaped writing"
+  default_prompt: "Use $audit-ai-writing to audit this draft and propose a tighter revision."

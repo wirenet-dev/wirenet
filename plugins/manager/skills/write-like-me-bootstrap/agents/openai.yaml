@@ -1,4 +1,0 @@
-interface:
-  display_name: "Write Like Me Bootstrap"
-  short_description: "Infer writing style from sent messages"
-  default_prompt: "Use $write-like-me-bootstrap to learn my writing voice from approved sent messages."

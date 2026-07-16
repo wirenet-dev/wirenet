@@ -1,0 +1,7 @@
+interface:
+  display_name: "ultragoal"
+  short_description: "Run an explicitly activated persistent goal"
+  default_prompt: "Use $ultragoal to start a persistent goal for this outcome."
+
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,28 @@
+{
+  "name": "content-tools",
+  "version": "0.1.0",
+  "description": "Information-first HTML artifacts and rigorous AI-writing audits.",
+  "author": {
+    "name": "wirenet",
+    "url": "https://wirenet.dev"
+  },
+  "homepage": "https://wirenet.dev",
+  "repository": "https://github.com/wirenet-dev/wirenet-manager",
+  "license": "Apache-2.0",
+  "keywords": ["content", "html", "writing", "audit"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "wirenet content tools",
+    "shortDescription": "Clear HTML artifacts and stronger AI-assisted writing",
+    "longDescription": "wirenet content tools creates restrained, self-contained HTML artifacts and audits AI-assisted writing for weak reader models, generic filler, source problems, and machine residue.",
+    "developerName": "wirenet",
+    "category": "Productivity",
+    "websiteURL": "https://wirenet.dev",
+    "brandColor": "#FF5C1A",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/logo.svg",
+    "logoDark": "./assets/logo-dark.svg",
+    "capabilities": ["Single-file HTML artifacts", "AI-writing quality audits"],
+    "defaultPrompt": ["Turn this information into a clear HTML artifact.", "Audit this draft for AI-shaped writing problems."]
+  }
+}

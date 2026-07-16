@@ -146,7 +146,7 @@ def test_wirenet_seed_paths_declared_by_contract_exist() -> None:
     for entity in entities.values():
         for evidence in entity["evidence"]:
             local = ROOT / str(evidence).split("#", 1)[0]
-            assert local.exists(), f"missing WireNet contract evidence: {evidence}"
+            assert local.exists(), f"missing wirenet contract evidence: {evidence}"
 
 
 def test_projects_index_is_the_canonical_collection_router() -> None:
@@ -253,8 +253,8 @@ def test_contract_delta_exposes_wirenet_additions_and_changed_roles() -> None:
     )
     assert "create_person_note.py" in " ".join(entities["person-note"]["evidence"])
     assert "relationship context" in str(entities["person-note"]["description"])
-    assert "wirenet-manager-project" in " ".join(routes["project-create"]["evidence"])
-    assert "wirenet-manager-person" in " ".join(routes["person-create"]["evidence"])
+    assert "project-lifecycle.md" in " ".join(routes["project-create"]["evidence"])
+    assert "person-context.md" in " ".join(routes["person-create"]["evidence"])
     assert "delegate untracked classification" in str(
         routes["cross-workspace-sync"]["approval"]
     )

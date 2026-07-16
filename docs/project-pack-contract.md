@@ -1,5 +1,5 @@
 ---
-last_edited: 2026-07-15
+last_edited: 2026-07-16
 ---
 
 # Project And Experiment Pack Contract v0.2
@@ -71,13 +71,13 @@ and `log.md` follow OKF's path-scoped formats and carry no concept metadata.
 
 `AGENTS.md` is the required runtime sidecar, not a concept. It carries the same
 `project_id` under `schema: "wirenet-runtime/v0.1"` but deliberately has no
-`type`. Codex reads it as Markdown instructions; the WireNet Inspector and future
+`type`. Codex reads it as Markdown instructions; the wirenet Inspector and future
 knowledge sync do not reinterpret its routing as a concept relationship.
 
 ## OKF Mapping
 
 Jason Liu's conventional filenames remain convenient for people and agents.
-WireNet maps them semantically without making the optional files mandatory:
+wirenet maps them semantically without making the optional files mandatory:
 
 | Local file | Profile type |
 | --- | --- |

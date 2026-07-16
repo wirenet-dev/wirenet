@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Preview or create a typed WireNet Manager person concept."""
+"""Preview or create a typed wirenet Manager person concept."""
 
 from __future__ import annotations
 

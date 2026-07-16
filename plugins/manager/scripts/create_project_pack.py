@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Preview or create an open WireNet Manager Project Pack."""
+"""Preview or create an open wirenet Manager Project Pack."""
 
 from __future__ import annotations
 

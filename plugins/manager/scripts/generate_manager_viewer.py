@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate or serve the read-only WireNet Inspector."""
+"""Generate or serve the read-only wirenet Inspector."""
 
 from __future__ import annotations
 
@@ -67,7 +67,7 @@ def serve_html(html: str, port: int) -> None:
             return
 
     server = ThreadingHTTPServer(("127.0.0.1", port), ViewerHandler)
-    print("WireNet Inspector", flush=True)
+    print("wirenet Inspector", flush=True)
     print(f"URL: http://127.0.0.1:{server.server_port}", flush=True)
     print("Press Ctrl+C to stop.", flush=True)
     try:
@@ -80,7 +80,7 @@ def serve_html(html: str, port: int) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Render Manager concepts in the read-only Google-derived WireNet Inspector."
+        description="Render Manager concepts in the read-only Google-derived wirenet Inspector."
     )
     parser.add_argument(
         "--manager-dir",

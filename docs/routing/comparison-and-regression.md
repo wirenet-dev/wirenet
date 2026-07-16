@@ -1,10 +1,10 @@
 ---
-last_edited: 2026-07-15
+last_edited: 2026-07-16
 ---
 
 # Routing Comparison And Regression Strategy
 
-This comparison answers one question: where does WireNet preserve Jason Liu's
+This comparison answers one question: where does wirenet preserve Jason Liu's
 plain-file operating model, and where does it deliberately add or change a
 contract?
 
@@ -17,7 +17,7 @@ python3 scripts/compare_routing_contracts.py --json
 
 ## Preserved
 
-| Jason mechanism | WireNet v0.2 | Preservation rule |
+| Jason mechanism | wirenet v0.2 | Preservation rule |
 | --- | --- | --- |
 | Root and nearest `AGENTS.md` | Same | Markdown instructions remain the executable routing layer. |
 | Root `README.md` | Same human role | It remains the landing page and becomes typed `Manager Overview`. |
@@ -27,10 +27,10 @@ python3 scripts/compare_routing_contracts.py --json
 | `GOAL.md` | Same optional long-objective role | It remains optional and works with UltraGoal. |
 | `RESULT.md` | Same optional completed-evidence role | It remains optional and works with UltraGoal. |
 | Open project folders | Same extensibility | Agents may add useful documents instead of filling a fixed form. |
-| `people/*.md` | Same durable collaborator role | WireNet keeps evidence and privacy boundaries. |
-| `notes/` | Same durable-scratch role | WireNet types real content and avoids placeholder guides. |
-| `sources/` | Same retained-evidence role | WireNet types real content and preserves read-only-by-default. |
-| Repo-local skills as procedures | Same conceptual separation | WireNet packages generic Manager behavior globally instead of copying it into personal content. |
+| `people/*.md` | Same durable collaborator role | wirenet keeps evidence and privacy boundaries. |
+| `notes/` | Same durable-scratch role | wirenet types real content and avoids placeholder guides. |
+| `sources/` | Same retained-evidence role | wirenet types real content and preserves read-only-by-default. |
+| Repo-local skills as procedures | Same conceptual separation | wirenet packages generic Manager behavior globally instead of copying it into personal content. |
 | Git-backed reviewable memory | Same | Manager Git remains local history in v0.2. |
 
 ## Changed
@@ -40,7 +40,7 @@ python3 scripts/compare_routing_contracts.py --json
 | Plugin behavior is separate from personal Manager content | One updateable product can serve many users and external projects. | Bootstrap must never copy skills into Manager or overwrite personal content. |
 | External workspaces are bound by stable project ID and local path | Media, code, and data stay in their proper working folders. | Portable packet files must never leak absolute paths. |
 | Every Project Pack starts with `README.md` and `AGENTS.md` | A small stable core preserves Jason's open model while making local handoff reliable. | Generator, doctor, sync, and viewer must accept optional extensions without requiring empty documents. |
-| Root and project collection `index.md` files are WireNet-required | Stable catalog entry points improve portability and agent navigation even though OKF makes them optional. | They must remain canonical navigation and never replace project README state or AGENTS routing. |
+| Root and project collection `index.md` files are wirenet-required | Stable catalog entry points improve portability and agent navigation even though OKF makes them optional. | They must remain canonical navigation and never replace project README state or AGENTS routing. |
 | Optional `log.md` adds a sparse time axis when useful | OKF history can improve portable handoff and later sync. | It must stay newest-first and semantic, never become mandatory activity logging. |
 | Global managed core block triggers reconciliation outside Manager | Repo-local skill recall cannot update packets from arbitrary workspaces reliably. | The block must be idempotent, minimal, approval-gated, and independent from optional workspace routing. |
 | `docs/`, `outputs/`, and `archive/` receive explicit policies | Jason's placeholders otherwise have no usable routing semantics. | Policies must stay open and must not turn working output into canonical knowledge. |
@@ -85,7 +85,7 @@ Jason has two useful README roles:
    a short explanation and active-packet links.
 2. `projects/<slug>/README.md` is the canonical project document.
 
-WireNet preserves the meaning but separates the concerns. The typed root
+wirenet preserves the meaning but separates the concerns. The typed root
 `README.md` remains the human Manager overview. Each typed packet `README.md`
 remains canonical project state. `projects/index.md` becomes the single
 collection catalog, while its creation and routing rules live in the installed
@@ -122,7 +122,7 @@ The suite checks:
 
 1. both contracts follow the same routing-contract schema and cite evidence;
 2. Jason's provenance and known ambiguities remain explicit;
-3. WireNet's seed contains every declared runtime entry point;
+3. wirenet's seed contains every declared runtime entry point;
 4. Project Pack generation produces `README.md` and `AGENTS.md` with stable IDs
    and accepts optional typed concepts;
 5. collection navigation updates `projects/index.md` without replacing packet
@@ -152,6 +152,6 @@ documented routing really changed.
 
 - Keep `docs/`, `outputs/`, and `archive/` policies narrow and revise them only
   with usage evidence; Jason's placeholders are not semantics by themselves.
-- Revisit whether the WireNet-required root and projects indexes remain useful
+- Revisit whether the wirenet-required root and projects indexes remain useful
   after real bootstrap and viewer use; OKF itself does not require them.
 - Define the future Knowledge Hub merge model before claiming multi-device sync.
