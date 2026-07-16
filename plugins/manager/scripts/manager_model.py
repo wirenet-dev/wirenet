@@ -17,7 +17,7 @@ BINDINGS_SCHEMA = "wirenet-workspace-bindings/v0.2"
 PROJECT_OKF_PROFILE = "wirenet-okf-project-pack/v0.1"
 EXPERIMENT_OKF_PROFILE = "wirenet-okf-experiment-pack/v0.1"
 RUNTIME_SCHEMA = "wirenet-runtime/v0.1"
-PLUGIN_VERSION = "0.3.0"
+PLUGIN_VERSION = "0.3.1"
 
 PROJECT_STATUSES = ("active", "waiting", "blocked", "completed", "archived")
 EXPERIMENT_STATUSES = ("active", "concluded", "promoted", "archived")

@@ -338,7 +338,7 @@ def test_bootstrap_materializes_content_only_manager_with_local_git(
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
     assert metadata["project_pack_profile"] == "wirenet-project-pack/v0.1"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
-    assert metadata["plugin_version"] == "0.3.0"
+    assert metadata["plugin_version"] == "0.3.1"
     assert metadata["manager_id"].startswith("mgr_")
     assert (
         "Continue with $wirenet-manager-onboarding for the personal first meeting."
@@ -523,7 +523,7 @@ def test_upgrade_migrates_v01_without_rewriting_personal_content(
         (manager / ".wirenet/manager.json").read_text(encoding="utf-8")
     )
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
-    assert metadata["plugin_version"] == "0.3.0"
+    assert metadata["plugin_version"] == "0.3.1"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
     assert metadata["okf_profiles"] == [
         "wirenet-okf-project-pack/v0.1",

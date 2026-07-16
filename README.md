@@ -362,7 +362,7 @@ python3 scripts/compare_routing_contracts.py
 
 ## Release Status
 
-Plugin `0.3.0` is the current implementation of the v0.2 lifecycle architecture,
+Plugin `0.3.1` is the current implementation of the v0.2 lifecycle architecture,
 its explicit workspace-upgrade path, optional QMD retrieval setup, Jason-inspired
 personal onboarding, explicit project and person workflows, recurring task
 loops, non-developer runtime preflight, and optional global personal

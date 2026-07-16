@@ -208,15 +208,29 @@ def test_plugin_manifest_and_marketplace_use_core_namespace() -> None:
         (ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
     )
     assert manifest["name"] == "manager"
-    assert manifest["version"] == "0.3.0"
+    assert manifest["version"] == "0.3.1"
     assert manifest["skills"] == "./skills/"
     assert manifest["interface"]["brandColor"] == "#FF5C1A"
     prompts = manifest["interface"]["defaultPrompt"]
-    assert any("$loop" in prompt for prompt in prompts)
-    assert not any("$wirenet-manager-person" in prompt for prompt in prompts)
+    assert len(prompts) == 3
+    assert all(len(prompt) <= 128 for prompt in prompts)
+    assert manifest["interface"]["capabilities"] == [
+        "Personal onboarding",
+        "Project and experiment tracking",
+        "Cross-workspace context routing",
+        "Recurring check-ins",
+        "Local knowledge search",
+    ]
     for asset_key in ("composerIcon", "logo", "logoDark"):
         asset = ROOT / "plugins/manager" / manifest["interface"][asset_key]
         assert asset.is_file()
+    for logo_key in ("logo", "logoDark"):
+        logo = (
+            ROOT / "plugins/manager" / manifest["interface"][logo_key]
+        ).read_text(encoding="utf-8")
+        assert 'viewBox="0 0 128 128"' in logo
+        assert "<text" not in logo
+        assert "#FF5C1A" in logo
     assert marketplace["name"] == "wirenet"
     assert marketplace["interface"]["displayName"] == "WireNet"
     assert marketplace["plugins"] == [

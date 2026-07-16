@@ -86,7 +86,7 @@ External task ends
 ### Marketplace And Manifest
 
 - `.agents/plugins/marketplace.json` exposes the local plugin package.
-- `plugins/manager/.codex-plugin/plugin.json` identifies version 0.3.0,
+- `plugins/manager/.codex-plugin/plugin.json` identifies version 0.3.1,
   bundled skills, interface copy, and starter prompts.
 
 ### Skills
