@@ -22,7 +22,7 @@ the only place where their meaning or relationships exist.
 
 | Layer | Responsibility | Filesystem expression |
 | --- | --- | --- |
-| Plugin | Reusable product behavior and its explanation | Skills, scripts, schemas, templates, viewer, and product docs under `plugins/wirenet-manager/` and `docs/` |
+| Plugin | Reusable product behavior and its explanation | Skills, scripts, schemas, templates, viewer, and product docs under `plugins/manager/` and `docs/` |
 | Runtime | Executable routing and device-local operating state | Root and nested `AGENTS.md`, `.wirenet/`, and ignored working output |
 | Knowledge | Durable portable meaning | Typed Manager concepts plus reserved OKF `index.md` and `log.md` support documents |
 
@@ -86,7 +86,7 @@ External task ends
 ### Marketplace And Manifest
 
 - `.agents/plugins/marketplace.json` exposes the local plugin package.
-- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.2.7,
+- `plugins/manager/.codex-plugin/plugin.json` identifies version 0.3.0,
   bundled skills, interface copy, and starter prompts.
 
 ### Skills
@@ -190,7 +190,7 @@ binding, plugin, and viewer additions. The human-readable analysis lives under
 
 ### Seed
 
-`plugins/wirenet-manager/templates/manager/` is the only runtime seed shipped by
+`plugins/manager/templates/manager/` is the only runtime seed shipped by
 the plugin. It contains content and operating rules, not copies of plugin
 skills. Bootstrap adds the dynamic `.wirenet/manager.json` file.
 

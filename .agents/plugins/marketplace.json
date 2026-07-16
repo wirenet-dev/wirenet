@@ -1,14 +1,14 @@
 {
-  "name": "wirenet-manager",
+  "name": "wirenet",
   "interface": {
-    "displayName": "WireNet Manager"
+    "displayName": "WireNet"
   },
   "plugins": [
     {
-      "name": "wirenet-manager",
+      "name": "manager",
       "source": {
         "source": "local",
-        "path": "./plugins/wirenet-manager"
+        "path": "./plugins/manager"
       },
       "policy": {
         "installation": "AVAILABLE",

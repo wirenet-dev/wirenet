@@ -46,7 +46,7 @@ During local development, the repository marketplace is
 
 ```sh
 codex plugin marketplace add wirenet-dev/wirenet-manager --ref main
-codex plugin add wirenet-manager@wirenet-manager
+codex plugin add manager@wirenet
 ```
 
 Restart the ChatGPT desktop app when requested, then start the technical setup

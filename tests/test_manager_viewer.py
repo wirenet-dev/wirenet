@@ -8,9 +8,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-VIEWER = ROOT / "plugins/wirenet-manager/scripts/generate_manager_viewer.py"
-BOOTSTRAP = ROOT / "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py"
-CREATE_PROJECT = ROOT / "plugins/wirenet-manager/scripts/create_project_pack.py"
+VIEWER = ROOT / "plugins/manager/scripts/generate_manager_viewer.py"
+BOOTSTRAP = ROOT / "plugins/manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py"
+CREATE_PROJECT = ROOT / "plugins/manager/scripts/create_project_pack.py"
 
 
 def write_concept(

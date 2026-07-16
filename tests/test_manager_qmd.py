@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MANAGER_QMD = ROOT / "plugins/wirenet-manager/scripts/manager_qmd.py"
+MANAGER_QMD = ROOT / "plugins/manager/scripts/manager_qmd.py"
 
 
 def write_state(path: Path, **overrides: object) -> None:

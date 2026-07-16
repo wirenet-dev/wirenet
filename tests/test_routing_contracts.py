@@ -13,7 +13,7 @@ CONTRACTS = ROOT / "contracts/routing"
 JASON = CONTRACTS / "jason-liu-original.json"
 WIRENET = CONTRACTS / "wirenet-manager-v0.2.json"
 COMPARE = ROOT / "scripts/compare_routing_contracts.py"
-SEED = ROOT / "plugins/wirenet-manager/templates/manager"
+SEED = ROOT / "plugins/manager/templates/manager"
 
 
 def test_repository_root_contains_only_product_scaffold() -> None:

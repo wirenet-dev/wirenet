@@ -37,7 +37,7 @@ the primary decision rule for extending the product:
 
 | Layer | Owns | Canonical location | Portability |
 | --- | --- | --- | --- |
-| Plugin | Reusable behavior, schemas, generators, validators, templates, and product documentation | Installed `plugins/wirenet-manager/` package | Versioned and distributed as the product |
+| Plugin | Reusable behavior, schemas, generators, validators, templates, and product documentation | Installed `plugins/manager/` package | Versioned and distributed as the product |
 | Runtime | Agent routing and device-local operating state | `AGENTS.md`, nested `AGENTS.md`, `.wirenet/`, and ignored working output | Inspectable and versionable where useful, but never interpreted as OKF knowledge |
 | Knowledge | Durable user meaning: context, projects, people, decisions, goals, results, and sources | In-scope Markdown inside `~/Manager` | Portable OKF bundle and future synchronization source |
 
@@ -85,7 +85,7 @@ statuses, commands, and runtime instructions remain English.
 > **Codex setup instruction:** When the user attaches an Appshot of this section
 > and asks to be set up, read this repository README first. Preview and ask
 > before installing the `wirenet-dev/wirenet-manager` marketplace and its
-> `wirenet-manager` plugin. After installation, restart ChatGPT if requested and
+> WireNet Manager plugin. After installation, restart ChatGPT if requested and
 > create the technical local baseline with `$wirenet-manager-bootstrap`, then
 > continue the personal first meeting with `$wirenet-manager-onboarding`. Infer
 > the content language from the user's request, preview system changes, and keep
@@ -97,7 +97,7 @@ small installer. It should preview and, after approval, run:
 
 ```sh
 codex plugin marketplace add wirenet-dev/wirenet-manager --ref main
-codex plugin add wirenet-manager@wirenet-manager
+codex plugin add manager@wirenet
 ```
 
 After installation, restart ChatGPT if requested and begin a fresh task with:
@@ -114,7 +114,7 @@ and plugin source.
 
 ```sh
 codex plugin marketplace add wirenet-dev/wirenet-manager --ref main
-codex plugin add wirenet-manager@wirenet-manager
+codex plugin add manager@wirenet
 ```
 
 Restart ChatGPT if requested, then start a new task with:
@@ -150,7 +150,7 @@ does not duplicate people, projects, priorities, or source maps from
 ```text
 Developer repository / installed plugin       Generated Manager workspace
 
-plugins/wirenet-manager/                       ~/Manager/
+plugins/manager/                               ~/Manager/
 ├── .codex-plugin/plugin.json                  ├── AGENTS.md             runtime
 ├── skills/                                    ├── .wirenet/             runtime
 ├── scripts/                                   ├── README.md, TODO.md    knowledge
@@ -229,7 +229,7 @@ watcher, or edit API.
 For local development:
 
 ```sh
-python3 plugins/wirenet-manager/scripts/generate_manager_viewer.py \
+python3 plugins/manager/scripts/generate_manager_viewer.py \
   --manager-dir /path/to/Manager --serve
 ```
 
@@ -239,7 +239,7 @@ temporary directory by default.
 
 Skills use the current installable plugin structure. The repo marketplace is at
 `.agents/plugins/marketplace.json`; the plugin manifest is at
-`plugins/wirenet-manager/.codex-plugin/plugin.json`.
+`plugins/manager/.codex-plugin/plugin.json`.
 
 ## Project Pack Contract
 
@@ -278,12 +278,12 @@ concept relationships.
 ## Developer Layout
 
 - `.agents/plugins/marketplace.json`: local and future public marketplace.
-- `plugins/wirenet-manager/`: installable plugin package.
-- `plugins/wirenet-manager/templates/manager/`: content-only runtime seed.
-- `plugins/wirenet-manager/scripts/`: deterministic shared Manager helpers,
+- `plugins/manager/`: installable plugin package.
+- `plugins/manager/templates/manager/`: content-only runtime seed.
+- `plugins/manager/scripts/`: deterministic shared Manager helpers,
   including workspace upgrades, the common OKF projection, and the read-only
   viewer generator, plus optional QMD setup.
-- `plugins/wirenet-manager/viewer/`: one-file WireNet Inspector template.
+- `plugins/manager/viewer/`: one-file WireNet Inspector template.
 - `docs/architecture-v0.2.md`: file-by-file architecture and routing diagram.
 - `docs/project-pack-contract.md`: Project Pack and OKF profile.
 - `docs/testing-markdown-as-code.md`: contract surfaces, test layers, and
@@ -316,7 +316,7 @@ runtime files into the canonical WireNet implementation.
 ```sh
 python3 scripts/validate_markdown.py .
 python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" \
-  plugins/wirenet-manager
+  plugins/manager
 pytest -q
 git diff --check
 ```
@@ -324,14 +324,14 @@ git diff --check
 Preview a disposable bootstrap without mutating the destination:
 
 ```sh
-python3 plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py \
+python3 plugins/manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py \
   --manager-dir /tmp/wirenet-manager-review
 ```
 
 Apply only to a disposable directory during development:
 
 ```sh
-python3 plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py \
+python3 plugins/manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py \
   --manager-dir /tmp/wirenet-manager-review \
   --apply
 ```
@@ -339,7 +339,7 @@ python3 plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstr
 Check an existing Manager for a supported workspace migration:
 
 ```sh
-python3 plugins/wirenet-manager/scripts/upgrade_manager.py \
+python3 plugins/manager/scripts/upgrade_manager.py \
   --manager-dir /path/to/Manager
 ```
 
@@ -362,7 +362,7 @@ python3 scripts/compare_routing_contracts.py
 
 ## Release Status
 
-Plugin `0.2.7` is the current implementation of the v0.2 lifecycle architecture,
+Plugin `0.3.0` is the current implementation of the v0.2 lifecycle architecture,
 its explicit workspace-upgrade path, optional QMD retrieval setup, Jason-inspired
 personal onboarding, explicit project and person workflows, recurring task
 loops, non-developer runtime preflight, and optional global personal

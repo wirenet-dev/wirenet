@@ -8,7 +8,7 @@ last_edited: 2026-07-15
 
 This repository develops and distributes the WireNet Manager plugin. It is not
 the user's personal Manager runtime. The runtime seed lives under
-`plugins/wirenet-manager/templates/manager/` and is materialized into a separate
+`plugins/manager/templates/manager/` and is materialized into a separate
 folder only through the bootstrap flow.
 
 ## Read Order
@@ -16,7 +16,7 @@ folder only through the bootstrap flow.
 1. `README.md`
 2. `docs/architecture-v0.2.md`
 3. `docs/project-pack-contract.md`
-4. `plugins/wirenet-manager/.codex-plugin/plugin.json`
+4. `plugins/manager/.codex-plugin/plugin.json`
 5. The relevant plugin skill, script, template, and tests
 6. `docs/upstream-reference.md` and `docs/routing/` when comparing Jason Liu's
    original model or changing routing semantics
@@ -55,13 +55,13 @@ Experiment Packs begin with the same two-file core, use a stable
 `experiment_id`, and remain bounded by a question plus decision criterion.
 Promotion creates a linked Project Pack and preserves the experiment as origin
 evidence. Lifecycle status changes must follow
-`plugins/wirenet-manager/contracts/lifecycle-v0.2.json`.
+`plugins/manager/contracts/lifecycle-v0.2.json`.
 
 ## Skills And Plugins
 
 - Use the current `.agents/plugins/marketplace.json` marketplace location.
 - Keep the installable manifest at
-  `plugins/wirenet-manager/.codex-plugin/plugin.json`.
+  `plugins/manager/.codex-plugin/plugin.json`.
 - Keep each skill focused and validate it with the official skill validator.
 - Keep detailed contracts in skill `references/` and deterministic repeated
   behavior in scripts.
@@ -90,7 +90,7 @@ Run before handoff:
 ```sh
 python3 scripts/validate_markdown.py .
 python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" \
-  plugins/wirenet-manager
+  plugins/manager
 pytest -q
 git diff --check
 ```

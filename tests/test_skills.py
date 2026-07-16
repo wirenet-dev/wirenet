@@ -37,7 +37,7 @@ def test_markdown_validator_accepts_okf_index_and_log_structure(tmp_path: Path) 
 
 def test_plugin_skill_frontmatter_uses_official_contract() -> None:
     validator = load_module(ROOT / "scripts" / "validate_markdown.py")
-    skills = sorted((ROOT / "plugins/wirenet-manager/skills").glob("*/SKILL.md"))
+    skills = sorted((ROOT / "plugins/manager/skills").glob("*/SKILL.md"))
     assert {skill.parent.name for skill in skills} == {
         "loop",
         "ultragoal",
@@ -55,7 +55,7 @@ def test_plugin_skill_frontmatter_uses_official_contract() -> None:
 
 
 def test_manager_seed_contains_content_but_no_embedded_skills() -> None:
-    seed = ROOT / "plugins/wirenet-manager/templates/manager"
+    seed = ROOT / "plugins/manager/templates/manager"
     assert (seed / ".gitignore").is_file()
     assert (seed / "AGENTS.md").is_file()
     assert (seed / "index.md").is_file()
@@ -83,7 +83,7 @@ def test_manager_seed_contains_content_but_no_embedded_skills() -> None:
 
 
 def test_manager_skills_share_one_content_routing_contract() -> None:
-    skills = ROOT / "plugins/wirenet-manager/skills"
+    skills = ROOT / "plugins/manager/skills"
     manager = (skills / "wirenet-manager/SKILL.md").read_text(encoding="utf-8")
     sync = (skills / "wirenet-manager-sync/SKILL.md").read_text(encoding="utf-8")
     bootstrap = (skills / "wirenet-manager-bootstrap/SKILL.md").read_text(
@@ -106,19 +106,19 @@ def test_manager_skills_share_one_content_routing_contract() -> None:
     assert "File-World Heuristic" in contract
     assert "Short-lived work is not automatically an experiment" in contract
     assert "`outputs/<task-slug>/`" in (
-        ROOT / "plugins/wirenet-manager/templates/manager/AGENTS.md"
+        ROOT / "plugins/manager/templates/manager/AGENTS.md"
     ).read_text(encoding="utf-8")
 
 
 def test_bootstrap_resolves_runtime_for_non_developer_computers() -> None:
     bootstrap = (
-        ROOT / "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/SKILL.md"
+        ROOT / "plugins/manager/skills/wirenet-manager-bootstrap/SKILL.md"
     ).read_text(encoding="utf-8")
     preflight = (
         ROOT
-        / "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/references/runtime-preflight.md"
+        / "plugins/manager/skills/wirenet-manager-bootstrap/references/runtime-preflight.md"
     ).read_text(encoding="utf-8")
-    qmd = (ROOT / "plugins/wirenet-manager/scripts/manager_qmd.py").read_text(
+    qmd = (ROOT / "plugins/manager/scripts/manager_qmd.py").read_text(
         encoding="utf-8"
     )
 
@@ -132,7 +132,7 @@ def test_bootstrap_resolves_runtime_for_non_developer_computers() -> None:
 
 
 def test_manager_project_person_and_sync_have_distinct_roles() -> None:
-    skills = ROOT / "plugins/wirenet-manager/skills"
+    skills = ROOT / "plugins/manager/skills"
     manager = (skills / "wirenet-manager/SKILL.md").read_text(encoding="utf-8")
     project = (skills / "wirenet-manager-project/SKILL.md").read_text(
         encoding="utf-8"
@@ -158,7 +158,7 @@ def test_manager_project_person_and_sync_have_distinct_roles() -> None:
 
 def test_manager_keeps_jason_style_proactive_entry_triggers() -> None:
     skill = (
-        ROOT / "plugins/wirenet-manager/skills/wirenet-manager/SKILL.md"
+        ROOT / "plugins/manager/skills/wirenet-manager/SKILL.md"
     ).read_text(encoding="utf-8")
 
     for trigger in (
@@ -171,11 +171,11 @@ def test_manager_keeps_jason_style_proactive_entry_triggers() -> None:
 
 
 def test_loop_is_general_task_automation_with_clean_completion() -> None:
-    skill = (ROOT / "plugins/wirenet-manager/skills/loop/SKILL.md").read_text(
+    skill = (ROOT / "plugins/manager/skills/loop/SKILL.md").read_text(
         encoding="utf-8"
     )
     metadata = (
-        ROOT / "plugins/wirenet-manager/skills/loop/agents/openai.yaml"
+        ROOT / "plugins/manager/skills/loop/agents/openai.yaml"
     ).read_text(encoding="utf-8")
 
     assert "current Codex task" in skill.split("---", 2)[1]
@@ -189,7 +189,7 @@ def test_loop_is_general_task_automation_with_clean_completion() -> None:
 
 
 def test_ultragoal_is_installed_but_explicit_only() -> None:
-    skill = ROOT / "plugins/wirenet-manager/skills/ultragoal"
+    skill = ROOT / "plugins/manager/skills/ultragoal"
     metadata = (skill / "agents/openai.yaml").read_text(encoding="utf-8")
     instructions = (skill / "SKILL.md").read_text(encoding="utf-8")
 
@@ -198,29 +198,31 @@ def test_ultragoal_is_installed_but_explicit_only() -> None:
     assert 'producer: "ultragoal"' in instructions
 
 
-def test_plugin_manifest_and_marketplace_point_to_v02_package() -> None:
+def test_plugin_manifest_and_marketplace_use_core_namespace() -> None:
     manifest = json.loads(
-        (ROOT / "plugins/wirenet-manager/.codex-plugin/plugin.json").read_text(
+        (ROOT / "plugins/manager/.codex-plugin/plugin.json").read_text(
             encoding="utf-8"
         )
     )
     marketplace = json.loads(
         (ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
     )
-    assert manifest["name"] == "wirenet-manager"
-    assert manifest["version"] == "0.2.7"
+    assert manifest["name"] == "manager"
+    assert manifest["version"] == "0.3.0"
     assert manifest["skills"] == "./skills/"
     assert manifest["interface"]["brandColor"] == "#FF5C1A"
     prompts = manifest["interface"]["defaultPrompt"]
     assert any("$loop" in prompt for prompt in prompts)
     assert not any("$wirenet-manager-person" in prompt for prompt in prompts)
     for asset_key in ("composerIcon", "logo", "logoDark"):
-        asset = ROOT / "plugins/wirenet-manager" / manifest["interface"][asset_key]
+        asset = ROOT / "plugins/manager" / manifest["interface"][asset_key]
         assert asset.is_file()
+    assert marketplace["name"] == "wirenet"
+    assert marketplace["interface"]["displayName"] == "WireNet"
     assert marketplace["plugins"] == [
         {
-            "name": "wirenet-manager",
-            "source": {"source": "local", "path": "./plugins/wirenet-manager"},
+            "name": "manager",
+            "source": {"source": "local", "path": "./plugins/manager"},
             "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
             "category": "Productivity",
         }
@@ -240,7 +242,7 @@ def test_clean_codex_install_contract_is_complete_and_repo_readable() -> None:
             "codex plugin marketplace add wirenet-dev/wirenet-manager --ref main"
             in document
         )
-        assert "codex plugin add wirenet-manager@wirenet-manager" in document
+        assert "codex plugin add manager@wirenet" in document
         assert (
             "$wirenet-manager-bootstrap Set up my local Manager, then continue "
             "with onboarding." in document
@@ -253,19 +255,19 @@ def test_clean_codex_install_contract_is_complete_and_repo_readable() -> None:
 def test_personal_onboarding_preserves_jason_sequence_with_explicit_gates() -> None:
     bootstrap = (
         ROOT
-        / "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/SKILL.md"
+        / "plugins/manager/skills/wirenet-manager-bootstrap/SKILL.md"
     ).read_text(encoding="utf-8")
     skill = (
         ROOT
-        / "plugins/wirenet-manager/skills/wirenet-manager-onboarding/SKILL.md"
+        / "plugins/manager/skills/wirenet-manager-onboarding/SKILL.md"
     ).read_text(encoding="utf-8")
     reference = (
         ROOT
-        / "plugins/wirenet-manager/skills/wirenet-manager-onboarding/references/first-meeting-flow.md"
+        / "plugins/manager/skills/wirenet-manager-onboarding/references/first-meeting-flow.md"
     ).read_text(encoding="utf-8")
     task_template = (
         ROOT
-        / "plugins/wirenet-manager/skills/wirenet-manager-onboarding/references/manager-task-template.md"
+        / "plugins/manager/skills/wirenet-manager-onboarding/references/manager-task-template.md"
     ).read_text(encoding="utf-8")
 
     assert "$wirenet-manager-onboarding" in bootstrap
@@ -311,7 +313,7 @@ def test_personal_onboarding_preserves_jason_sequence_with_explicit_gates() -> N
 
 def test_write_like_me_bootstrap_generates_behavior_outside_manager() -> None:
     skill = (
-        ROOT / "plugins/wirenet-manager/skills/write-like-me-bootstrap/SKILL.md"
+        ROOT / "plugins/manager/skills/write-like-me-bootstrap/SKILL.md"
     ).read_text(encoding="utf-8")
     assert "~/.agents/skills/write-like-me/" in skill
     assert "Never place it inside `~/Manager`" in skill
@@ -328,7 +330,7 @@ def test_write_like_me_bootstrap_generates_behavior_outside_manager() -> None:
 
     template = (
         ROOT
-        / "plugins/wirenet-manager/skills/write-like-me-bootstrap/references/generated-skill-template.md"
+        / "plugins/manager/skills/write-like-me-bootstrap/references/generated-skill-template.md"
     ).read_text(encoding="utf-8")
     generated_skill = template.split("```md", 1)[1].split("```", 1)[0]
     assert "last_edited" not in generated_skill
@@ -339,16 +341,16 @@ def test_write_like_me_bootstrap_generates_behavior_outside_manager() -> None:
 
 def test_language_and_communication_policy_stays_in_the_right_layers() -> None:
     seed_readme = (
-        ROOT / "plugins/wirenet-manager/templates/manager/README.md"
+        ROOT / "plugins/manager/templates/manager/README.md"
     ).read_text(encoding="utf-8")
     seed_agents = (
-        ROOT / "plugins/wirenet-manager/templates/manager/AGENTS.md"
+        ROOT / "plugins/manager/templates/manager/AGENTS.md"
     ).read_text(encoding="utf-8")
     routing = (
         ROOT
-        / "plugins/wirenet-manager/skills/wirenet-manager/references/content-routing.md"
+        / "plugins/manager/skills/wirenet-manager/references/content-routing.md"
     ).read_text(encoding="utf-8")
-    seed_docs = ROOT / "plugins/wirenet-manager/templates/manager/docs"
+    seed_docs = ROOT / "plugins/manager/templates/manager/docs"
 
     assert 'content_language: "en"' in seed_readme
     assert "Read `content_language` from the root `README.md`" in seed_agents
