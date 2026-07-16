@@ -1,0 +1,4 @@
+interface:
+  display_name: "simple HTML artifact"
+  short_description: "Build a clear, self-contained HTML document"
+  default_prompt: "Use $simple-html-artifact to turn this information into a clear HTML artifact."

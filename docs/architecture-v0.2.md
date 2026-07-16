@@ -1,12 +1,12 @@
 ---
-last_edited: 2026-07-15
+last_edited: 2026-07-16
 ---
 
-# WireNet Manager v0.2 Architecture
+# wirenet Manager v0.2 Architecture
 
 ## Core Design Principle: Metadata As Code
 
-WireNet Manager treats metadata as a maintained architectural surface rather
+wirenet Manager treats metadata as a maintained architectural surface rather
 than incidental application state. Markdown owns human-readable meaning;
 non-empty `type` frontmatter opts a document into the portable OKF knowledge
 projection; `AGENTS.md` owns executable agent routing outside that projection;
@@ -44,7 +44,7 @@ instance knowledge.
 
 ```text
                                install / update
-GitHub or local marketplace ─────────────────────▶ WireNet Manager plugin
+GitHub or local marketplace ─────────────────────▶ wirenet Manager plugin
                                                      │
                      bootstrap content seed          │ skills + scripts
                                                      ▼
@@ -65,14 +65,14 @@ External task ends
        └─ meaningful durable change
                   │
                   ▼
-        $wirenet-manager-sync
+        $manager
                   │
           inspect local binding
           ┌───────┼───────────┐
           ▼       ▼           ▼
        tracked experiment  untracked
           │       │           │
-          │   reconcile        └──▶ $wirenet-manager-project
+          │   reconcile        └──▶ $manager
           ▼
    propose smallest diff
           │
@@ -85,35 +85,35 @@ External task ends
 
 ### Marketplace And Manifest
 
-- `.agents/plugins/marketplace.json` exposes the local plugin package.
-- `plugins/manager/.codex-plugin/plugin.json` identifies version 0.3.1,
-  bundled skills, interface copy, and starter prompts.
+- `.agents/plugins/marketplace.json` exposes the three public plugin packages.
+- `plugins/manager/.codex-plugin/plugin.json` identifies Manager core version
+  0.4.0, interface copy, and starter prompts.
+- `plugins/workflows/` and `plugins/content-tools/` are independently
+  installable cross-project capability plugins.
 
-### Skills
+### Skills And Playbooks
 
-- `skills/wirenet-manager/`: ongoing Manager task and orientation behavior.
-- `skills/wirenet-manager-bootstrap/`: technical seed, repair, QMD, discovery
-  helpers, bundled-runtime preflight, and global rules.
-- `skills/wirenet-manager-onboarding/`: first map, interview, approved source
-  orientation, thin long-running Manager-task setup, continuity, and personal
-  handoff. The task remains a conversational shell; `~/Manager` remains the
-  canonical durable state.
-- `skills/wirenet-manager-project/`: explicit Project and Experiment Pack
-  creation, classification, binding, promotion, and lifecycle transitions.
-- `skills/wirenet-manager-person/`: evidence-backed person concept creation and
-  maintenance.
-- `skills/wirenet-manager-sync/`: cross-workspace durable reconciliation for
-  an existing tracked packet.
-- `skills/loop/`: general-purpose task-attached recurring checks with explicit
-  completion and cleanup behavior.
-- `skills/write-like-me-bootstrap/`: optional generation of a global personal
-  writing behavior skill from approved authored messages, or migration of an
-  existing repo-local profile.
-- `skills/ultragoal/`: explicitly invoked persistent goal execution. Its
-  `agents/openai.yaml` disables implicit invocation.
+- `plugins/manager/skills/manager/`: ongoing orientation and one progressively
+  disclosed set of Project, Experiment, Person, routing, and sync playbooks.
+- `plugins/manager/skills/manager-setup/`: technical setup, repair, QMD,
+  bundled-runtime preflight, first personal meeting, and optional personal
+  writing-voice setup.
+- `plugins/workflows/skills/loop/`: general-purpose task-attached recurring
+  checks with explicit completion and cleanup behavior.
+- `plugins/workflows/skills/ultragoal/`: explicitly invoked persistent goal
+  execution with implicit invocation disabled.
+- `plugins/content-tools/skills/simple-html-artifact/`: restrained static HTML
+  artifacts for comprehension and inspection.
+- `plugins/content-tools/skills/audit-ai-writing/`: evidence-led editorial and
+  citation-quality review without detector theater.
+- `.agents/skills/`: repository-only Developer audits and publishing workflow;
+  these do not enter the public plugin catalog.
 
-Each skill keeps its `SKILL.md` concise and places detailed contracts under
-`references/`. UI metadata lives in `agents/openai.yaml`.
+The two visible Manager skills replace separate UI entries for onboarding,
+Project, Person, and sync operations. Those procedures remain explicit as
+task-loaded references. Each distributable skill keeps `SKILL.md` concise and
+places detailed contracts under `references/`; UI metadata lives in
+`agents/openai.yaml`.
 
 A generated `~/.agents/skills/write-like-me/` is personal global behavior. It
 does not enter the Manager OKF bundle and is not copied into `~/Manager`.
@@ -138,11 +138,11 @@ does not enter the Manager OKF bundle and is not copied into `~/Manager`.
 - `scripts/discover_projects.py`: shallow approved-root discovery.
 - `scripts/okf_projection.py`: the single typed-concept, reserved-file, and
   Markdown-link projection shared by Inspector and future export or sync consumers.
-- `scripts/generate_manager_viewer.py`: one-shot read-only WireNet Inspector and
+- `scripts/generate_manager_viewer.py`: one-shot read-only wirenet Inspector and
   optional loopback-only transport for ChatGPT's built-in Browser.
 - Bootstrap and sync skill scripts provide their task-specific entry points.
 
-### WireNet Inspector
+### wirenet Inspector
 
 `viewer/manager-viewer.html` is a single HTML template based on the official
 Google Cloud OKF graph-and-detail viewer model. The generator embeds typed
@@ -154,14 +154,14 @@ Inspector. The Doctor rejects any other in-scope Markdown without an OKF `type`.
 
 Standard Markdown links between concepts create the only graph edges. The page
 renders complete concept Markdown and backlinks, with Google's search, type
-filter, layout, reset, graph, and detail interactions. WireNet adds its identity,
+filter, layout, reset, graph, and detail interactions. wirenet adds its identity,
 safe Markdown rendering, link normalization, and loopback-only serving. The
 Inspector adds no packet, folder, agent-routing, or inferred semantic edges and
 offers no editing or filesystem API.
 
 ### Layer Boundary
 
-WireNet preserves Jason Liu's plain-file operating model instead of replacing
+wirenet preserves Jason Liu's plain-file operating model instead of replacing
 it with OKF:
 
 1. Project `README.md` remains canonical current state; optional `GOAL.md`,
@@ -184,7 +184,7 @@ it with OKF:
 
 The frozen entity and route definitions under `contracts/routing/` make this
 boundary testable. They distinguish committed placeholders from semantically
-routed shelves, and they keep the Jason reference separate from WireNet's OKF,
+routed shelves, and they keep the Jason reference separate from wirenet's OKF,
 binding, plugin, and viewer additions. The human-readable analysis lives under
 `docs/routing/`.
 
@@ -214,7 +214,7 @@ or implicit global QMD update is part of v0.2.
 - `AGENTS.md`: Manager-wide read order, durable-state rules, and safety; runtime only.
 - `README.md`: typed `Manager Overview`, human landing page, and portable
   `content_language` policy for this instance.
-- `index.md`: required WireNet bundle catalog and OKF version declaration.
+- `index.md`: required wirenet bundle catalog and OKF version declaration.
 - `TODO.md`: cross-project current stack.
 - `agent/USER_CONTEXT.md`: durable user working context.
 - `projects/index.md`: lifecycle-aware catalog for progressive disclosure and search.

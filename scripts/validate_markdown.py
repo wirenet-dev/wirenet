@@ -103,9 +103,18 @@ def validate_tree(root: Path) -> list[str]:
         if path.name in OKF_RESERVED_FILES:
             errors.extend(validate_okf_reserved(path))
             continue
-        is_skill = path.name == "SKILL.md" and ".codex" in path.parts and "skills" in path.parts
+        is_repo_skill = (
+            path.name == "SKILL.md"
+            and "skills" in path.parts
+            and any(part in {".agents", ".codex"} for part in path.parts)
+        )
         is_plugin_skill = path.name == "SKILL.md" and "plugins" in path.parts and "skills" in path.parts
-        errors.extend(validate_markdown(path, skill=is_skill, plugin_skill=is_plugin_skill))
+        errors.extend(
+            validate_markdown(
+                path,
+                plugin_skill=is_repo_skill or is_plugin_skill,
+            )
+        )
     return errors
 
 

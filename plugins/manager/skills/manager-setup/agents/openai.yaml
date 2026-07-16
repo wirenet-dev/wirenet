@@ -1,0 +1,4 @@
+interface:
+  display_name: "manager setup"
+  short_description: "Set up, onboard, upgrade, or repair Manager"
+  default_prompt: "Use $manager-setup to set up or repair my local Manager."

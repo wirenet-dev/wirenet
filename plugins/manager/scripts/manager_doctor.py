@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inspect a WireNet Manager v0.2 without modifying it."""
+"""Inspect a wirenet Manager v0.2 without modifying it."""
 
 from __future__ import annotations
 

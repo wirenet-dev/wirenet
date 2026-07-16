@@ -1,10 +1,10 @@
 ---
-last_edited: 2026-07-15
+last_edited: 2026-07-16
 ---
 
-# WireNet Manager
+# wirenet Manager
 
-WireNet Manager is an installable ChatGPT Work and Codex plugin for local,
+wirenet Manager is an installable ChatGPT Work and Codex plugin for local,
 reviewable work memory. It bootstraps a content-only `~/Manager`, connects
 external workspaces through device-local bindings, and maintains portable
 Project Packs that begin with a human handoff and local agent instructions,
@@ -12,7 +12,7 @@ then grow only when the work earns more structure.
 
 ## Metadata As Code
 
-**Metadata as Code is the central WireNet Manager design principle.** Durable
+**Metadata as Code is the central wirenet Manager design principle.** Durable
 work context should not disappear into hidden application state: its identity,
 type, relationships, routing, and lifecycle live next to human-readable content
 in version-controlled files.
@@ -32,7 +32,7 @@ database, proprietary UI, or invisible agent memory the source of truth.
 
 ## Canonical Three-Layer Model
 
-Every WireNet Manager file belongs to exactly one architectural layer. This is
+Every wirenet Manager file belongs to exactly one architectural layer. This is
 the primary decision rule for extending the product:
 
 | Layer | Owns | Canonical location | Portability |
@@ -85,14 +85,14 @@ statuses, commands, and runtime instructions remain English.
 > **Codex setup instruction:** When the user attaches an Appshot of this section
 > and asks to be set up, read this repository README first. Preview and ask
 > before installing the `wirenet-dev/wirenet-manager` marketplace and its
-> WireNet Manager plugin. After installation, restart ChatGPT if requested and
-> create the technical local baseline with `$wirenet-manager-bootstrap`, then
-> continue the personal first meeting with `$wirenet-manager-onboarding`. Infer
+> wirenet Manager plugin. After installation, restart ChatGPT if requested and
+> create the technical local baseline with `$manager-setup`, then
+> continue the personal first meeting with `$manager-setup`. Infer
 > the content language from the user's request, preview system changes, and keep
 > connected services, source reading, global instructions, durable memory, task
 > changes, and automations behind separate approval gates.
 
-A clean Codex has no WireNet skill yet, so the first task is deliberately a
+A clean Codex has no wirenet skill yet, so the first task is deliberately a
 small installer. It should preview and, after approval, run:
 
 ```sh
@@ -103,7 +103,7 @@ codex plugin add manager@wirenet
 After installation, restart ChatGPT if requested and begin a fresh task with:
 
 ```text
-$wirenet-manager-bootstrap Set up my local Manager, then continue with onboarding.
+$manager-setup Set up my local Manager, then continue with onboarding.
 ```
 
 The new task can become the user's long-running Manager task. The product
@@ -120,12 +120,12 @@ codex plugin add manager@wirenet
 Restart ChatGPT if requested, then start a new task with:
 
 ```text
-$wirenet-manager-bootstrap Set up my local Manager, then continue with onboarding.
+$manager-setup Set up my local Manager, then continue with onboarding.
 ```
 
 The bootstrap previews every write, creates no cloud sync, and leaves external
 project folders where they already are. Once Doctor and optional QMD setup are
-healthy, `$wirenet-manager-onboarding` runs the personal first meeting: first
+healthy, `$manager-setup` runs the personal first meeting: first
 map, one-question-at-a-time interview, targeted source reads, durable context
 proposals, check-ins, optional monitors, and optional writing-voice setup. Every
 install, connection, source read, durable write, global instruction, task
@@ -169,30 +169,33 @@ external project folders           ◀──────▶    └── ignored
 - No database, cloud sync, shared Knowledge Hub, or filesystem watcher is part
   of v0.2.
 
-## Plugin Skills
+## Skill Packaging
 
-- `$wirenet-manager`: ongoing orientation, current stack, and Manager task.
-- `$wirenet-manager-bootstrap`: technical setup, schema-aware upgrades, health
-  checks, repair, QMD, project discovery helpers, and managed global guidance.
-- `$wirenet-manager-onboarding`: Jason-inspired first meeting, work map,
-  interview, targeted source orientation, continuity offers, and handoff.
-- `$wirenet-manager-project`: explicit creation, classification, binding,
-  promotion, and lifecycle transitions for Project and Experiment Packs.
-- `$wirenet-manager-person`: supporting skill for evidence-backed person
-  concepts and durable human handoffs without raw communication archives.
-- `$wirenet-manager-sync`: focused reconciliation from an existing external
-  workspace into its tracked Project or Experiment Pack.
-- `$loop`: general-purpose recurring checks, retries, and monitors attached to
-  the current task, with an explicit completion condition and clean shutdown.
-- `$write-like-me-bootstrap`: optional personal writing-style skill generation
-  from approved user-authored sent messages or migration of an existing
-  repo-local profile to the global skill location.
-- `$ultragoal`: explicit-only persistent goal execution. It is installed with
-  the plugin but cannot be selected implicitly.
+The public marketplace separates always-on work memory from optional reusable
+capabilities:
+
+| Plugin | Visible skills | Purpose |
+| --- | --- | --- |
+| `manager@wirenet` | `$manager`, `$manager-setup` | Ongoing work orientation plus setup, onboarding, upgrades, repair, QMD, and optional personal voice setup |
+| `workflows@wirenet` | `$loop`, `$ultragoal` | Cross-project recurring checks and explicitly activated persistent goals |
+| `content-tools@wirenet` | `$simple-html-artifact`, `$audit-ai-writing` | Information-first static HTML and rigorous AI-writing review |
+
+Project, Experiment, Person, and external-workspace sync remain focused Manager
+playbooks loaded through `$manager`; they are not separate UI skills. Personal
+onboarding and `write-like-me` generation are setup playbooks loaded through
+`$manager-setup`. The generated personal skill lives at
+`~/.agents/skills/write-like-me/`, so it belongs to the user and works across
+projects without being published inside a shared plugin.
+
+Developer-only audits and release workflows belong in a repository's
+`.agents/skills/` shelf. This repository includes `$audit-ai-code`,
+`$audit-ai-frontend`, and explicit-only `$yeet` for its own development. GitHub
+issue, review, and CI operations use the official GitHub plugin rather than
+duplicating connector-specific skills in the public wirenet marketplace.
 
 ## QMD Retrieval
 
-WireNet Manager can register the local Manager as `qmd://manager/`. QMD is a
+wirenet Manager can register the local Manager as `qmd://manager/`. QMD is a
 derived search index, not another source of truth: typed OKF concepts plus
 reserved indexes and logs remain canonical Markdown, while runtime
 `AGENTS.md`, hidden device state, and `outputs/` stay outside the collection.
@@ -209,9 +212,9 @@ and every search hit is fetched as a complete document before it is used. If
 QMD is absent, stale, or unhealthy, the Manager continues through indexes,
 links, and direct files without losing functionality.
 
-## WireNet Inspector
+## wirenet Inspector
 
-`$wirenet-manager` can open the branded WireNet Inspector for the Manager's
+`$manager` can open the branded wirenet Inspector for the Manager's
 portable OKF knowledge projection. A non-reserved Markdown file enters that projection
 only when it has a non-empty OKF `type`. `index.md`, `log.md`, `AGENTS.md`,
 plugin metadata, skills, scripts, hidden state, device-local bindings, and
@@ -221,7 +224,7 @@ other in-scope Markdown without an OKF `type`.
 The Inspector follows the graph-and-detail model of Google's official OKF HTML
 viewer: typed concepts become nodes, standard Markdown links between concepts
 become directed graph edges, and selecting a concept renders its complete body
-and backlinks. WireNet changes only the identity, safe Markdown rendering,
+and backlinks. wirenet changes only the identity, safe Markdown rendering,
 loopback transport, and the explicit projection boundary above. The Inspector
 is read-only and has no synthetic routing edges, Node runtime, database,
 watcher, or edit API.
@@ -245,7 +248,7 @@ Skills use the current installable plugin structure. The repo marketplace is at
 
 Every Project Pack contains:
 
-| File | Responsibility | WireNet OKF mapping |
+| File | Responsibility | wirenet OKF mapping |
 | --- | --- | --- |
 | `README.md` | Current status and next move | `Project Status` |
 | `AGENTS.md` | Read order, sources, safety, update rules | runtime sidecar outside OKF |
@@ -256,7 +259,7 @@ when they improve the handoff. Only an explicitly invoked `$ultragoal` may add
 or update `WORKLOG.md`. All concepts and the runtime
 sidecar share one stable `project_id`; reserved files are identified by their
 packet path and carry no duplicate concept metadata. Manager `index.md` and
-`projects/index.md` are required by the WireNet profile as navigational entry
+`projects/index.md` are required by the wirenet profile as navigational entry
 points, even though OKF itself makes both indexes and logs optional. Packet-local
 indexes and all logs remain optional.
 
@@ -266,7 +269,7 @@ linked Project Pack while preserving the experiment as origin evidence.
 
 Machine-local paths live only in
 `~/Manager/.wirenet/workspace-bindings.json`. Project and Experiment Pack
-metadata follows small WireNet OKF profiles; the binding registry itself is
+metadata follows small wirenet OKF profiles; the binding registry itself is
 device-local runtime, not part of the knowledge bundle or a claim that v0.2
 implements the complete OKF mirror system.
 
@@ -277,18 +280,21 @@ concept relationships.
 
 ## Developer Layout
 
-- `.agents/plugins/marketplace.json`: local and future public marketplace.
-- `plugins/manager/`: installable plugin package.
+- `.agents/plugins/marketplace.json`: public wirenet marketplace catalog.
+- `plugins/manager/`: installable Manager core.
+- `plugins/workflows/`: optional cross-project loops and persistent goals.
+- `plugins/content-tools/`: optional HTML and writing-quality tools.
+- `.agents/skills/`: developer-only skills for this repository.
 - `plugins/manager/templates/manager/`: content-only runtime seed.
 - `plugins/manager/scripts/`: deterministic shared Manager helpers,
   including workspace upgrades, the common OKF projection, and the read-only
   viewer generator, plus optional QMD setup.
-- `plugins/manager/viewer/`: one-file WireNet Inspector template.
+- `plugins/manager/viewer/`: one-file wirenet Inspector template.
 - `docs/architecture-v0.2.md`: file-by-file architecture and routing diagram.
 - `docs/project-pack-contract.md`: Project Pack and OKF profile.
 - `docs/testing-markdown-as-code.md`: contract surfaces, test layers, and
   regression invariants for the natural-language product.
-- `docs/routing/`: frozen Jason and WireNet routing descriptions plus the
+- `docs/routing/`: frozen Jason and wirenet routing descriptions plus the
   regression strategy.
 - `contracts/routing/`: machine-readable routing entities, producers,
   consumers, evidence, and route contracts.
@@ -300,7 +306,7 @@ concept relationships.
 
 ## Upstream Reference
 
-WireNet Manager is a deliberate downstream of Jason Liu's
+wirenet Manager is a deliberate downstream of Jason Liu's
 [`personal-monorepo-template`](https://github.com/jxnl/personal-monorepo-template).
 It preserves the useful plain-file, Git-backed Assistant model while separating
 installable intelligence from personal content and adding portable Project
@@ -309,7 +315,7 @@ Packs, local bindings, global reconciliation, and OKF-compatible navigation.
 The original scaffold is not duplicated inside this product repository. A
 fetch-only `upstream` remote and the frozen contracts under `docs/routing/` and
 `contracts/routing/` preserve the comparison boundary without mixing upstream
-runtime files into the canonical WireNet implementation.
+runtime files into the canonical wirenet implementation.
 
 ## Local Development
 
@@ -317,6 +323,10 @@ runtime files into the canonical WireNet implementation.
 python3 scripts/validate_markdown.py .
 python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" \
   plugins/manager
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" \
+  plugins/workflows
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" \
+  plugins/content-tools
 pytest -q
 git diff --check
 ```
@@ -324,14 +334,14 @@ git diff --check
 Preview a disposable bootstrap without mutating the destination:
 
 ```sh
-python3 plugins/manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py \
+python3 plugins/manager/skills/manager-setup/scripts/bootstrap_manager.py \
   --manager-dir /tmp/wirenet-manager-review
 ```
 
 Apply only to a disposable directory during development:
 
 ```sh
-python3 plugins/manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py \
+python3 plugins/manager/skills/manager-setup/scripts/bootstrap_manager.py \
   --manager-dir /tmp/wirenet-manager-review \
   --apply
 ```
@@ -362,9 +372,10 @@ python3 scripts/compare_routing_contracts.py
 
 ## Release Status
 
-Plugin `0.3.1` is the current implementation of the v0.2 lifecycle architecture,
+Plugin `0.4.0` is the current implementation of the v0.2 lifecycle architecture,
 its explicit workspace-upgrade path, optional QMD retrieval setup, Jason-inspired
-personal onboarding, explicit project and person workflows, recurring task
-loops, non-developer runtime preflight, and optional global personal
-writing-voice bootstrap or migration.
+personal onboarding, consolidated project and person playbooks, non-developer
+runtime preflight, and optional global personal writing-voice setup. Reusable
+loops and persistent goals now ship separately in `workflows@wirenet`; content
+creation and writing audits ship in `content-tools@wirenet`.
 The repository's `main` branch is the canonical installation source.

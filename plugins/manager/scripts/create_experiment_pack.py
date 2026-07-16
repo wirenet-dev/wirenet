@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Preview or create a bounded WireNet Manager Experiment Pack."""
+"""Preview or create a bounded wirenet Manager Experiment Pack."""
 
 from __future__ import annotations
 

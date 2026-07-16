@@ -1,4 +1,0 @@
-interface:
-  display_name: "WireNet Manager Project"
-  short_description: "Manage Project and Experiment Pack lifecycles"
-  default_prompt: "Use $wirenet-manager-project to create or manage this project."

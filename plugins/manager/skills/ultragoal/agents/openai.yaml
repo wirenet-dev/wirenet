@@ -1,7 +1,0 @@
-interface:
-  display_name: "UltraGoal"
-  short_description: "Runs explicitly activated persistent goals"
-  default_prompt: "Use $ultragoal to define and activate a persistent goal with a verifiable finish line."
-
-policy:
-  allow_implicit_invocation: false

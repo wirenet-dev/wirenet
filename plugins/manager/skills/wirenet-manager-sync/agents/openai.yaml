@@ -1,4 +1,0 @@
-interface:
-  display_name: "WireNet Manager Sync"
-  short_description: "Hält Project Packs kontrolliert aktuell"
-  default_prompt: "Use $wirenet-manager-sync to reconcile this project with my Manager."

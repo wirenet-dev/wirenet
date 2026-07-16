@@ -1,19 +1,19 @@
 ---
-last_edited: 2026-07-15
+last_edited: 2026-07-16
 ---
 
-# WireNet Manager v0.2 Routing Contract
+# wirenet Manager v0.2 Routing Contract
 
-This document presents WireNet Manager in the same form as the frozen Jason Liu
+This document presents wirenet Manager in the same form as the frozen Jason Liu
 reference. The matching machine-readable contract is
 [`contracts/routing/wirenet-manager-v0.2.json`](../../contracts/routing/wirenet-manager-v0.2.json).
 
 ## System Boundary
 
-WireNet separates behavior, personal memory, and implementation work:
+wirenet separates behavior, personal memory, and implementation work:
 
 ```text
-installed WireNet Manager plugin
+installed wirenet Manager plugin
 ├── skills/                    global behavior and triggers
 ├── scripts/                   deterministic producers and validators
 └── templates/manager/         content-only bootstrap seed
@@ -21,7 +21,7 @@ installed WireNet Manager plugin
                ▼
 ~/Manager/
 ├── AGENTS.md                  Manager-local routing
-├── index.md                   required WireNet bundle catalog
+├── index.md                   required wirenet bundle catalog
 ├── README.md                  typed Manager Overview
 ├── TODO.md                    ordered cross-project stack
 ├── agent/USER_CONTEXT.md      durable working context
@@ -52,7 +52,7 @@ content seed.
 | Entity | Canonical role | Created how | Routing authority |
 | --- | --- | --- | --- |
 | Root `AGENTS.md` | Manager read order, destinations, thresholds, safety; runtime sidecar outside OKF | Seed; repair only if missing | Yes, inside Manager |
-| Root `index.md` | Required WireNet bundle catalog and OKF version declaration | Seed | Navigation |
+| Root `index.md` | Required wirenet bundle catalog and OKF version declaration | Seed | Navigation |
 | Root `README.md` | Typed Manager Overview, human landing page, and content-language policy | Seed | Canonical instance overview |
 | `TODO.md` | Ordered current stack | Seed and approved updates | State, not instructions |
 | `agent/USER_CONTEXT.md` | Confirmed user and operating context | Seed and approved updates | Context, not instructions |
@@ -92,7 +92,7 @@ global AGENTS.md managed core block
         └── meaningful transition or handoff
                     │
                     ▼
-          $wirenet-manager-sync
+          $manager
                     │
              inspect local binding
         ┌───────────┼────────────┬────────────┐
@@ -110,8 +110,8 @@ packet AGENTS.md determines read order and destinations
 ```
 
 Untracked classification and all packet lifecycle changes route through
-`$wirenet-manager-project`; canonical collaborator context routes through
-`$wirenet-manager-person`. Sync remains the narrow external-workspace handoff.
+`$manager`; canonical collaborator context routes through
+`$manager`. Sync remains the narrow external-workspace handoff.
 
 `AGENTS.md` remains the executable routing layer under the separate
 `wirenet-runtime/v0.1` schema. It deliberately has no OKF `type`. OKF metadata
@@ -173,7 +173,7 @@ decision about when a transition is deserved.
 - `experiments/` contains real lightweight packets for bounded spikes, including
   Manager-native and externally bound experiments.
 
-These are WireNet policies, not retroactive claims about Jason's intent.
+These are wirenet policies, not retroactive claims about Jason's intent.
 Their reusable explanations live in the plugin and runtime `AGENTS.md`, not in
 generic shelf README placeholders. A shelf receives `index.md` only after real
 content benefits from progressive disclosure.
@@ -185,7 +185,7 @@ with `index.md` for optional progressive disclosure, `log.md` for optional
 history, YAML `type` metadata on concept documents, and Markdown links for graph
 relationships.
 
-WireNet makes the Manager the canonical OKF bundle with a transparent runtime
+wirenet makes the Manager the canonical OKF bundle with a transparent runtime
 overlay:
 
 1. Every in-scope non-reserved Markdown file requires non-empty `type`
@@ -193,7 +193,7 @@ overlay:
 2. `AGENTS.md`, ignored outputs, plugin implementation, and device-local state
    remain outside the projection.
 3. Concept frontmatter adds stable type, packet identity, and producer fields.
-4. Root `index.md` and `projects/index.md` are required by the WireNet profile;
+4. Root `index.md` and `projects/index.md` are required by the wirenet profile;
    `experiments/index.md` becomes required once Experiment Packs exist. These
    are stable entry points although OKF itself makes indexes optional.
 5. Packet-local indexes and all `log.md` files remain optional reserved
@@ -208,7 +208,7 @@ remains local and inspectable without being synchronized as knowledge.
 
 ## Memory Update Strategy
 
-WireNet keeps Jason's durable-meaning threshold and makes it deterministic:
+wirenet keeps Jason's durable-meaning threshold and makes it deterministic:
 
 - the global core block is the cross-workspace trigger;
 - bindings classify the current local path;

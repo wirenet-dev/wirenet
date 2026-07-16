@@ -12,12 +12,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins/manager"
 PLUGIN_SCRIPTS = PLUGIN / "scripts"
-BOOTSTRAP = PLUGIN / "skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py"
+BOOTSTRAP = PLUGIN / "skills/manager-setup/scripts/bootstrap_manager.py"
 GUIDANCE = (
-    PLUGIN / "skills/wirenet-manager-bootstrap/scripts/install_global_guidance.py"
+    PLUGIN / "skills/manager-setup/scripts/install_global_guidance.py"
 )
-INSPECT = PLUGIN / "skills/wirenet-manager-sync/scripts/inspect_workspace.py"
-IGNORE = PLUGIN / "skills/wirenet-manager-sync/scripts/record_ignored_workspace.py"
+INSPECT = PLUGIN_SCRIPTS / "inspect_workspace.py"
+IGNORE = PLUGIN_SCRIPTS / "record_ignored_workspace.py"
 CREATE_PROJECT = PLUGIN_SCRIPTS / "create_project_pack.py"
 CREATE_EXPERIMENT = PLUGIN_SCRIPTS / "create_experiment_pack.py"
 CREATE_PERSON = PLUGIN_SCRIPTS / "create_person_note.py"
@@ -64,7 +64,7 @@ def commit_manager(manager: Path, message: str) -> None:
         [
             "git",
             "-c",
-            "user.name=WireNet Test",
+            "user.name=wirenet Test",
             "-c",
             "user.email=test@wirenet.invalid",
             "-c",
@@ -195,7 +195,7 @@ def test_global_guidance_preserves_content_and_is_idempotent(tmp_path: Path) -> 
     assert "# Existing rules" in first_content
     assert first_content.count("<!-- wirenet-manager:core:start -->") == 1
     assert "<!-- wirenet-manager:routing:start -->" not in first_content
-    assert "$wirenet-manager-sync" in first_content
+    assert "$manager" in first_content
     assert "installed and enabled" in first_content
     assert "unavailable or disabled, do nothing" in first_content
     assert "routine edits" in first_content
@@ -338,10 +338,10 @@ def test_bootstrap_materializes_content_only_manager_with_local_git(
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
     assert metadata["project_pack_profile"] == "wirenet-project-pack/v0.1"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
-    assert metadata["plugin_version"] == "0.3.1"
+    assert metadata["plugin_version"] == "0.4.0"
     assert metadata["manager_id"].startswith("mgr_")
     assert (
-        "Continue with $wirenet-manager-onboarding for the personal first meeting."
+        "Continue with $manager-setup for the personal first meeting."
         in applied["next_steps"]
     )
 
@@ -523,7 +523,7 @@ def test_upgrade_migrates_v01_without_rewriting_personal_content(
         (manager / ".wirenet/manager.json").read_text(encoding="utf-8")
     )
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
-    assert metadata["plugin_version"] == "0.3.1"
+    assert metadata["plugin_version"] == "0.4.0"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
     assert metadata["okf_profiles"] == [
         "wirenet-okf-project-pack/v0.1",
@@ -651,7 +651,7 @@ def test_upgrade_requires_newer_plugin_for_newer_workspace_schema(
     result = json.loads(rejected.stdout)
     assert rejected.returncode == 2
     assert result["state"] == "plugin-too-old"
-    assert "update WireNet Manager" in result["error"]
+    assert "update wirenet Manager" in result["error"]
 
 
 def test_repair_fills_an_empty_existing_manager_without_overwrite(

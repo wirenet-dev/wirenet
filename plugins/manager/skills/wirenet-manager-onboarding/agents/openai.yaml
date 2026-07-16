@@ -1,4 +1,0 @@
-interface:
-  display_name: "WireNet Manager Onboarding"
-  short_description: "Learn the user’s work and set up Manager continuity"
-  default_prompt: "Use $wirenet-manager-onboarding to start my first Manager meeting."

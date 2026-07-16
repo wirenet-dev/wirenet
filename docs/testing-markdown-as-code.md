@@ -1,10 +1,10 @@
 ---
-last_edited: 2026-07-15
+last_edited: 2026-07-16
 ---
 
 # Testing Markdown As Code
 
-WireNet Manager treats natural-language workspace behavior as a software
+wirenet Manager treats natural-language workspace behavior as a software
 product. Markdown bodies carry human meaning and agent instructions; non-empty
 `type` frontmatter is required for every non-reserved knowledge document;
 standard Markdown links define knowledge-graph edges; folder placement and inherited
@@ -20,7 +20,7 @@ the natural-language parts of that system.
 Google's OKF specification does not name this discipline "Markdown as Code."
 It describes a minimal Markdown-and-YAML knowledge format that is human- and
 agent-readable, portable, and diffable in version control, and explicitly
-relates it to "metadata as code." WireNet adopts that principle directly and
+relates it to "metadata as code." wirenet adopts that principle directly and
 extends its engineering consequences from knowledge representation to agent
 behavior and routing.
 
@@ -52,7 +52,7 @@ sentence that intentionally acts as a routing contract.
 | Migration | Can an older supported workspace advance without losing personal meaning? | Version negotiation, clean-Git gate, body preservation, runtime backup, post-upgrade Doctor |
 | Reconciliation | Does a Manager-native or external path resolve predictably? | Local packet detection, longest binding, project, experiment, ignored, and untracked classification |
 | Consumption | Can humans inspect the portable knowledge source? | Full concept rendering, typed nodes, real link edges, and complete exclusion of reserved, runtime, and hidden-state documents |
-| Reference | Did WireNet accidentally erase a useful Jason behavior? | Frozen upstream contract and explicit semantic delta |
+| Reference | Did wirenet accidentally erase a useful Jason behavior? | Frozen upstream contract and explicit semantic delta |
 
 ## Core Regression Invariants
 
@@ -93,7 +93,7 @@ sentence that intentionally acts as a routing contract.
 - The viewer never becomes a source of truth and never exposes hidden bindings,
   runtime `AGENTS.md`, plugin implementation, or ignored outputs.
 - Reserved indexes, logs, and runtime `AGENTS.md` never enter the generated
-  WireNet Inspector payload.
+  wirenet Inspector payload.
 - Every graph edge comes from a standard Markdown link between two typed
   concepts; no runtime, folder, packet, or inferred edge may be synthesized.
 

@@ -3,7 +3,7 @@ schema: "wirenet-runtime/v0.1"
 visibility: local
 audience: agent
 status: active
-last_edited: 2026-07-15
+last_edited: 2026-07-16
 ---
 
 # Project Pack Instructions
@@ -18,7 +18,7 @@ Every active Project Pack starts with:
 ## Optional Conventions
 
 - `GOAL.md` — stable outcome and completion contract; OKF `Project Brief`.
-- `RESULT.md` — completed outcomes and verification; WireNet `Project Result`.
+- `RESULT.md` — completed outcomes and verification; wirenet `Project Result`.
 - `WORKLOG.md` — detailed active UltraGoal attempts, evidence, and next action;
   only an explicitly invoked UltraGoal may create or update it.
 - `log.md` — sparse meaningful changes under ISO-date headings; reserved OKF history.

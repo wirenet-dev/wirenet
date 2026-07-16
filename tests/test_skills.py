@@ -37,21 +37,26 @@ def test_markdown_validator_accepts_okf_index_and_log_structure(tmp_path: Path) 
 
 def test_plugin_skill_frontmatter_uses_official_contract() -> None:
     validator = load_module(ROOT / "scripts" / "validate_markdown.py")
-    skills = sorted((ROOT / "plugins/manager/skills").glob("*/SKILL.md"))
-    assert {skill.parent.name for skill in skills} == {
-        "loop",
-        "ultragoal",
-        "write-like-me-bootstrap",
-        "wirenet-manager",
-        "wirenet-manager-bootstrap",
-        "wirenet-manager-onboarding",
-        "wirenet-manager-person",
-        "wirenet-manager-project",
-        "wirenet-manager-sync",
+    expected = {
+        "manager": {"manager", "manager-setup"},
+        "workflows": {"loop", "ultragoal"},
+        "content-tools": {"simple-html-artifact", "audit-ai-writing"},
     }
-    for skill in skills:
+    for plugin, names in expected.items():
+        skills = sorted((ROOT / f"plugins/{plugin}/skills").glob("*/SKILL.md"))
+        assert {skill.parent.name for skill in skills} == names
+        for skill in skills:
+            assert validator.validate_markdown(skill, plugin_skill=True) == []
+            assert "[TODO:" not in skill.read_text(encoding="utf-8")
+
+    developer = sorted((ROOT / ".agents/skills").glob("*/SKILL.md"))
+    assert {skill.parent.name for skill in developer} == {
+        "audit-ai-code",
+        "audit-ai-frontend",
+        "yeet",
+    }
+    for skill in developer:
         assert validator.validate_markdown(skill, plugin_skill=True) == []
-        assert "[TODO:" not in skill.read_text(encoding="utf-8")
 
 
 def test_manager_seed_contains_content_but_no_embedded_skills() -> None:
@@ -84,18 +89,20 @@ def test_manager_seed_contains_content_but_no_embedded_skills() -> None:
 
 def test_manager_skills_share_one_content_routing_contract() -> None:
     skills = ROOT / "plugins/manager/skills"
-    manager = (skills / "wirenet-manager/SKILL.md").read_text(encoding="utf-8")
-    sync = (skills / "wirenet-manager-sync/SKILL.md").read_text(encoding="utf-8")
-    bootstrap = (skills / "wirenet-manager-bootstrap/SKILL.md").read_text(
+    manager = (skills / "manager/SKILL.md").read_text(encoding="utf-8")
+    sync = (skills / "manager/references/workspace-sync.md").read_text(
         encoding="utf-8"
     )
-    contract = (skills / "wirenet-manager/references/content-routing.md").read_text(
+    bootstrap = (skills / "manager-setup/SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    contract = (skills / "manager/references/content-routing.md").read_text(
         encoding="utf-8"
     )
 
     assert "references/content-routing.md" in manager
-    assert "../wirenet-manager/references/content-routing.md" in sync
-    assert "$wirenet-manager-onboarding" in bootstrap
+    assert "content-routing.md" in sync
+    assert "references/onboarding.md" in bootstrap
     assert (
         "Keep this shared reference instead of creating a separate routing skill"
         in contract
@@ -112,11 +119,11 @@ def test_manager_skills_share_one_content_routing_contract() -> None:
 
 def test_bootstrap_resolves_runtime_for_non_developer_computers() -> None:
     bootstrap = (
-        ROOT / "plugins/manager/skills/wirenet-manager-bootstrap/SKILL.md"
+        ROOT / "plugins/manager/skills/manager-setup/SKILL.md"
     ).read_text(encoding="utf-8")
     preflight = (
         ROOT
-        / "plugins/manager/skills/wirenet-manager-bootstrap/references/runtime-preflight.md"
+        / "plugins/manager/skills/manager-setup/references/runtime-preflight.md"
     ).read_text(encoding="utf-8")
     qmd = (ROOT / "plugins/manager/scripts/manager_qmd.py").read_text(
         encoding="utf-8"
@@ -133,32 +140,34 @@ def test_bootstrap_resolves_runtime_for_non_developer_computers() -> None:
 
 def test_manager_project_person_and_sync_have_distinct_roles() -> None:
     skills = ROOT / "plugins/manager/skills"
-    manager = (skills / "wirenet-manager/SKILL.md").read_text(encoding="utf-8")
-    project = (skills / "wirenet-manager-project/SKILL.md").read_text(
+    manager = (skills / "manager/SKILL.md").read_text(encoding="utf-8")
+    project = (skills / "manager/references/project-lifecycle.md").read_text(
         encoding="utf-8"
     )
-    person = (skills / "wirenet-manager-person/SKILL.md").read_text(
+    person = (skills / "manager/references/person-context.md").read_text(
         encoding="utf-8"
     )
-    sync = (skills / "wirenet-manager-sync/SKILL.md").read_text(encoding="utf-8")
+    sync = (skills / "manager/references/workspace-sync.md").read_text(
+        encoding="utf-8"
+    )
 
-    assert "$wirenet-manager-project" in manager
-    assert "$wirenet-manager-person" in manager
-    assert "$wirenet-manager-sync" in manager
+    assert "references/project-lifecycle.md" in manager
+    assert "references/person-context.md" in manager
+    assert "references/workspace-sync.md" in manager
     assert "scripts/create_project_pack.py" in project
     assert "scripts/create_experiment_pack.py" in project
     assert "scripts/promote_experiment.py" in project
     assert "scripts/transition_packet.py" in project
     assert "scripts/create_person_note.py" in person
     assert "Do not create a person concept merely because a name appeared once" in person
-    assert "current external workspace" in sync.split("---", 2)[1]
-    assert "Use `$wirenet-manager-project`" in sync
-    assert "Use `$wirenet-manager-person`" in sync
+    assert "External Workspace Sync" in sync
+    assert "project-lifecycle.md" in sync
+    assert "person-context.md" in sync
 
 
 def test_manager_keeps_jason_style_proactive_entry_triggers() -> None:
     skill = (
-        ROOT / "plugins/manager/skills/wirenet-manager/SKILL.md"
+        ROOT / "plugins/manager/skills/manager/SKILL.md"
     ).read_text(encoding="utf-8")
 
     for trigger in (
@@ -171,11 +180,11 @@ def test_manager_keeps_jason_style_proactive_entry_triggers() -> None:
 
 
 def test_loop_is_general_task_automation_with_clean_completion() -> None:
-    skill = (ROOT / "plugins/manager/skills/loop/SKILL.md").read_text(
+    skill = (ROOT / "plugins/workflows/skills/loop/SKILL.md").read_text(
         encoding="utf-8"
     )
     metadata = (
-        ROOT / "plugins/manager/skills/loop/agents/openai.yaml"
+        ROOT / "plugins/workflows/skills/loop/agents/openai.yaml"
     ).read_text(encoding="utf-8")
 
     assert "current Codex task" in skill.split("---", 2)[1]
@@ -189,13 +198,30 @@ def test_loop_is_general_task_automation_with_clean_completion() -> None:
 
 
 def test_ultragoal_is_installed_but_explicit_only() -> None:
-    skill = ROOT / "plugins/manager/skills/ultragoal"
+    skill = ROOT / "plugins/workflows/skills/ultragoal"
     metadata = (skill / "agents/openai.yaml").read_text(encoding="utf-8")
     instructions = (skill / "SKILL.md").read_text(encoding="utf-8")
 
     assert "allow_implicit_invocation: false" in metadata
     assert "Never infer activation" in instructions
     assert 'producer: "ultragoal"' in instructions
+
+
+def test_optional_plugins_and_developer_shelf_remain_separate() -> None:
+    content = ROOT / "plugins/content-tools/skills"
+    html = (content / "simple-html-artifact/SKILL.md").read_text(encoding="utf-8")
+    writing = (content / "audit-ai-writing/SKILL.md").read_text(encoding="utf-8")
+    yeet = ROOT / ".agents/skills/yeet"
+
+    assert "self-contained" in html.split("---", 2)[1]
+    assert "information-first" in html
+    assert "reader model" in writing.lower()
+    assert "detector" in writing.lower()
+    assert "allow_implicit_invocation: false" in (
+        yeet / "agents/openai.yaml"
+    ).read_text(encoding="utf-8")
+    assert not (ROOT / "plugins/content-tools/skills/yeet").exists()
+    assert not (ROOT / "plugins/manager/skills/loop").exists()
 
 
 def test_plugin_manifest_and_marketplace_use_core_namespace() -> None:
@@ -208,7 +234,7 @@ def test_plugin_manifest_and_marketplace_use_core_namespace() -> None:
         (ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
     )
     assert manifest["name"] == "manager"
-    assert manifest["version"] == "0.3.1"
+    assert manifest["version"] == "0.4.0"
     assert manifest["skills"] == "./skills/"
     assert manifest["interface"]["brandColor"] == "#FF5C1A"
     prompts = manifest["interface"]["defaultPrompt"]
@@ -218,7 +244,7 @@ def test_plugin_manifest_and_marketplace_use_core_namespace() -> None:
         "Personal onboarding",
         "Project and experiment tracking",
         "Cross-workspace context routing",
-        "Recurring check-ins",
+        "Personal context and people",
         "Local knowledge search",
     ]
     for asset_key in ("composerIcon", "logo", "logoDark"):
@@ -230,17 +256,23 @@ def test_plugin_manifest_and_marketplace_use_core_namespace() -> None:
         ).read_text(encoding="utf-8")
         assert 'viewBox="0 0 128 128"' in logo
         assert "<text" not in logo
-        assert "#FF5C1A" in logo
+        assert "#FF5C1A" not in logo
     assert marketplace["name"] == "wirenet"
-    assert marketplace["interface"]["displayName"] == "WireNet"
-    assert marketplace["plugins"] == [
-        {
-            "name": "manager",
-            "source": {"source": "local", "path": "./plugins/manager"},
-            "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
-            "category": "Productivity",
-        }
+    assert marketplace["interface"]["displayName"] == "wirenet"
+    assert [entry["name"] for entry in marketplace["plugins"]] == [
+        "manager",
+        "workflows",
+        "content-tools",
     ]
+    for entry in marketplace["plugins"]:
+        assert entry["source"] == {
+            "source": "local",
+            "path": f"./plugins/{entry['name']}",
+        }
+        assert entry["policy"] == {
+            "installation": "AVAILABLE",
+            "authentication": "ON_INSTALL",
+        }
 
 
 def test_clean_codex_install_contract_is_complete_and_repo_readable() -> None:
@@ -258,7 +290,7 @@ def test_clean_codex_install_contract_is_complete_and_repo_readable() -> None:
         )
         assert "codex plugin add manager@wirenet" in document
         assert (
-            "$wirenet-manager-bootstrap Set up my local Manager, then continue "
+            "$manager-setup Set up my local Manager, then continue "
             "with onboarding." in document
         )
 
@@ -269,22 +301,22 @@ def test_clean_codex_install_contract_is_complete_and_repo_readable() -> None:
 def test_personal_onboarding_preserves_jason_sequence_with_explicit_gates() -> None:
     bootstrap = (
         ROOT
-        / "plugins/manager/skills/wirenet-manager-bootstrap/SKILL.md"
+        / "plugins/manager/skills/manager-setup/SKILL.md"
     ).read_text(encoding="utf-8")
     skill = (
         ROOT
-        / "plugins/manager/skills/wirenet-manager-onboarding/SKILL.md"
+        / "plugins/manager/skills/manager-setup/references/onboarding.md"
     ).read_text(encoding="utf-8")
     reference = (
         ROOT
-        / "plugins/manager/skills/wirenet-manager-onboarding/references/first-meeting-flow.md"
+        / "plugins/manager/skills/manager-setup/references/first-meeting-flow.md"
     ).read_text(encoding="utf-8")
     task_template = (
         ROOT
-        / "plugins/manager/skills/wirenet-manager-onboarding/references/manager-task-template.md"
+        / "plugins/manager/skills/manager-setup/references/manager-task-template.md"
     ).read_text(encoding="utf-8")
 
-    assert "$wirenet-manager-onboarding" in bootstrap
+    assert "references/onboarding.md" in bootstrap
     assert "personal first meeting" in bootstrap
     assert "references/first-meeting-flow.md" in skill
     for state in ("`brand_new`", "`partial`", "`established`"):
@@ -300,7 +332,7 @@ def test_personal_onboarding_preserves_jason_sequence_with_explicit_gates() -> N
     assert "docs/communication-and-files.md" in reference
     assert "current task as destination" in reference
     assert "09:00 and 16:00" in reference
-    assert "$write-like-me-bootstrap" in reference
+    assert "write-like-me.md" in reference
     assert "never scan the whole home directory for personal skills" in reference
     assert "offer to migrate and validate it" in reference
     assert "You can just talk to your Manager" in reference
@@ -327,7 +359,7 @@ def test_personal_onboarding_preserves_jason_sequence_with_explicit_gates() -> N
 
 def test_write_like_me_bootstrap_generates_behavior_outside_manager() -> None:
     skill = (
-        ROOT / "plugins/manager/skills/write-like-me-bootstrap/SKILL.md"
+        ROOT / "plugins/manager/skills/manager-setup/references/write-like-me.md"
     ).read_text(encoding="utf-8")
     assert "~/.agents/skills/write-like-me/" in skill
     assert "Never place it inside `~/Manager`" in skill
@@ -344,7 +376,7 @@ def test_write_like_me_bootstrap_generates_behavior_outside_manager() -> None:
 
     template = (
         ROOT
-        / "plugins/manager/skills/write-like-me-bootstrap/references/generated-skill-template.md"
+        / "plugins/manager/skills/manager-setup/references/write-like-me-skill-template.md"
     ).read_text(encoding="utf-8")
     generated_skill = template.split("```md", 1)[1].split("```", 1)[0]
     assert "last_edited" not in generated_skill
@@ -362,7 +394,7 @@ def test_language_and_communication_policy_stays_in_the_right_layers() -> None:
     ).read_text(encoding="utf-8")
     routing = (
         ROOT
-        / "plugins/manager/skills/wirenet-manager/references/content-routing.md"
+        / "plugins/manager/skills/manager/references/content-routing.md"
     ).read_text(encoding="utf-8")
     seed_docs = ROOT / "plugins/manager/templates/manager/docs"
 

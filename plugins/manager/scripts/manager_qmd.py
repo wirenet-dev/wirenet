@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Detect QMD and register a WireNet Manager knowledge collection safely."""
+"""Detect QMD and register a wirenet Manager knowledge collection safely."""
 
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ KNOWLEDGE_PATTERN = (
     "projects/**/!(*AGENTS).md,sources/**/!(*AGENTS).md}"
 )
 COLLECTION_CONTEXT = (
-    "WireNet Manager durable work knowledge. Prefer current Project and "
+    "wirenet Manager durable work knowledge. Prefer current Project and "
     "Experiment Pack status, goals, results, tasks, people, notes, docs, "
     "sources, indexes, and sparse logs. Runtime AGENTS instructions and "
     "device-local outputs are outside this collection."
@@ -303,7 +303,7 @@ def main() -> int:
         result["actions"] = [
             f"install or repair QMD with npm or pnpm: {QMD_PACKAGE}",
             f"register {manager_dir} as qmd://{collection_name}/",
-            "attach WireNet Manager retrieval context",
+            "attach wirenet Manager retrieval context",
         ]
         if args.embed:
             result["actions"].append("embed the Manager collection")
@@ -410,7 +410,7 @@ def main() -> int:
             "the existing collection uses a custom pattern; it was preserved. "
             "Verify separately that runtime AGENTS.md and outputs are excluded."
         )
-    actions.append("attach or refresh WireNet Manager retrieval context")
+    actions.append("attach or refresh wirenet Manager retrieval context")
     if args.embed:
         actions.append("embed the Manager collection")
     result["actions"] = actions

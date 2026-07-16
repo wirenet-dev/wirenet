@@ -1,0 +1,4 @@
+interface:
+  display_name: "manager"
+  short_description: "Keep projects, context, and next actions current"
+  default_prompt: "Use $manager to show my current stack and next useful move."

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare WireNet Manager with its Jason Liu upstream without merging changes."""
+"""Compare wirenet Manager with its Jason Liu upstream without merging changes."""
 
 from __future__ import annotations
 
@@ -91,10 +91,10 @@ def main() -> int:
         print(json.dumps(result, indent=2))
         return 0
 
-    print(f"WireNet Manager: {result['ahead']} ahead, {result['behind']} behind {args.upstream}")
+    print(f"wirenet Manager: {result['ahead']} ahead, {result['behind']} behind {args.upstream}")
     for heading, key in (
         ("New upstream commits", "upstream_commits"),
-        ("WireNet commits", "wirenet_commits"),
+        ("wirenet commits", "wirenet_commits"),
         ("Committed file delta", "committed_delta"),
         ("Working tree delta", "worktree_delta"),
     ):

@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 VIEWER = ROOT / "plugins/manager/scripts/generate_manager_viewer.py"
-BOOTSTRAP = ROOT / "plugins/manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py"
+BOOTSTRAP = ROOT / "plugins/manager/skills/manager-setup/scripts/bootstrap_manager.py"
 CREATE_PROJECT = ROOT / "plugins/manager/scripts/create_project_pack.py"
 
 
@@ -168,7 +168,7 @@ def test_inspector_matches_google_graph_model_and_excludes_reserved_runtime(tmp_
         "projects/alpha/GOAL",
         "projects/alpha/README",
     }
-    assert "WireNet Inspector" in html
+    assert "wirenet Inspector" in html
     assert 'id="graph"' in html
     assert 'id="detail"' in html
     assert 'id="search"' in html

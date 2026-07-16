@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Preview or apply a supported WireNet Manager workspace migration."""
+"""Preview or apply a supported wirenet Manager workspace migration."""
 
 from __future__ import annotations
 
@@ -167,7 +167,7 @@ def plan_upgrade(
         result.update(
             {
                 "ok": False,
-                "error": "Manager schema is newer than this plugin; update WireNet Manager",
+                "error": "Manager schema is newer than this plugin; update wirenet Manager",
             }
         )
         return result

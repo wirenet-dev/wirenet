@@ -1,12 +1,14 @@
 ---
-last_edited: 2026-07-15
+last_edited: 2026-07-16
 ---
 
-# WireNet Manager Development Instructions
+# wirenet Manager Development Instructions
 
 ## Purpose
 
-This repository develops and distributes the WireNet Manager plugin. It is not
+This repository develops and distributes the public wirenet plugin shelf. Its
+core product is `manager@wirenet`; optional cross-project capabilities live in
+`workflows@wirenet` and `content-tools@wirenet`. It is not
 the user's personal Manager runtime. The runtime seed lives under
 `plugins/manager/templates/manager/` and is materialized into a separate
 folder only through the bootstrap flow.
@@ -60,11 +62,12 @@ evidence. Lifecycle status changes must follow
 ## Skills And Plugins
 
 - Use the current `.agents/plugins/marketplace.json` marketplace location.
-- Keep the installable manifest at
-  `plugins/manager/.codex-plugin/plugin.json`.
+- Keep each installable manifest under `plugins/<plugin>/.codex-plugin/plugin.json`.
 - Keep each skill focused and validate it with the official skill validator.
 - Keep detailed contracts in skill `references/` and deterministic repeated
   behavior in scripts.
+- Keep Developer-only skills under the repository `.agents/skills/` shelf and
+  out of the public marketplace.
 
 ## Upstream Reference
 
@@ -91,6 +94,10 @@ Run before handoff:
 python3 scripts/validate_markdown.py .
 python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" \
   plugins/manager
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" \
+  plugins/workflows
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" \
+  plugins/content-tools
 pytest -q
 git diff --check
 ```

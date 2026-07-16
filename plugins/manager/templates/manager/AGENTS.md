@@ -3,10 +3,10 @@ schema: "wirenet-runtime/v0.1"
 visibility: local
 audience: agent
 status: active
-last_edited: 2026-07-15
+last_edited: 2026-07-16
 ---
 
-# WireNet Manager Instructions
+# wirenet Manager Instructions
 
 ## Purpose
 
@@ -72,7 +72,7 @@ reviewable, and useful to the next task.
   a concept `type`.
 - Every other Markdown document in the Manager is a typed OKF concept.
 - Keep reusable behavior, schemas, generation rules, and canonical templates in
-  the installed WireNet Manager plugin rather than copying them into this
+  the installed wirenet Manager plugin rather than copying them into this
   workspace.
 - Create a shelf-local `index.md` only when actual content benefits from a
   catalog. Do not create explanatory shelf README placeholders.

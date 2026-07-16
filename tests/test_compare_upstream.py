@@ -25,7 +25,7 @@ def commit(repo: Path, message: str) -> None:
     git(
         repo,
         "-c",
-        "user.name=WireNet Test",
+        "user.name=wirenet Test",
         "-c",
         "user.email=test@example.invalid",
         "commit",

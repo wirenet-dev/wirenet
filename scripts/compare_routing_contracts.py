@@ -157,7 +157,7 @@ def render_human(report: dict[str, Any]) -> str:
                 lines.append(f"  - {item['id']}: {', '.join(item['fields'])}")
         else:
             lines.append("- changed: none")
-    lines.append("\nOpen WireNet ambiguities:")
+    lines.append("\nOpen wirenet ambiguities:")
     lines.extend(f"- {item}" for item in report["after_known_ambiguities"])
     return "\n".join(lines)
 
