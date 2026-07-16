@@ -134,6 +134,12 @@ gate. See
 [`docs/installing-wirenet-manager.md`](docs/installing-wirenet-manager.md) for
 the full flow.
 
+Users do not need a developer setup. Bootstrap resolves Python, Git, and the
+optional QMD package manager from the bundled Codex workspace runtime when
+available, then falls back to executables already on `PATH`. It never installs
+system developer tools implicitly and stops before writing if its required
+local runtime is unavailable.
+
 When the current task becomes the long-running Manager home, onboarding uses a
 thin task contract for conversation continuity and the approved check-in. It
 does not duplicate people, projects, priorities, or source maps from
@@ -356,8 +362,9 @@ python3 scripts/compare_routing_contracts.py
 
 ## Release Status
 
-Plugin `0.2.6` is the current implementation of the v0.2 lifecycle architecture,
+Plugin `0.2.7` is the current implementation of the v0.2 lifecycle architecture,
 its explicit workspace-upgrade path, optional QMD retrieval setup, Jason-inspired
 personal onboarding, explicit project and person workflows, recurring task
-loops, and optional global personal writing-voice bootstrap or migration.
+loops, non-developer runtime preflight, and optional global personal
+writing-voice bootstrap or migration.
 The repository's `main` branch is the canonical installation source.

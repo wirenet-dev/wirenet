@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -27,11 +29,15 @@ UPGRADE = PLUGIN_SCRIPTS / "upgrade_manager.py"
 
 
 def run_script(
-    script: Path, *args: str, check: bool = True
+    script: Path,
+    *args: str,
+    check: bool = True,
+    env: dict[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [sys.executable, str(script), *args],
         cwd=ROOT,
+        env=env,
         check=check,
         capture_output=True,
         text=True,
@@ -332,7 +338,7 @@ def test_bootstrap_materializes_content_only_manager_with_local_git(
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
     assert metadata["project_pack_profile"] == "wirenet-project-pack/v0.1"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
-    assert metadata["plugin_version"] == "0.2.6"
+    assert metadata["plugin_version"] == "0.2.7"
     assert metadata["manager_id"].startswith("mgr_")
     assert (
         "Continue with $wirenet-manager-onboarding for the personal first meeting."
@@ -404,6 +410,56 @@ def test_bootstrap_rejects_invalid_content_language_without_writing(
     assert not destination.exists()
 
 
+def test_bootstrap_runtime_preflight_stops_before_writing_without_git(
+    tmp_path: Path,
+) -> None:
+    manager = tmp_path / "Manager"
+    empty_path = tmp_path / "empty-path"
+    empty_path.mkdir()
+    process = run_script(
+        BOOTSTRAP,
+        "--manager-dir",
+        str(manager),
+        "--git-bin",
+        str(tmp_path / "missing-git"),
+        check=False,
+        env={**os.environ, "PATH": str(empty_path)},
+    )
+    result = json.loads(process.stdout)
+
+    assert process.returncode == 2
+    assert result["state"] == "runtime-missing"
+    assert result["runtime"]["python"] == sys.executable
+    assert result["runtime"]["git"] is None
+    assert not manager.exists()
+
+
+def test_bootstrap_uses_explicit_git_when_path_has_no_developer_tools(
+    tmp_path: Path,
+) -> None:
+    git_bin = shutil.which("git")
+    assert git_bin is not None
+    manager = tmp_path / "Manager"
+    empty_path = tmp_path / "empty-path"
+    empty_path.mkdir()
+    result = json.loads(
+        run_script(
+            BOOTSTRAP,
+            "--manager-dir",
+            str(manager),
+            "--git-bin",
+            git_bin,
+            "--apply",
+            env={**os.environ, "PATH": str(empty_path)},
+        ).stdout
+    )
+
+    assert result["ok"] is True
+    assert result["runtime"] == {"python": sys.executable, "git": git_bin}
+    assert result["doctor"]["ok"] is True
+    assert (manager / ".git").is_dir()
+
+
 def test_upgrade_reports_current_manager_without_writes(tmp_path: Path) -> None:
     manager = tmp_path / "Manager"
     bootstrap(manager)
@@ -467,7 +523,7 @@ def test_upgrade_migrates_v01_without_rewriting_personal_content(
         (manager / ".wirenet/manager.json").read_text(encoding="utf-8")
     )
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
-    assert metadata["plugin_version"] == "0.2.6"
+    assert metadata["plugin_version"] == "0.2.7"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
     assert metadata["okf_profiles"] == [
         "wirenet-okf-project-pack/v0.1",

@@ -9,36 +9,44 @@ Create or repair the technical Manager baseline conservatively. Bootstrap owns
 filesystem, schema, Git, Doctor, QMD, and managed-global-instruction mechanics.
 `$wirenet-manager-onboarding` owns the personal first meeting.
 
+Read `references/runtime-preflight.md` before running any Python, Git, upgrade,
+or QMD helper. Resolve bundled Codex executables when available so the user does
+not need a developer setup.
+
 Do not clone the product repository into the user's personal Manager. The
 installed plugin owns behavior; `~/Manager` owns personal content and local
 history; external projects stay where they are.
 
 ## Technical Workflow
 
-1. Infer the human content language from the setup request. State it once and
+1. Complete the runtime preflight. Invoke helpers with the resolved Python
+   executable and pass the resolved Git executable with `--git-bin`. Stop before
+   writing if either runtime cannot be resolved.
+2. Infer the human content language from the setup request. State it once and
    ask only when ambiguous. Recommend `~/Manager` unless the user chooses
    another location. Pass the BCP 47-style tag to
    `bootstrap_manager.py --content-language`; stable system structure remains
    English.
-2. When `.wirenet/manager.json` exists, preview the plugin-root
-   `scripts/upgrade_manager.py` result.
+3. When `.wirenet/manager.json` exists, preview the plugin-root
+   `scripts/upgrade_manager.py --git-bin <resolved-git>` result.
    - `current`: continue to Doctor.
    - `upgrade-available`: require a clean local Git checkpoint, show the plan,
      and ask before applying.
    - `plugin-too-old`: stop and ask the user to update the plugin.
    - `manual-review`, `recovery-required`, `unsupported`: stop rather than
      guessing.
-3. Preview `scripts/bootstrap_manager.py` without `--apply`.
-4. Ask before creating or repairing the directory, then rerun with `--apply`.
+4. Preview `scripts/bootstrap_manager.py --git-bin <resolved-git>` without
+   `--apply`.
+5. Ask before creating or repairing the directory, then rerun with `--apply`.
    Use `--repair` only for an existing Manager; repair creates missing scaffold
    and never overwrites personalized files.
-5. Require Manager Doctor `ok: true`.
-6. Preview plugin-root `scripts/manager_qmd.py`.
+6. Require Manager Doctor `ok: true`.
+7. Preview plugin-root `scripts/manager_qmd.py`.
    - If QMD is healthy, offer the `manager` collection registration.
    - If missing or unhealthy, explain the state and ask before using `--install`.
    - Add `--embed` only after separate approval for model-backed embeddings.
    - QMD failure does not invalidate the Manager; canonical file reads remain.
-7. When the technical baseline is healthy, continue in the same task with
+8. When the technical baseline is healthy, continue in the same task with
    `$wirenet-manager-onboarding` for a brand-new or incomplete first meeting.
    Do not present the technical recap as completed onboarding.
 
@@ -85,6 +93,8 @@ Manager content.
   repair, and Doctor wrapper.
 - `scripts/install_global_guidance.py`: idempotent core and optional routing
   block installer.
+- `references/runtime-preflight.md`: Codex-bundled and PATH executable
+  resolution for non-developer computers.
 - plugin-root `scripts/upgrade_manager.py`: version negotiation and migration.
 - plugin-root `scripts/manager_qmd.py`: QMD health and collection setup.
 - `references/manager-model.md`: canonical workspace model.

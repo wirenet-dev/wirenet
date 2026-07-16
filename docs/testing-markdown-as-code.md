@@ -58,6 +58,8 @@ sentence that intentionally acts as a routing contract.
 
 - A fresh bootstrap contains exactly the seed entities declared by the routing
   contract, plus generated device-local Manager metadata.
+- Runtime preflight accepts explicit Codex-bundled Python, Git, npm, or pnpm
+  executables and stops before writing when required Git cannot be resolved.
 - Bootstrap preview writes nothing; repair creates only missing scaffold and
   never overwrites personalized content.
 - Upgrade preview writes nothing. Apply requires a clean local Git checkpoint,

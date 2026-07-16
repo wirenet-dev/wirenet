@@ -5,8 +5,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
+import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 from manager_doctor import inspect
@@ -85,14 +88,23 @@ RUNTIME_CLAUSE_UPDATES = (
 )
 
 
-def git_worktree_status(manager_dir: Path) -> tuple[bool, str]:
+def resolve_executable(explicit: str | None, name: str) -> str | None:
+    if explicit:
+        candidate = Path(explicit).expanduser().resolve(strict=False)
+        return str(candidate) if candidate.is_file() and os.access(candidate, os.X_OK) else None
+    return shutil.which(name)
+
+
+def git_worktree_status(manager_dir: Path, git_bin: str | None) -> tuple[bool, str]:
     if not (manager_dir / ".git").is_dir():
         return (
             False,
             "Manager migration requires the local Git repository created by bootstrap",
         )
+    if not git_bin:
+        return False, "Git is unavailable; load the Codex runtime or provide --git-bin"
     result = subprocess.run(
-        ["git", "status", "--porcelain=v1", "--untracked-files=all"],
+        [git_bin, "status", "--porcelain=v1", "--untracked-files=all"],
         cwd=manager_dir,
         check=False,
         capture_output=True,
@@ -118,7 +130,9 @@ def _schema_state(workspace_schema: str) -> str:
     return "plugin-too-old" if workspace > current else "upgrade-available"
 
 
-def plan_upgrade(manager_dir: Path) -> dict[str, object]:
+def plan_upgrade(
+    manager_dir: Path, *, git_bin: str | None = None
+) -> dict[str, object]:
     result: dict[str, object] = {
         "ok": True,
         "dry_run": True,
@@ -340,7 +354,9 @@ def plan_upgrade(manager_dir: Path) -> dict[str, object]:
         )
         return result
 
-    clean, git_detail = git_worktree_status(manager_dir)
+    clean, git_detail = git_worktree_status(
+        manager_dir, git_bin or resolve_executable(None, "git")
+    )
     result.update(
         {
             "git_clean": clean,
@@ -511,11 +527,18 @@ def apply_v01_to_v02(manager_dir: Path) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manager-dir", default="~/Manager")
+    parser.add_argument(
+        "--git-bin",
+        default=os.environ.get("WIRENET_GIT_BIN"),
+        help="Explicit Git executable, including a Codex-bundled fallback.",
+    )
     parser.add_argument("--apply", action="store_true")
     args = parser.parse_args()
 
     manager_dir = Path(args.manager_dir).expanduser().resolve(strict=False)
-    result = plan_upgrade(manager_dir)
+    git_bin = resolve_executable(args.git_bin, "git")
+    result = plan_upgrade(manager_dir, git_bin=git_bin)
+    result["runtime"] = {"python": sys.executable, "git": git_bin}
     result["dry_run"] = not args.apply
     if not result["ok"]:
         print(json.dumps(result, indent=2))

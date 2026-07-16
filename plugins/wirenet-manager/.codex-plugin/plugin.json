@@ -1,6 +1,6 @@
 {
   "name": "wirenet-manager",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Set up and run local work memory with personal onboarding, Project Packs, bounded experiments, and explicit persistent goals.",
   "author": {
     "name": "WireNet",

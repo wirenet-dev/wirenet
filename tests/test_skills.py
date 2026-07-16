@@ -110,6 +110,27 @@ def test_manager_skills_share_one_content_routing_contract() -> None:
     ).read_text(encoding="utf-8")
 
 
+def test_bootstrap_resolves_runtime_for_non_developer_computers() -> None:
+    bootstrap = (
+        ROOT / "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/SKILL.md"
+    ).read_text(encoding="utf-8")
+    preflight = (
+        ROOT
+        / "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/references/runtime-preflight.md"
+    ).read_text(encoding="utf-8")
+    qmd = (ROOT / "plugins/wirenet-manager/scripts/manager_qmd.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert "references/runtime-preflight.md" in bootstrap
+    assert "--git-bin <resolved-git>" in bootstrap
+    assert "bundled workspace dependencies" in preflight
+    assert "stop before writing Manager files" in preflight
+    assert "--npm-bin" in preflight
+    assert "--pnpm-bin" in preflight
+    assert 'parser.add_argument("--pnpm-bin")' in qmd
+
+
 def test_manager_project_person_and_sync_have_distinct_roles() -> None:
     skills = ROOT / "plugins/wirenet-manager/skills"
     manager = (skills / "wirenet-manager/SKILL.md").read_text(encoding="utf-8")
@@ -187,7 +208,7 @@ def test_plugin_manifest_and_marketplace_point_to_v02_package() -> None:
         (ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
     )
     assert manifest["name"] == "wirenet-manager"
-    assert manifest["version"] == "0.2.6"
+    assert manifest["version"] == "0.2.7"
     assert manifest["skills"] == "./skills/"
     assert manifest["interface"]["brandColor"] == "#FF5C1A"
     prompts = manifest["interface"]["defaultPrompt"]

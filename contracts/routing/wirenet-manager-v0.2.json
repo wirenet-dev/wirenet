@@ -508,11 +508,11 @@
     {
       "id": "technical-bootstrap",
       "trigger": "WireNet Manager is installed, missing, unhealthy, outdated, or being repaired.",
-      "reads": ["installed plugin seed", "existing Manager when repairing or upgrading", "QMD health"],
+      "reads": ["installed plugin seed", "existing Manager when repairing or upgrading", "Codex bundled workspace dependencies or executables already on PATH", "QMD health"],
       "writes": ["content-only Manager", ".wirenet/manager.json", ".wirenet/workspace-bindings.json", "optional QMD collection configuration"],
       "approval": "dry-run first; approval before apply, upgrade, QMD installation, or QMD collection changes",
-      "description": "Create or repair the technical local baseline separately from the personal first meeting and never overwrite personalized files during repair.",
-      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager-bootstrap/SKILL.md", "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py"]
+      "description": "Resolve a non-developer local runtime, create or repair the technical baseline separately from the personal first meeting, and never overwrite personalized files during repair.",
+      "evidence": ["plugins/wirenet-manager/skills/wirenet-manager-bootstrap/SKILL.md", "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/references/runtime-preflight.md", "plugins/wirenet-manager/skills/wirenet-manager-bootstrap/scripts/bootstrap_manager.py", "plugins/wirenet-manager/scripts/manager_qmd.py"]
     },
     {
       "id": "personal-onboarding",

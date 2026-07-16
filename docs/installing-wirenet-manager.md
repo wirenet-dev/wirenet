@@ -36,7 +36,10 @@ page and its text into a task, but it does not install a plugin by itself.
 WireNet Manager is distributed through a Codex plugin marketplace from
 [`wirenet-dev/wirenet-manager`](https://github.com/wirenet-dev/wirenet-manager).
 Users do not clone the product repository into `~/Manager` and do not need to
-work with GitHub themselves.
+work with GitHub, Git, Python, Node.js, or a terminal themselves. A public
+marketplace needs no GitHub account; the installing agent runs the approved
+marketplace commands. A Business workspace may instead have an administrator
+add the plugin once for workspace members.
 
 During local development, the repository marketplace is
 `.agents/plugins/marketplace.json`. After publication, add it with:
@@ -59,17 +62,24 @@ $wirenet-manager-bootstrap Set up my WireNet Manager in ~/Manager.
 
 The skill previews the operation. After approval, it:
 
-1. copies the content-only seed bundled inside the installed plugin;
-2. writes `.wirenet/manager.json` and the empty local binding registry;
-3. initializes a local Git repository on `main`;
-4. creates an initial local commit;
-5. configures no remote and performs no cloud sync;
-6. requires the Manager doctor to return `ok: true`.
+1. resolves Python and Git from the bundled Codex workspace runtime when
+   available, then from the existing system `PATH`;
+2. stops without writing if the required local runtime is unavailable;
+3. copies the content-only seed bundled inside the installed plugin;
+4. writes `.wirenet/manager.json` and the empty local binding registry;
+5. initializes a local Git repository on `main` through the resolved Git path;
+6. creates an initial local commit;
+7. configures no remote and performs no cloud sync;
+8. requires the Manager doctor to return `ok: true`.
 
 After the workspace is healthy, bootstrap checks QMD separately. It previews
 registration of `~/Manager` as `qmd://manager/`. If QMD is missing or unhealthy,
-the user can approve installation or repair of the pinned tested package. QMD
-configuration remains outside the Manager and does not enter its Git history.
+the user can approve installation or repair of the pinned tested package through
+resolved `npm` or bundled `pnpm`. Because QMD officially targets npm, the pnpm
+fallback first bootstraps a pinned npm in a dedicated user-local WireNet
+directory, then uses it to install QMD with the required native build scripts.
+It does not alter shell startup files. QMD configuration remains outside the
+Manager and does not enter its Git history.
 
 The initial collection indexes Manager knowledge lexically while excluding
 runtime `AGENTS.md`, hidden state, and `outputs/`. Semantic embeddings are an

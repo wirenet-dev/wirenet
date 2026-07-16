@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -57,10 +58,11 @@ def test_current_product_surfaces_use_only_manager_terminology() -> None:
             )
 
     deprecated_term = "va" + "ult"
+    private_user_path = re.compile("/" + "Users/" + r"[^/\s]+/")
     violations: list[str] = []
     for path in sorted(files - historical_files):
         content = path.read_text(encoding="utf-8")
-        if deprecated_term in content.casefold() or "/Users/gitt/" in content:
+        if deprecated_term in content.casefold() or private_user_path.search(content):
             violations.append(str(path.relative_to(ROOT)))
     assert violations == []
 

@@ -86,14 +86,14 @@ External task ends
 ### Marketplace And Manifest
 
 - `.agents/plugins/marketplace.json` exposes the local plugin package.
-- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.2.6,
+- `plugins/wirenet-manager/.codex-plugin/plugin.json` identifies version 0.2.7,
   bundled skills, interface copy, and starter prompts.
 
 ### Skills
 
 - `skills/wirenet-manager/`: ongoing Manager task and orientation behavior.
 - `skills/wirenet-manager-bootstrap/`: technical seed, repair, QMD, discovery
-  helpers, and global rules.
+  helpers, bundled-runtime preflight, and global rules.
 - `skills/wirenet-manager-onboarding/`: first map, interview, approved source
   orientation, thin long-running Manager-task setup, continuity, and personal
   handoff. The task remains a conversational shell; `~/Manager` remains the

@@ -110,29 +110,38 @@ def create_missing_directories(destination: Path) -> list[str]:
     return created
 
 
-def initialize_git(manager_dir: Path) -> str:
+def resolve_executable(explicit: str | None, name: str) -> str | None:
+    if explicit:
+        candidate = Path(explicit).expanduser().resolve(strict=False)
+        return str(candidate) if candidate.is_file() and os.access(candidate, os.X_OK) else None
+    return shutil.which(name)
+
+
+def initialize_git(manager_dir: Path, git_bin: str) -> str:
     try:
-        run(["git", "init", "-b", "main"], cwd=manager_dir)
+        run([git_bin, "init", "-b", "main"], cwd=manager_dir)
     except subprocess.CalledProcessError:
-        run(["git", "init"], cwd=manager_dir)
-        run(["git", "branch", "-M", "main"], cwd=manager_dir)
+        run([git_bin, "init"], cwd=manager_dir)
+        run([git_bin, "branch", "-M", "main"], cwd=manager_dir)
 
     if not run(
-        ["git", "config", "user.name"], cwd=manager_dir, check=False
-    ).stdout.strip():
-        run(["git", "config", "user.name", "WireNet Manager"], cwd=manager_dir)
-    if not run(
-        ["git", "config", "user.email"], cwd=manager_dir, check=False
+        [git_bin, "config", "user.name"], cwd=manager_dir, check=False
     ).stdout.strip():
         run(
-            ["git", "config", "user.email", "manager@localhost.invalid"],
+            [git_bin, "config", "user.name", "WireNet Manager"], cwd=manager_dir
+        )
+    if not run(
+        [git_bin, "config", "user.email"], cwd=manager_dir, check=False
+    ).stdout.strip():
+        run(
+            [git_bin, "config", "user.email", "manager@localhost.invalid"],
             cwd=manager_dir,
         )
 
-    run(["git", "add", "."], cwd=manager_dir)
+    run([git_bin, "add", "."], cwd=manager_dir)
     run(
         [
-            "git",
+            git_bin,
             "-c",
             "commit.gpgsign=false",
             "commit",
@@ -141,7 +150,7 @@ def initialize_git(manager_dir: Path) -> str:
         ],
         cwd=manager_dir,
     )
-    return run(["git", "rev-parse", "HEAD"], cwd=manager_dir).stdout.strip()
+    return run([git_bin, "rev-parse", "HEAD"], cwd=manager_dir).stdout.strip()
 
 
 def parse_args() -> argparse.Namespace:
@@ -157,6 +166,11 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument("--repair", action="store_true")
+    parser.add_argument(
+        "--git-bin",
+        default=os.environ.get("WIRENET_GIT_BIN"),
+        help="Explicit Git executable, including a Codex-bundled fallback.",
+    )
     parser.add_argument("--apply", action="store_true")
     return parser.parse_args()
 
@@ -170,6 +184,7 @@ def main() -> int:
         return 2
     manager_dir = Path(args.manager_dir).expanduser().resolve(strict=False)
     template_dir = Path(args.template_dir).expanduser().resolve(strict=False)
+    git_bin = resolve_executable(args.git_bin, "git")
     exists = manager_dir.exists()
     result: dict[str, object] = {
         "ok": True,
@@ -178,8 +193,24 @@ def main() -> int:
         "template_dir": str(template_dir),
         "state": "existing" if exists else "new",
         "content_language": content_language,
+        "runtime": {"python": sys.executable, "git": git_bin},
         "actions": [],
     }
+
+    if not git_bin:
+        result.update(
+            {
+                "ok": False,
+                "state": "runtime-missing",
+                "error": "Git is unavailable",
+                "next_action": (
+                    "load the Codex workspace dependencies or provide --git-bin; "
+                    "no Manager files were written"
+                ),
+            }
+        )
+        print(json.dumps(result, indent=2))
+        return 2
 
     if not template_dir.is_dir():
         result.update({"ok": False, "error": "bundled Manager template is missing"})
@@ -194,7 +225,7 @@ def main() -> int:
         return 2
 
     if exists and (manager_dir / ".wirenet/manager.json").is_file():
-        upgrade = plan_upgrade(manager_dir)
+        upgrade = plan_upgrade(manager_dir, git_bin=git_bin)
         if upgrade.get("state") != "current":
             result.update(
                 {
@@ -258,7 +289,7 @@ def main() -> int:
             write_json(metadata_path, manager_metadata())
             created_paths.append(".wirenet/manager.json")
 
-        commit = initialize_git(manager_dir) if created_new else None
+        commit = initialize_git(manager_dir, git_bin) if created_new else None
         diagnosis = inspect(manager_dir)
         if diagnosis["ok"] is not True:
             raise RuntimeError("Manager doctor did not return ok=true")

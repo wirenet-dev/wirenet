@@ -56,7 +56,8 @@ python3 scripts/compare_routing_contracts.py --json
 - stable `manager_id`, `project_id`, and `experiment_id` values;
 - device-local `.wirenet/` metadata and path bindings;
 - project and route classification;
-- dry-run-first bootstrap, workspace upgrade, repair, doctor, and deterministic packet generator;
+- dry-run-first bootstrap with bundled-runtime preflight, workspace upgrade,
+  repair, doctor, and deterministic packet generator;
 - a globally installable Manager, technical bootstrap, personal onboarding,
   project lifecycle, supporting person context, sync, recurring task loops,
   optional global writing-voice bootstrap or migration, and explicit-only

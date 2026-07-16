@@ -13,6 +13,11 @@ from pathlib import Path
 
 
 QMD_PACKAGE = "@tobilu/qmd@2.5.3"
+NPM_BOOTSTRAP_PACKAGE = "npm@11.18.0"
+QMD_ALLOWED_SCRIPTS = (
+    "better-sqlite3,node-llama-cpp,tree-sitter-go,tree-sitter-python,"
+    "tree-sitter-rust,tree-sitter-typescript,tree-sitter-javascript"
+)
 DEFAULT_COLLECTION = "manager"
 REQUIRED_IGNORE = {"**/AGENTS.md", "outputs/**"}
 KNOWLEDGE_PATTERN = (
@@ -30,9 +35,13 @@ COLLECTION_CONTEXT = (
 )
 
 
-def run(command: list[str]) -> subprocess.CompletedProcess[str]:
+def run(
+    command: list[str], *, environment_updates: dict[str, str] | None = None
+) -> subprocess.CompletedProcess[str]:
     environment = os.environ.copy()
     environment["PYTHONDONTWRITEBYTECODE"] = "1"
+    if environment_updates:
+        environment.update(environment_updates)
     return subprocess.run(
         command,
         check=False,
@@ -100,11 +109,86 @@ def installed_qmd_from_npm(npm: str) -> str | None:
     )
 
 
-def install_qmd(npm: str) -> tuple[str | None, str | None]:
-    installed = run([npm, "install", "-g", QMD_PACKAGE])
+def pnpm_runtime() -> tuple[Path, dict[str, str]]:
+    home = Path(
+        os.environ.get("PNPM_HOME")
+        or Path.home() / ".local/share/wirenet-manager/pnpm"
+    ).expanduser().resolve(strict=False)
+    root = home / "bin"
+    path_value = os.environ.get("PATH", "")
+    return root, {
+        "PNPM_HOME": str(home),
+        "PATH": str(root) + (os.pathsep + path_value if path_value else ""),
+    }
+
+
+def qmd_prefix() -> Path:
+    return Path(
+        os.environ.get("WIRENET_QMD_PREFIX")
+        or Path.home() / ".local/share/wirenet-manager/qmd"
+    ).expanduser().resolve(strict=False)
+
+
+def installed_command(root: Path, name: str) -> str | None:
+    candidates = (root / f"bin/{name}", root / name, root / f"{name}.cmd")
+    return next(
+        (
+            str(path)
+            for path in candidates
+            if path.is_file() and os.access(path, os.X_OK)
+        ),
+        None,
+    )
+
+
+def bootstrap_npm_with_pnpm(pnpm: str) -> tuple[str | None, str | None]:
+    root, environment = pnpm_runtime()
+    existing = installed_command(root, "npm")
+    if existing:
+        return existing, None
+    installed = run(
+        [
+            pnpm,
+            "add",
+            "-g",
+            "--global-dir",
+            str(root.parent / "packages"),
+            NPM_BOOTSTRAP_PACKAGE,
+        ],
+        environment_updates=environment,
+    )
     if installed.returncode != 0:
         return None, compact_error(installed)
-    return installed_qmd_from_npm(npm) or shutil.which("qmd"), None
+    return installed_command(root, "npm"), None
+
+
+def install_qmd_with_npm(
+    npm: str, *, prefix: Path | None = None
+) -> tuple[str | None, str | None]:
+    command = [npm, "install", "-g"]
+    if prefix is not None:
+        command.extend(["--prefix", str(prefix)])
+    command.extend([f"--allow-scripts={QMD_ALLOWED_SCRIPTS}", QMD_PACKAGE])
+    installed = run(command, environment_updates=pnpm_runtime()[1])
+    if installed.returncode != 0:
+        return None, compact_error(installed)
+    resolved = (
+        installed_command(prefix, "qmd")
+        if prefix is not None
+        else installed_qmd_from_npm(npm)
+    )
+    return resolved or shutil.which("qmd"), None
+
+
+def install_qmd(
+    package_manager: str, kind: str
+) -> tuple[str | None, str | None]:
+    if kind == "npm":
+        return install_qmd_with_npm(package_manager)
+    npm, bootstrap_error = bootstrap_npm_with_pnpm(package_manager)
+    if bootstrap_error or not npm:
+        return None, bootstrap_error or "pnpm did not expose the local npm shim"
+    return install_qmd_with_npm(npm, prefix=qmd_prefix())
 
 
 def parse_collection(output: str) -> dict[str, str] | None:
@@ -167,6 +251,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--collection-name", default=DEFAULT_COLLECTION)
     parser.add_argument("--qmd-bin")
     parser.add_argument("--npm-bin")
+    parser.add_argument("--pnpm-bin")
     parser.add_argument("--install", action="store_true")
     parser.add_argument("--embed", action="store_true")
     parser.add_argument("--apply", action="store_true")
@@ -216,7 +301,7 @@ def main() -> int:
 
     if qmd_status["state"] != "ready":
         result["actions"] = [
-            f"install or repair QMD with: npm install -g {QMD_PACKAGE}",
+            f"install or repair QMD with npm or pnpm: {QMD_PACKAGE}",
             f"register {manager_dir} as qmd://{collection_name}/",
             "attach WireNet Manager retrieval context",
         ]
@@ -242,16 +327,28 @@ def main() -> int:
             )
             return print_result(result, 2)
         npm = resolve_command(args.npm_bin, "npm")
-        if not npm:
+        pnpm = resolve_command(args.pnpm_bin, "pnpm")
+        package_manager = npm or pnpm
+        package_manager_kind = "npm" if npm else "pnpm" if pnpm else None
+        if not package_manager or not package_manager_kind:
             result.update(
                 {
                     "ok": False,
-                    "state": "npm-missing",
-                    "error": "npm is required to install QMD",
+                    "state": "package-manager-missing",
+                    "error": (
+                        "npm or pnpm is required to install QMD; load the Codex "
+                        "workspace dependencies or provide an explicit executable"
+                    ),
                 }
             )
             return print_result(result, 2)
-        qmd, install_error = install_qmd(npm)
+        result["package_manager"] = {
+            "kind": package_manager_kind,
+            "executable": package_manager,
+        }
+        if package_manager_kind == "pnpm":
+            result["package_manager"]["bootstraps"] = NPM_BOOTSTRAP_PACKAGE
+        qmd, install_error = install_qmd(package_manager, package_manager_kind)
         if install_error:
             result.update(
                 {

@@ -326,3 +326,80 @@ else:
     assert applied["qmd"]["version"] == "qmd 2.5.3 (test)"
     state = json.loads(state_path.read_text(encoding="utf-8"))
     assert state["collections"]["manager"]["path"] == str(manager.resolve())
+
+
+def test_qmd_setup_can_use_bundled_pnpm_without_shell_configuration(
+    tmp_path: Path,
+) -> None:
+    manager = tmp_path / "Manager"
+    manager.mkdir()
+    state_path = tmp_path / "qmd-state.json"
+    write_state(state_path)
+    qmd_template = make_fake_qmd(tmp_path / "qmd-template")
+    npm_template = tmp_path / "npm-template"
+    npm_template.write_text(
+        f"""#!{sys.executable}
+import os
+import shutil
+import sys
+from pathlib import Path
+
+prefix = Path(sys.argv[sys.argv.index("--prefix") + 1])
+target = prefix / "bin/qmd"
+target.parent.mkdir(parents=True, exist_ok=True)
+shutil.copy2(os.environ["FAKE_QMD_TEMPLATE"], target)
+target.chmod(0o755)
+""",
+        encoding="utf-8",
+    )
+    npm_template.chmod(0o755)
+    pnpm_home = tmp_path / "pnpm-home"
+    qmd_prefix = tmp_path / "qmd-prefix"
+    pnpm = tmp_path / "pnpm"
+    pnpm.write_text(
+        f"""#!{sys.executable}
+import os
+import shutil
+import sys
+from pathlib import Path
+
+home = Path(os.environ["PNPM_HOME"])
+bin_dir = home / "bin"
+if sys.argv[1:3] == ["add", "-g"]:
+    target = bin_dir / "npm"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(os.environ["FAKE_NPM_TEMPLATE"], target)
+    target.chmod(0o755)
+else:
+    raise SystemExit(2)
+""",
+        encoding="utf-8",
+    )
+    pnpm.chmod(0o755)
+    env = {
+        **os.environ,
+        "PATH": str(tmp_path / "empty-bin"),
+        "PNPM_HOME": str(pnpm_home),
+        "WIRENET_QMD_PREFIX": str(qmd_prefix),
+        "FAKE_NPM_TEMPLATE": str(npm_template),
+        "FAKE_QMD_TEMPLATE": str(qmd_template),
+        "FAKE_QMD_STATE": str(state_path),
+    }
+
+    applied = json.loads(
+        run_manager_qmd(
+            manager,
+            "--pnpm-bin",
+            str(pnpm),
+            "--install",
+            "--apply",
+            env=env,
+        ).stdout
+    )
+
+    assert applied["ok"] is True
+    assert applied["package_manager"]["kind"] == "pnpm"
+    assert applied["package_manager"]["bootstraps"] == "npm@11.18.0"
+    assert applied["qmd"]["version"] == "qmd 2.5.3 (test)"
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    assert state["collections"]["manager"]["path"] == str(manager.resolve())
