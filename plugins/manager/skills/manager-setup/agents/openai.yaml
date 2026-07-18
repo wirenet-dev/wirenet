@@ -1,4 +1,7 @@
 interface:
   display_name: "manager setup"
   short_description: "Set up, onboard, upgrade, or repair Manager"
+  icon_small: "./assets/wirenet-globe.svg"
+  icon_large: "./assets/wirenet-globe.svg"
+  brand_color: "#FF5C1A"
   default_prompt: "Use $manager-setup to set up or repair my local Manager."
