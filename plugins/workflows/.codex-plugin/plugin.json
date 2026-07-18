@@ -1,6 +1,6 @@
 {
   "name": "workflows",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Reusable loops and explicitly activated persistent goals.",
   "author": {
     "name": "wirenet",

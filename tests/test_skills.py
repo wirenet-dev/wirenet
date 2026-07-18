@@ -59,6 +59,27 @@ def test_plugin_skill_frontmatter_uses_official_contract() -> None:
         assert validator.validate_markdown(skill, plugin_skill=True) == []
 
 
+def test_public_skills_use_the_wirenet_globe_in_codex_ui() -> None:
+    for plugin in ("manager", "workflows", "content-tools"):
+        for skill in (ROOT / f"plugins/{plugin}/skills").iterdir():
+            if not (skill / "SKILL.md").is_file():
+                continue
+
+            metadata = (skill / "agents/openai.yaml").read_text(encoding="utf-8")
+            expected = '"./assets/wirenet-globe.svg"'
+            assert f"icon_small: {expected}" in metadata
+            assert f"icon_large: {expected}" in metadata
+            assert 'brand_color: "#FF5C1A"' in metadata
+
+            icon = skill / "assets/wirenet-globe.svg"
+            assert icon.is_file()
+            globe = icon.read_text(encoding="utf-8")
+            assert 'viewBox="0 0 64 64"' in globe
+            assert "<circle" in globe
+            assert "<ellipse" in globe
+            assert "#FF5C1A" not in globe
+
+
 def test_manager_seed_contains_content_but_no_embedded_skills() -> None:
     seed = ROOT / "plugins/manager/templates/manager"
     assert (seed / ".gitignore").is_file()
@@ -234,7 +255,7 @@ def test_plugin_manifest_and_marketplace_use_core_namespace() -> None:
         (ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
     )
     assert manifest["name"] == "manager"
-    assert manifest["version"] == "0.4.0"
+    assert manifest["version"] == "0.4.1"
     assert manifest["skills"] == "./skills/"
     assert manifest["interface"]["brandColor"] == "#FF5C1A"
     prompts = manifest["interface"]["defaultPrompt"]
