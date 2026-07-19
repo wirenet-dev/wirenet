@@ -2,10 +2,19 @@
 last_edited: 2026-07-16
 ---
 
-# wirenet Manager
+# wirenet
 
-wirenet Manager is an installable ChatGPT Work and Codex plugin for local,
-reviewable work memory. It bootstraps a content-only `~/Manager`, connects
+wirenet is the canonical product monorepo for the WireNet context system: the
+Manager (work memory), the Shelf (curated skills), the Base (shared knowledge
+and data catalog), and the Client Runtime (narrow context packets in bound
+workspaces). Instance templates live under `templates/`; `bin/wirenet` is the
+lean local control plane (`status`, `doctor`). The canonical architecture
+concept lives in the Base under `governance/system-architecture.md`.
+
+## wirenet Manager
+
+wirenet Manager is the core plugin: an installable ChatGPT Work and Codex
+plugin for local, reviewable work memory. It bootstraps a content-only `~/Manager`, connects
 external workspaces through device-local bindings, and maintains portable
 Project Packs that begin with a human handoff and local agent instructions,
 then grow only when the work earns more structure.
