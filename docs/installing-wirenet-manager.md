@@ -34,7 +34,7 @@ page and its text into a task, but it does not install a plugin by itself.
 ## Distribution
 
 wirenet Manager is distributed through a Codex plugin marketplace from
-[`wirenet-dev/wirenet-manager`](https://github.com/wirenet-dev/wirenet-manager).
+[`wirenet-dev/wirenet`](https://github.com/wirenet-dev/wirenet).
 Users do not clone the product repository into `~/Manager` and do not need to
 work with GitHub, Git, Python, Node.js, or a terminal themselves. A public
 marketplace needs no GitHub account; the installing agent runs the approved
@@ -45,7 +45,7 @@ During local development, the repository marketplace is
 `.agents/plugins/marketplace.json`. After publication, add it with:
 
 ```sh
-codex plugin marketplace add wirenet-dev/wirenet-manager --ref main
+codex plugin marketplace add wirenet-dev/wirenet --ref main
 codex plugin add manager@wirenet
 ```
 

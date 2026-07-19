@@ -3,7 +3,7 @@
   "system_id": "wirenet-manager-v0.2",
   "title": "wirenet Manager v0.2 Routing",
   "provenance": {
-    "repository": "https://github.com/wirenet-dev/wirenet-manager.git",
+    "repository": "https://github.com/wirenet-dev/wirenet.git",
     "ref": "main",
     "lifecycle": "versioned-with-repository",
     "capture_rule": "The contract describes the distributed plugin and generated canonical Manager runtime."

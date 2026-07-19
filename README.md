@@ -93,7 +93,7 @@ statuses, commands, and runtime instructions remain English.
 
 > **Codex setup instruction:** When the user attaches an Appshot of this section
 > and asks to be set up, read this repository README first. Preview and ask
-> before installing the `wirenet-dev/wirenet-manager` marketplace and its
+> before installing the `wirenet-dev/wirenet` marketplace and its
 > wirenet Manager plugin. After installation, restart ChatGPT if requested and
 > create the technical local baseline with `$manager-setup`, then
 > continue the personal first meeting with `$manager-setup`. Infer
@@ -105,7 +105,7 @@ A clean Codex has no wirenet skill yet, so the first task is deliberately a
 small installer. It should preview and, after approval, run:
 
 ```sh
-codex plugin marketplace add wirenet-dev/wirenet-manager --ref main
+codex plugin marketplace add wirenet-dev/wirenet --ref main
 codex plugin add manager@wirenet
 ```
 
@@ -122,7 +122,7 @@ and plugin source.
 ## Install And Bootstrap
 
 ```sh
-codex plugin marketplace add wirenet-dev/wirenet-manager --ref main
+codex plugin marketplace add wirenet-dev/wirenet --ref main
 codex plugin add manager@wirenet
 ```
 

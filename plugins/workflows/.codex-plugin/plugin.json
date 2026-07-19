@@ -7,7 +7,7 @@
     "url": "https://wirenet.dev"
   },
   "homepage": "https://wirenet.dev",
-  "repository": "https://github.com/wirenet-dev/wirenet-manager",
+  "repository": "https://github.com/wirenet-dev/wirenet",
   "license": "Apache-2.0",
   "keywords": ["workflows", "automation", "loops", "goals"],
   "skills": "./skills/",
