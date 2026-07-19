@@ -78,7 +78,7 @@ def status() -> int:
 
 
 def doctor(args: list[str]) -> int:
-    script = REPO / "scripts" / "manager_doctor.py"
+    script = REPO / "plugins" / "manager" / "scripts" / "manager_doctor.py"
     return subprocess.run([sys.executable, str(script), *args]).returncode
 
 
