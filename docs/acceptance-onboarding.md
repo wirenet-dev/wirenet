@@ -21,7 +21,7 @@ deferred, or documented friction; silent partial success is a failure.
 | 8 | Packs | At least one Project Pack created via preview → approval; index and bindings consistent afterwards | doctor + files |
 | 9 | Handoff | Recap follows the reference structure and ends with "You can just talk to your Manager now" | conversation log |
 | 10 | Continuity | A second, fresh task answers "What is on my plate?" correctly from the Manager alone (cold-start test) | second-task transcript |
-| 11 | Upgrade | A later plugin update previews a migration, requires a clean checkpoint, and finishes Doctor-valid | updater output |
+| 11 | Upgrade | A later stable release is detected with concise notes; Marketplace refresh requires approval; any workspace migration requires a clean checkpoint and finishes with installed version, migration result, and Doctor-valid success report | update check + updater output |
 
 Friction observations to capture explicitly: number of approval prompts before
 first visible value (target: one bundled preview), whether a short-path exit

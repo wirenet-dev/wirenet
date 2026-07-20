@@ -50,6 +50,7 @@ sentence that intentionally acts as a routing contract.
 | Production | Do generators materialize the contract? | Bootstrap seed, Project and Experiment Pack cores, optional concepts, lifecycle-aware indexes |
 | Safety | Are previews and repair non-destructive? | Dry-run has no writes, repair is create-only, rejected routes leave no partial packet |
 | Migration | Can an older supported workspace advance without losing personal meaning? | Version negotiation, clean-Git gate, body preservation, runtime backup, post-upgrade Doctor |
+| Release update | Can a user discover and understand a stable release before approving it? | Installed-manifest comparison, bounded release notes, explicit Marketplace approval, post-update report |
 | Reconciliation | Does a Manager-native or external path resolve predictably? | Local packet detection, longest binding, project, experiment, ignored, and untracked classification |
 | Consumption | Can humans inspect the portable knowledge source? | Full concept rendering, typed nodes, real link edges, and complete exclusion of reserved, runtime, and hidden-state documents |
 | Reference | Did wirenet accidentally erase a useful Jason behavior? | Frozen upstream contract and explicit semantic delta |
@@ -65,6 +66,9 @@ sentence that intentionally acts as a routing contract.
 - Upgrade preview writes nothing. Apply requires a clean local Git checkpoint,
   preserves personal Markdown bodies and runtime rules, retains superseded
   local registries under `.wirenet/migrations/`, and must finish Doctor-valid.
+- Update checks are read-only, compare the installed manifest rather than
+  workspace materialization metadata, and never refresh a Marketplace without
+  explicit approval.
 - Project creation preview writes nothing. A rejected duplicate path, slug, or
   project ID leaves indexes, bindings, and packets unchanged.
 - Experiment creation preview writes nothing. Promotion preserves the original

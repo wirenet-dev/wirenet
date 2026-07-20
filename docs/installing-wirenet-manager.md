@@ -195,6 +195,28 @@ Updating the marketplace or plugin installs newer reusable skills, scripts,
 templates, and checks. It does not mutate an already materialized `~/Manager`.
 The local workspace records its own schema in `.wirenet/manager.json`.
 
+Manager Doctor can perform an explicit read-only release check:
+
+```sh
+python3 plugins/manager/scripts/manager_doctor.py \
+  --manager-dir ~/Manager \
+  --check-updates
+```
+
+It compares the installed plugin manifest with the latest published GitHub
+Release and returns up to three user-facing release-note bullets. Manager uses
+that result during the first check-in of a fresh task, stays quiet when current,
+and asks before running the returned update command. Existing Codex users update
+the stable Marketplace with:
+
+```sh
+codex plugin marketplace upgrade wirenet
+```
+
+They then start a fresh task and invoke `$manager-setup`. The setup skill reports
+the installed version, packaged release notes, whether a workspace migration was
+needed, and the final Doctor result.
+
 After a plugin update, invoke `$manager-setup`. It previews
 `scripts/upgrade_manager.py` before the ordinary health check. A current schema
 needs no local write. A supported older schema receives an explicit migration
@@ -207,6 +229,15 @@ has been reviewed as the planned structural migration.
 If the Manager schema is newer than the installed plugin, update the plugin
 first. Unsupported layouts and ambiguous legacy experiment routes stop for
 manual review rather than being guessed.
+
+The metadata fields have distinct responsibilities:
+
+- `schema_version` selects and validates workspace migrations.
+- Workspace `plugin_version` records the plugin version that created or last
+  structurally migrated that workspace; a behavior-only plugin update does not
+  rewrite it.
+- The active installed version comes from the plugin manifest and is the value
+  compared with the latest GitHub Release.
 
 ## Business Workspace Boundary
 

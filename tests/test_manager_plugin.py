@@ -26,6 +26,7 @@ TRANSITION = PLUGIN_SCRIPTS / "transition_packet.py"
 DISCOVER = PLUGIN_SCRIPTS / "discover_projects.py"
 DOCTOR = PLUGIN_SCRIPTS / "manager_doctor.py"
 UPGRADE = PLUGIN_SCRIPTS / "upgrade_manager.py"
+UPDATE_CHECK = PLUGIN_SCRIPTS / "manager_update.py"
 
 
 def run_script(
@@ -338,7 +339,7 @@ def test_bootstrap_materializes_content_only_manager_with_local_git(
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
     assert metadata["project_pack_profile"] == "wirenet-project-pack/v0.1"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
-    assert metadata["plugin_version"] == "0.4.0"
+    assert metadata["plugin_version"] == "0.4.3"
     assert metadata["manager_id"].startswith("mgr_")
     assert (
         "Continue with $manager-setup for the personal first meeting."
@@ -475,6 +476,129 @@ def test_upgrade_reports_current_manager_without_writes(tmp_path: Path) -> None:
     assert metadata_path.read_bytes() == before
 
 
+def test_manager_update_check_reports_release_notes_without_writing(
+    tmp_path: Path,
+) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    release = tmp_path / "release.json"
+    release.write_text(
+        json.dumps(
+            {
+                "tag_name": "v0.4.4",
+                "name": "wirenet Manager v0.4.4",
+                "body": (
+                    "- First user change.\n"
+                    "- Second user change.\n"
+                    "- Third user change.\n"
+                    "- Hidden fourth change."
+                ),
+                "html_url": (
+                    "https://github.com/wirenet-dev/wirenet/releases/tag/v0.4.4"
+                ),
+            }
+        ),
+        encoding="utf-8",
+    )
+    before = subprocess.run(
+        ["git", "status", "--porcelain=v1"],
+        cwd=manager,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+
+    result = json.loads(
+        run_script(
+            DOCTOR,
+            "--manager-dir",
+            str(manager),
+            "--check-updates",
+            "--release-json",
+            str(release),
+        ).stdout
+    )
+
+    assert result["ok"] is True
+    assert result["update"] == {
+        "ok": True,
+        "state": "available",
+        "current_version": "0.4.3",
+        "latest_version": "0.4.4",
+        "update_available": True,
+        "release_name": "wirenet Manager v0.4.4",
+        "release_notes": [
+            "First user change.",
+            "Second user change.",
+            "Third user change.",
+        ],
+        "release_url": (
+            "https://github.com/wirenet-dev/wirenet/releases/tag/v0.4.4"
+        ),
+        "update_command": "codex plugin marketplace upgrade wirenet",
+        "post_update_action": "Start a fresh task and run $manager-setup.",
+    }
+    after = subprocess.run(
+        ["git", "status", "--porcelain=v1"],
+        cwd=manager,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    assert after == before
+
+
+def test_manager_update_check_is_non_blocking_when_release_is_unavailable(
+    tmp_path: Path,
+) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    release = tmp_path / "release.json"
+    release.write_text("{}", encoding="utf-8")
+
+    result = json.loads(
+        run_script(
+            DOCTOR,
+            "--manager-dir",
+            str(manager),
+            "--check-updates",
+            "--release-json",
+            str(release),
+        ).stdout
+    )
+
+    assert result["ok"] is True
+    assert result["update"]["ok"] is False
+    assert result["update"]["state"] == "unavailable"
+    assert result["update"]["update_available"] is False
+
+
+def test_manager_update_script_reports_current_release(tmp_path: Path) -> None:
+    release = tmp_path / "release.json"
+    release.write_text(
+        json.dumps(
+            {
+                "tag_name": "v0.4.3",
+                "name": "wirenet Manager v0.4.3",
+                "body": "- Current release.",
+                "html_url": (
+                    "https://github.com/wirenet-dev/wirenet/releases/tag/v0.4.3"
+                ),
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = json.loads(
+        run_script(UPDATE_CHECK, "--release-json", str(release)).stdout
+    )
+
+    assert result["state"] == "current"
+    assert result["current_version"] == "0.4.3"
+    assert result["latest_version"] == "0.4.3"
+    assert result["update_available"] is False
+
+
 def test_upgrade_migrates_v01_without_rewriting_personal_content(
     tmp_path: Path,
 ) -> None:
@@ -523,7 +647,7 @@ def test_upgrade_migrates_v01_without_rewriting_personal_content(
         (manager / ".wirenet/manager.json").read_text(encoding="utf-8")
     )
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
-    assert metadata["plugin_version"] == "0.4.0"
+    assert metadata["plugin_version"] == "0.4.3"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
     assert metadata["okf_profiles"] == [
         "wirenet-okf-project-pack/v0.1",

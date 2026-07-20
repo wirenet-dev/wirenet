@@ -17,7 +17,24 @@ BINDINGS_SCHEMA = "wirenet-workspace-bindings/v0.2"
 PROJECT_OKF_PROFILE = "wirenet-okf-project-pack/v0.1"
 EXPERIMENT_OKF_PROFILE = "wirenet-okf-experiment-pack/v0.1"
 RUNTIME_SCHEMA = "wirenet-runtime/v0.1"
-PLUGIN_VERSION = "0.4.0"
+
+
+def installed_plugin_version() -> str:
+    """Read the installed package version from the canonical plugin manifest."""
+    manifest = Path(__file__).resolve().parents[1] / ".codex-plugin/plugin.json"
+    try:
+        payload = json.loads(manifest.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise RuntimeError(
+            f"cannot read plugin version from {manifest}: {error}"
+        ) from error
+    version = payload.get("version")
+    if not isinstance(version, str) or not version.strip():
+        raise RuntimeError(f"plugin manifest {manifest} has no version")
+    return version.strip()
+
+
+PLUGIN_VERSION = installed_plugin_version()
 
 PROJECT_STATUSES = ("active", "waiting", "blocked", "completed", "archived")
 EXPERIMENT_STATUSES = ("active", "concluded", "promoted", "archived")

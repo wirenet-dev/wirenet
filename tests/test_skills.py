@@ -214,6 +214,27 @@ def test_manager_current_stack_uses_a_fresh_calendar_signal() -> None:
     assert "Do not persist a shadow" in normalized
 
 
+def test_manager_update_awareness_requires_approval_and_reports_success() -> None:
+    manager = (
+        ROOT / "plugins/manager/skills/manager/SKILL.md"
+    ).read_text(encoding="utf-8")
+    setup = (
+        ROOT / "plugins/manager/skills/manager-setup/SKILL.md"
+    ).read_text(encoding="utf-8")
+    install = (ROOT / "docs/installing-wirenet-manager.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "## Product Updates" in manager
+    assert "--check-updates" in manager
+    assert "at most three" in manager
+    assert "explicit approval" in manager
+    assert "codex plugin marketplace upgrade wirenet" in install
+    assert "RELEASE_NOTES.md" in setup
+    assert "workspace-migration result" in setup
+    assert "final Doctor status" in setup
+
+
 def test_loop_is_general_task_automation_with_clean_completion() -> None:
     skill = (ROOT / "plugins/workflows/skills/loop/SKILL.md").read_text(
         encoding="utf-8"
@@ -269,7 +290,13 @@ def test_plugin_manifest_and_marketplace_use_core_namespace() -> None:
         (ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
     )
     assert manifest["name"] == "manager"
-    assert manifest["version"] == "0.4.2"
+    assert manifest["version"] == "0.4.3"
+    claude_manifest = json.loads(
+        (ROOT / "plugins/manager/.claude-plugin/plugin.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert claude_manifest["version"] == manifest["version"]
     assert manifest["skills"] == "./skills/"
     assert manifest["interface"]["brandColor"] == "#FF5C1A"
     prompts = manifest["interface"]["defaultPrompt"]
@@ -308,6 +335,23 @@ def test_plugin_manifest_and_marketplace_use_core_namespace() -> None:
             "installation": "AVAILABLE",
             "authentication": "ON_INSTALL",
         }
+
+
+def test_tag_release_publishes_curated_manager_notes() -> None:
+    workflow = (ROOT / ".github/workflows/package.yml").read_text(
+        encoding="utf-8"
+    )
+    notes = (ROOT / "plugins/manager/RELEASE_NOTES.md").read_text(
+        encoding="utf-8"
+    )
+
+    assert "if: startsWith(github.ref, 'refs/tags/v')" in workflow
+    assert "needs: validate" in workflow
+    assert "contents: write" in workflow
+    assert "Verify tag matches Manager manifest" in workflow
+    assert "gh release create" in workflow
+    assert "plugins/manager/RELEASE_NOTES.md" in workflow
+    assert "# wirenet Manager v0.4.3" in notes
 
 
 def test_clean_codex_install_contract_is_complete_and_repo_readable() -> None:
