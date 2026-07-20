@@ -39,6 +39,9 @@ state, and do not let structured metadata replace canonical human prose or
   history. Do not copy plugin skills into it by default.
 - External projects keep implementation code, media, and large data.
 - Client or domain capability shelves remain separate plugins.
+- Standalone user-facing applications with an independent runtime and release
+  cycle remain separately versioned repositories; shared WireNet contracts and
+  integration boundaries stay canonical here.
 - Database sync and the Knowledge Hub are outside v0.2.
 
 ## Project Pack Contract

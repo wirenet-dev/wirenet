@@ -11,6 +11,13 @@ workspaces). Instance templates live under `templates/`; `bin/wirenet` is the
 lean local control plane (`status`, `doctor`). The canonical architecture
 concept lives in the Base under `governance/system-architecture.md`.
 
+Wirenet Context Studio is a separately versioned visual companion application
+for OKF discovery, ontology inspection, quality governance, graph exploration,
+context assembly, and review-before-write editing. It consumes the product's
+OKF and Client Runtime contracts but is deliberately not vendored into this
+Marketplace repository: its Next.js toolchain and release/deployment cycle are
+independent from the Manager plugin release train.
+
 ## wirenet Manager
 
 wirenet Manager is the core plugin: an installable ChatGPT Work and Codex
