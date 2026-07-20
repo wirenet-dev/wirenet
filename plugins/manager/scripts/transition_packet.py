@@ -103,7 +103,6 @@ def main() -> int:
             {
                 "status": args.target,
                 "updated_at": iso_date(),
-                "last_edited": iso_date(),
             },
         ),
         encoding="utf-8",

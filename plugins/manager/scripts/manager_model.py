@@ -167,10 +167,8 @@ def concept_frontmatter(
         lines.append(f"producer: {yaml_string(producer)}")
     lines.extend(
         [
-            f"timestamp: {iso_timestamp(stamp)}",
             f"created_at: {iso_date(stamp)}",
             f"updated_at: {iso_date(stamp)}",
-            f"last_edited: {iso_date(stamp)}",
             "---",
             "",
         ]
@@ -251,7 +249,6 @@ def runtime_frontmatter(
         "status: active",
         f"created_at: {iso_date(stamp)}",
         f"updated_at: {iso_date(stamp)}",
-        f"last_edited: {iso_date(stamp)}",
         "---",
         "",
     ]
@@ -611,6 +608,25 @@ def update_frontmatter(content: str, updates: dict[str, str]) -> str:
         else:
             lines.append(rendered)
     return "---\n" + "\n".join(lines) + content[end:]
+
+
+def remove_frontmatter_keys(content: str, keys: set[str]) -> str:
+    if not content.startswith("---\n"):
+        raise ValueError("document is missing YAML frontmatter")
+    end = content.find("\n---\n", 4)
+    if end < 0:
+        raise ValueError("document has malformed YAML frontmatter")
+    lines = content[4:end].splitlines()
+    kept = [
+        line
+        for line in lines
+        if not (
+            ":" in line
+            and not line.startswith((" ", "-"))
+            and line.split(":", 1)[0].strip() in keys
+        )
+    ]
+    return "---\n" + "\n".join(kept) + content[end:]
 
 
 def project_id_from_readme(path: Path) -> str | None:

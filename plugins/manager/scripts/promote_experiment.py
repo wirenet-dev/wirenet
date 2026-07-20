@@ -133,7 +133,6 @@ def main() -> int:
             "status": "promoted",
             "promoted_to_project_id": project_id,
             "updated_at": iso_date(stamp),
-            "last_edited": iso_date(stamp),
         },
     )
     experiment_content = append_section(

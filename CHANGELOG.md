@@ -28,6 +28,25 @@ may be ahead of the released product.
   read the installed plugin manifest instead of treating workspace metadata as
   the active version.
 
+## v0.4.5 — 2026-07-20
+
+- Removed the redundant `timestamp`/`last_edited` frontmatter fields from
+  generated Project and Experiment Pack concepts and packet `AGENTS.md`
+  sidecars; `created_at` and `updated_at` are now the single source of truth.
+- Added `scripts/tidy_timestamps.py`, an independent dry-run-first migration
+  that cleans up already-generated content and is offered by `$manager-setup`
+  once Doctor is healthy.
+
+## v0.4.4 — 2026-07-20
+
+- Guided stable updates: `manager_doctor.py --check-updates` and wrapped
+  release-note presentation (Sol / codex-agent).
+
+## v0.4.3 — 2026-07-20
+
+- Manager skill checks the latest published `stable` release and offers the
+  update command; never applies without approval (Sol / codex-agent).
+
 ## v0.4.2 — 2026-07-20
 
 - Manager skill: current-stack and day-planning answers now combine the

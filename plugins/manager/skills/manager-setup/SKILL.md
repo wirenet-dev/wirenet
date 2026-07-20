@@ -42,20 +42,25 @@ history; external projects stay where they are.
    Use `--repair` only for an existing Manager; repair creates missing scaffold
    and never overwrites personalized files.
 6. Require Manager Doctor `ok: true`.
-7. Run plugin-root `scripts/manager_doctor.py --check-updates` when a public
+7. Preview plugin-root `scripts/tidy_timestamps.py --git-bin <resolved-git>`.
+   - `clean`: no redundant timestamp fields remain; continue silently.
+   - `tidy-available`: this is an independent maintenance action, not a schema
+     migration. Require a clean local Git checkpoint, show the candidate paths,
+     and ask before applying. Re-run Doctor `ok: true` after applying.
+8. Run plugin-root `scripts/manager_doctor.py --check-updates` when a public
    GitHub read is available. If the installed plugin is current, read the
    packaged `RELEASE_NOTES.md` and close an update task with a concise report:
    installed version, workspace-migration result (`none` is valid), up to three
    user-facing release-note bullets, and final Doctor status. An unavailable
    release check does not invalidate a healthy Manager.
-8. Preview plugin-root `scripts/manager_qmd.py`.
+9. Preview plugin-root `scripts/manager_qmd.py`.
    - If QMD is healthy, offer the `manager` collection registration.
    - If missing or unhealthy, explain the state and ask before using `--install`.
    - Add `--embed` only after separate approval for model-backed embeddings.
    - QMD failure does not invalidate the Manager; canonical file reads remain.
-9. When the technical baseline is healthy, read `references/onboarding.md` and
-   continue the first meeting in the same task. Do not present the technical
-   recap as completed onboarding.
+10. When the technical baseline is healthy, read `references/onboarding.md` and
+    continue the first meeting in the same task. Do not present the technical
+    recap as completed onboarding.
 
 ## Setup Operations Used During Onboarding
 
@@ -104,6 +109,8 @@ Manager content.
 - `references/runtime-preflight.md`: Codex-bundled and PATH executable
   resolution for non-developer computers.
 - plugin-root `scripts/upgrade_manager.py`: version negotiation and migration.
+- plugin-root `scripts/tidy_timestamps.py`: removes redundant `timestamp`/
+  `last_edited` frontmatter fields, keeping `created_at`/`updated_at`.
 - plugin-root `scripts/manager_qmd.py`: QMD health and collection setup.
 - `references/manager-model.md`: canonical workspace model.
 - `references/onboarding.md`: first-meeting workflow and approval gates.
