@@ -2,12 +2,14 @@
 last_edited: 2026-07-20
 ---
 
-# wirenet Manager v0.4.5
+# wirenet Manager v0.4.6
 
-- Project and Experiment Pack concepts, and their packet-level `AGENTS.md`
-  sidecars, now use only `created_at` and `updated_at` in frontmatter. The
-  redundant `timestamp` and `last_edited` fields — always set to the same
-  value as the others — are gone from newly generated content.
-- New `scripts/tidy_timestamps.py` removes those redundant fields from
-  existing packets: preview, clean Git checkpoint, apply, Doctor-valid,
-  idempotent. `$manager-setup` offers it once Doctor is healthy.
+- New Project and Experiment Pack concepts now use one metadata field per
+  durable meaning. Redundant scope aliases, per-concept `okf_profile`, `name`,
+  and `summary` are gone; standard OKF `title` and `description` serve indexes,
+  search, and display consistently.
+- New `scripts/tidy_frontmatter.py` safely normalizes existing packets after a
+  clean Git checkpoint. It previews affected files, preserves personal prose
+  and unknown producer metadata, and requires a healthy Manager Doctor result.
+- Onboarding can keep awareness, semantic commits, and safe push windows in one
+  current Manager task instead of requiring a separate push automation.

@@ -290,7 +290,7 @@ def test_plugin_manifest_and_marketplace_use_core_namespace() -> None:
         (ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
     )
     assert manifest["name"] == "manager"
-    assert manifest["version"] == "0.4.5"
+    assert manifest["version"] == "0.4.6"
     claude_manifest = json.loads(
         (ROOT / "plugins/manager/.claude-plugin/plugin.json").read_text(
             encoding="utf-8"
@@ -351,7 +351,7 @@ def test_tag_release_publishes_curated_manager_notes() -> None:
     assert "Verify tag matches Manager manifest" in workflow
     assert "gh release create" in workflow
     assert "plugins/manager/RELEASE_NOTES.md" in workflow
-    assert "# wirenet Manager v0.4.5" in notes
+    assert "# wirenet Manager v0.4.6" in notes
 
 
 def test_clean_codex_install_contract_is_complete_and_repo_readable() -> None:
@@ -394,6 +394,7 @@ def test_personal_onboarding_preserves_jason_sequence_with_explicit_gates() -> N
         ROOT
         / "plugins/manager/skills/manager-setup/references/manager-task-template.md"
     ).read_text(encoding="utf-8")
+    normalized_reference = " ".join(reference.split())
 
     assert "references/onboarding.md" in bootstrap
     assert "personal first meeting" in bootstrap
@@ -411,6 +412,10 @@ def test_personal_onboarding_preserves_jason_sequence_with_explicit_gates() -> N
     assert "docs/communication-and-files.md" in reference
     assert "current task as destination" in reference
     assert "09:00 and 16:00" in reference
+    assert "single-task continuity setup" in normalized_reference
+    assert "same check-in may perform safe fast-forward pushes" in normalized_reference
+    assert "separate standalone push automation only" in normalized_reference
+    assert "exact clock scheduling" in normalized_reference
     assert "write-like-me.md" in reference
     assert "never scan the whole home directory for personal skills" in reference
     assert "offer to migrate and validate it" in reference
@@ -420,6 +425,8 @@ def test_personal_onboarding_preserves_jason_sequence_with_explicit_gates() -> N
     assert "do not duplicate Manager content" in task_template
     assert "Work first and notify second" in task_template
     assert "otherwise stay quiet" in task_template
+    assert "keep it in this same check-in" in task_template
+    assert "small semantic groups" in task_template
 
     headings = (
         "## 1. Hello",

@@ -172,7 +172,10 @@ local runtime is unavailable.
 When the current task becomes the long-running Manager home, onboarding uses a
 thin task contract for conversation continuity and the approved check-in. It
 does not duplicate people, projects, priorities, or source maps from
-`~/Manager`, which remains the canonical durable memory.
+`~/Manager`, which remains the canonical durable memory. For Git-tracked
+Managers, onboarding offers separately approved semantic commit maintenance and
+safe 09:00/16:00 push windows inside that same check-in by default; an exact
+standalone push schedule remains an opt-in alternative.
 
 ## v0.2 Boundary
 
@@ -401,7 +404,7 @@ python3 scripts/compare_routing_contracts.py
 
 ## Release Status
 
-Plugin `0.4.4` is the current implementation of the v0.2 lifecycle architecture,
+Plugin `0.4.6` is the current implementation of the v0.2 lifecycle architecture,
 its explicit workspace-upgrade path, optional QMD retrieval setup, Jason-inspired
 personal onboarding, consolidated project and person playbooks, non-developer
 runtime preflight, update awareness, and optional global personal writing-voice

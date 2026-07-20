@@ -42,11 +42,13 @@ history; external projects stay where they are.
    Use `--repair` only for an existing Manager; repair creates missing scaffold
    and never overwrites personalized files.
 6. Require Manager Doctor `ok: true`.
-7. Preview plugin-root `scripts/tidy_timestamps.py --git-bin <resolved-git>`.
-   - `clean`: no redundant timestamp fields remain; continue silently.
-   - `tidy-available`: this is an independent maintenance action, not a schema
-     migration. Require a clean local Git checkpoint, show the candidate paths,
-     and ask before applying. Re-run Doctor `ok: true` after applying.
+7. Preview plugin-root `scripts/tidy_frontmatter.py --git-bin <resolved-git>`.
+   - `clean`: generated packet frontmatter already uses the lean contract;
+     continue silently.
+   - `frontmatter-tidy-available`: this is an independent maintenance action,
+     not a schema migration. Require a clean local Git checkpoint, show the
+     candidate paths, and ask before applying. Re-run Doctor `ok: true` after
+     applying.
 8. Run plugin-root `scripts/manager_doctor.py --check-updates` when a public
    GitHub read is available. If the installed plugin is current, read the
    packaged `RELEASE_NOTES.md` and close an update task with a concise report:
@@ -109,8 +111,9 @@ Manager content.
 - `references/runtime-preflight.md`: Codex-bundled and PATH executable
   resolution for non-developer computers.
 - plugin-root `scripts/upgrade_manager.py`: version negotiation and migration.
-- plugin-root `scripts/tidy_timestamps.py`: removes redundant `timestamp`/
-  `last_edited` frontmatter fields, keeping `created_at`/`updated_at`.
+- plugin-root `scripts/tidy_frontmatter.py`: normalizes legacy packet metadata,
+  removes redundant routing and timestamp aliases, and migrates `summary` to
+  standard OKF `description`.
 - plugin-root `scripts/manager_qmd.py`: QMD health and collection setup.
 - `references/manager-model.md`: canonical workspace model.
 - `references/onboarding.md`: first-meeting workflow and approval gates.

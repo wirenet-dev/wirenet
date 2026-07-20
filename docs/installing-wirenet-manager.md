@@ -1,5 +1,5 @@
 ---
-last_edited: 2026-07-16
+last_edited: 2026-07-20
 ---
 
 # Installing wirenet manager v0.2
@@ -130,8 +130,10 @@ approvals allow:
    map; it never seeds an empty placeholder or raw mail archive;
 9. discovers only explicitly approved project roots and classifies relevant
    folders as projects, experiments, or ignored;
-10. proposes one core Manager check-in, then optional project, people, or daily
-    monitor tasks with 09:00 and 16:00 suggested checkpoints;
+10. proposes one core current-task Manager check-in, optionally extending that
+    same heartbeat with hourly semantic commits and safe push windows around
+    09:00 and 16:00 after separate approvals, then offers only those additional
+    project, people, or daily monitor tasks that reduce noise;
 11. detects an existing global or approved repo-local `write-like-me` profile
     before offering migration, refresh, or a fresh approved sent-message scan;
 12. explains shared memory and daily use, offers to rename or pin the Manager
@@ -143,6 +145,14 @@ current stack and relevant packets, checks only approved connected sources, and
 does not send messages, change meetings, edit shared files, or write inferred
 memory. The user may choose another cadence or decline it. Local scheduled work
 requires the computer and ChatGPT desktop app to be running.
+
+For a Git-tracked Manager, onboarding recommends one-chat continuity: the same
+hourly heartbeat can be separately authorized to group coherent approved
+Manager changes into semantic commits and to push safely during its 09:00 and
+16:00 local-hour runs. It must require a clean `main`, an explicitly approved
+private remote, and fast-forward-only history. A standalone push automation is
+an opt-in alternative for users who value exact clock scheduling over keeping
+all Manager activity in one task.
 
 ## Connect Existing Projects
 

@@ -132,6 +132,8 @@ does not enter the Manager OKF bundle and is not copied into `~/Manager`.
   Manager collection registration, retrieval context, and optional embeddings.
 - `scripts/upgrade_manager.py`: dry-run-first version negotiation and supported
   local workspace migrations without template overwrite.
+- `scripts/tidy_frontmatter.py`: dry-run-first normalization of legacy packet
+  metadata into the lean OKF-aligned frontmatter contract.
 - `scripts/create_project_pack.py`: dry-run-first Manager-native or externally
   bound Project Pack creation.
 - `scripts/create_experiment_pack.py`: dry-run-first lightweight Experiment Pack

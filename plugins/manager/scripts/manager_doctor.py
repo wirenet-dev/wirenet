@@ -159,10 +159,12 @@ def inspect_packets(
             packet_errors.append(
                 f"README.md has unsupported status: {status or '<missing>'}"
             )
-        if not readme_metadata.get("name"):
-            packet_errors.append("README.md is missing name")
-        if "summary" not in readme_metadata:
-            packet_errors.append("README.md is missing summary")
+        if not readme_metadata.get("title"):
+            packet_errors.append("README.md is missing title")
+        if not (
+            "description" in readme_metadata or "summary" in readme_metadata
+        ):
+            packet_errors.append("README.md is missing description")
         if not index:
             packet_errors.append(f"{collection}/index.md is missing")
         elif f"({packet.name}/README.md)" not in index:

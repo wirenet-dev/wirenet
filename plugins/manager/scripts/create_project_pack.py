@@ -29,7 +29,13 @@ from manager_model import (
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("name")
-    parser.add_argument("--summary", required=True)
+    parser.add_argument(
+        "--description",
+        "--summary",
+        dest="description",
+        required=True,
+        help="One-sentence project description (`--summary` remains compatible).",
+    )
     parser.add_argument("--manager-dir", default="~/Manager")
     parser.add_argument("--workspace", action="append", default=[])
     parser.add_argument("--project-id", default="")
@@ -113,12 +119,14 @@ def main() -> int:
 
     packet.mkdir(parents=True)
     (packet / "README.md").write_text(
-        render_project_readme(args.name, args.summary, project_id, stamp), encoding="utf-8"
+        render_project_readme(args.name, args.description, project_id, stamp),
+        encoding="utf-8",
     )
     (packet / "AGENTS.md").write_text(render_project_agents(args.name, project_id, stamp), encoding="utf-8")
     if args.with_goal:
         (packet / "GOAL.md").write_text(
-            render_project_goal(args.name, args.summary, project_id, stamp), encoding="utf-8"
+            render_project_goal(args.name, args.description, project_id, stamp),
+            encoding="utf-8",
         )
     if args.with_result:
         (packet / "RESULT.md").write_text(

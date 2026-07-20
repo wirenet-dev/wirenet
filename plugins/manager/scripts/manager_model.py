@@ -134,15 +134,10 @@ def concept_frontmatter(
     *,
     concept_type: str,
     schema: str,
-    okf_profile: str,
     identity_key: str,
     identity: str,
-    name: str,
     title: str,
-    summary: str,
-    scope: str,
-    context_scope: str,
-    assembly_scope: str,
+    description: str,
     status: str,
     stamp: datetime,
     visibility: str = "private",
@@ -152,23 +147,18 @@ def concept_frontmatter(
         "---",
         f"type: {yaml_string(concept_type)}",
         f"schema: {yaml_string(schema)}",
-        f"okf_profile: {yaml_string(okf_profile)}",
         f"{identity_key}: {yaml_string(identity)}",
-        f"name: {yaml_string(name)}",
         f"title: {yaml_string(title)}",
-        f"summary: {yaml_string(' '.join(summary.split()))}",
-        f"scope: {scope}",
-        f"context_scope: {context_scope}",
+        f"description: {yaml_string(' '.join(description.split()))}",
         f"visibility: {visibility}",
-        f"assembly_scope: {assembly_scope}",
         f"status: {status}",
     ]
     if producer:
         lines.append(f"producer: {yaml_string(producer)}")
     lines.extend(
         [
-            f"created_at: {iso_date(stamp)}",
-            f"updated_at: {iso_date(stamp)}",
+            f"created_at: {yaml_string(iso_date(stamp))}",
+            f"updated_at: {yaml_string(iso_date(stamp))}",
             "---",
             "",
         ]
@@ -179,9 +169,8 @@ def concept_frontmatter(
 def project_frontmatter(
     *,
     concept_type: str,
-    name: str,
     title: str,
-    summary: str,
+    description: str,
     project_id: str,
     status: str,
     stamp: datetime,
@@ -190,15 +179,10 @@ def project_frontmatter(
     return concept_frontmatter(
         concept_type=concept_type,
         schema=PROJECT_PACK_SCHEMA,
-        okf_profile=PROJECT_OKF_PROFILE,
         identity_key="project_id",
         identity=project_id,
-        name=name,
         title=title,
-        summary=summary,
-        scope="projects",
-        context_scope="project",
-        assembly_scope="project_context",
+        description=description,
         status=status,
         stamp=stamp,
         producer=producer,
@@ -208,9 +192,8 @@ def project_frontmatter(
 def experiment_frontmatter(
     *,
     concept_type: str,
-    name: str,
     title: str,
-    summary: str,
+    description: str,
     experiment_id: str,
     status: str,
     stamp: datetime,
@@ -218,15 +201,10 @@ def experiment_frontmatter(
     return concept_frontmatter(
         concept_type=concept_type,
         schema=EXPERIMENT_PACK_SCHEMA,
-        okf_profile=EXPERIMENT_OKF_PROFILE,
         identity_key="experiment_id",
         identity=experiment_id,
-        name=name,
         title=title,
-        summary=summary,
-        scope="experiments",
-        context_scope="experiment",
-        assembly_scope="experiment_context",
+        description=description,
         status=status,
         stamp=stamp,
     )
@@ -247,8 +225,8 @@ def runtime_frontmatter(
         "audience: agent",
         "visibility: local",
         "status: active",
-        f"created_at: {iso_date(stamp)}",
-        f"updated_at: {iso_date(stamp)}",
+        f"created_at: {yaml_string(iso_date(stamp))}",
+        f"updated_at: {yaml_string(iso_date(stamp))}",
         "---",
         "",
     ]
@@ -256,7 +234,7 @@ def runtime_frontmatter(
 
 def render_project_readme(
     title: str,
-    summary: str,
+    description: str,
     project_id: str,
     stamp: datetime,
     *,
@@ -264,9 +242,8 @@ def render_project_readme(
 ) -> str:
     lines = project_frontmatter(
         concept_type="Project Status",
-        name=title,
-        title=f"{title} Status",
-        summary=summary,
+        title=title,
+        description=description,
         project_id=project_id,
         status="active",
         stamp=stamp,
@@ -279,7 +256,7 @@ def render_project_readme(
             "",
             "## Purpose",
             "",
-            summary or "Describe why this project matters.",
+            description or "Describe why this project matters.",
             "",
             "## Current Status",
             "",
@@ -356,13 +333,12 @@ def render_project_agents(title: str, project_id: str, stamp: datetime) -> str:
 
 
 def render_project_goal(
-    title: str, summary: str, project_id: str, stamp: datetime
+    title: str, description: str, project_id: str, stamp: datetime
 ) -> str:
     lines = project_frontmatter(
         concept_type="Project Brief",
-        name=title,
         title=f"{title} Goal",
-        summary=summary,
+        description=description,
         project_id=project_id,
         status="active",
         stamp=stamp,
@@ -373,7 +349,7 @@ def render_project_goal(
             "",
             "## Outcome",
             "",
-            summary
+            description
             or "Describe the observable outcome that means this project succeeded.",
             "",
             "## Baseline",
@@ -400,9 +376,8 @@ def render_project_goal(
 def render_project_result(title: str, project_id: str, stamp: datetime) -> str:
     lines = project_frontmatter(
         concept_type="Project Result",
-        name=title,
         title=f"{title} Results",
-        summary=f"Completed outcomes and verification for {title}.",
+        description=f"Completed outcomes and verification for {title}.",
         project_id=project_id,
         status="pending",
         stamp=stamp,
@@ -450,9 +425,8 @@ def render_experiment_readme(
 ) -> str:
     lines = experiment_frontmatter(
         concept_type="Experiment Status",
-        name=title,
-        title=f"{title} Experiment",
-        summary=question,
+        title=title,
+        description=question,
         experiment_id=experiment_id,
         status="active",
         stamp=stamp,
@@ -528,9 +502,8 @@ def render_experiment_agents(title: str, experiment_id: str, stamp: datetime) ->
 def render_experiment_result(title: str, experiment_id: str, stamp: datetime) -> str:
     lines = experiment_frontmatter(
         concept_type="Experiment Result",
-        name=title,
         title=f"{title} Result",
-        summary=f"Conclusion and decision evidence for {title}.",
+        description=f"Conclusion and decision evidence for {title}.",
         experiment_id=experiment_id,
         status="pending",
         stamp=stamp,
@@ -571,7 +544,14 @@ def frontmatter(path: Path) -> dict[str, str]:
             continue
         key, raw = line.split(":", 1)
         value = raw.strip()
-        if value.startswith(('"', "'")) and value.endswith(value[0]):
+        if value.startswith('"') and value.endswith('"'):
+            try:
+                decoded = json.loads(value)
+                if isinstance(decoded, str):
+                    value = decoded
+            except json.JSONDecodeError:
+                value = value[1:-1]
+        elif value.startswith("'") and value.endswith("'"):
             value = value[1:-1]
         values[key.strip()] = value
     return values
@@ -596,10 +576,13 @@ def update_frontmatter(content: str, updates: dict[str, str]) -> str:
             in {
                 "name",
                 "title",
+                "description",
+                "created_at",
                 "summary",
                 "producer",
                 "promoted_to_project_id",
                 "source_experiment_id",
+                "updated_at",
             }
             else f"{key}: {value}"
         )
@@ -679,11 +662,13 @@ def render_projects_index(manager_dir: Path) -> str:
         metadata = frontmatter(readme)
         status = metadata.get("status", "active")
         heading = sections.get(status, "Active Project Packs")
-        name = metadata.get("name") or readme.parent.name
-        summary = metadata.get("summary", "")
-        entry = f"- [{name}]({readme.parent.name}/README.md)"
-        if summary:
-            entry += f" — {summary}"
+        title = (
+            metadata.get("title") or metadata.get("name") or readme.parent.name
+        )
+        description = metadata.get("description") or metadata.get("summary", "")
+        entry = f"- [{title}]({readme.parent.name}/README.md)"
+        if description:
+            entry += f" — {description}"
         grouped[heading].append(entry)
     lines = [
         "# Projects",
@@ -709,11 +694,13 @@ def render_experiments_index(manager_dir: Path) -> str:
         metadata = frontmatter(readme)
         status = metadata.get("status", "active")
         heading = sections.get(status, "Active Experiments")
-        name = metadata.get("name") or readme.parent.name
-        summary = metadata.get("summary", "")
-        entry = f"- [{name}]({readme.parent.name}/README.md)"
-        if summary:
-            entry += f" — {summary}"
+        title = (
+            metadata.get("title") or metadata.get("name") or readme.parent.name
+        )
+        description = metadata.get("description") or metadata.get("summary", "")
+        entry = f"- [{title}]({readme.parent.name}/README.md)"
+        if description:
+            entry += f" — {description}"
         grouped[heading].append(entry)
     lines = [
         "---",

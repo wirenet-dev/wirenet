@@ -48,7 +48,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("experiment", help="Experiment ID or packet slug")
     parser.add_argument("--project-name", required=True)
-    parser.add_argument("--summary", required=True)
+    parser.add_argument(
+        "--description",
+        "--summary",
+        dest="description",
+        required=True,
+        help="One-sentence project description (`--summary` remains compatible).",
+    )
     parser.add_argument("--project-slug", default="")
     parser.add_argument("--project-id", default="")
     parser.add_argument("--manager-dir", default="~/Manager")
@@ -112,7 +118,7 @@ def main() -> int:
     project.mkdir(parents=True)
     project_readme = render_project_readme(
         args.project_name,
-        args.summary,
+        args.description,
         project_id,
         stamp,
         source_experiment=experiment_id,
@@ -120,7 +126,9 @@ def main() -> int:
     project_readme = append_section(
         project_readme,
         "Origin",
-        f"- Promoted from [{experiment_metadata.get('name', experiment.name)}](../../experiments/{experiment.name}/README.md).",
+        "- Promoted from "
+        f"[{experiment_metadata.get('name') or experiment_metadata.get('title') or experiment.name}]"
+        f"(../../experiments/{experiment.name}/README.md).",
     )
     (project / "README.md").write_text(project_readme, encoding="utf-8")
     (project / "AGENTS.md").write_text(

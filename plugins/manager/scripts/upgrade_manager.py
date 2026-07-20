@@ -393,9 +393,9 @@ def _upgrade_project_index(content: str) -> str:
     return updated + "\n"
 
 
-def _project_name_and_summary(content: str, path: Path) -> tuple[str, str]:
+def _project_title_and_description(content: str, path: Path) -> tuple[str, str]:
     heading = re.search(r"(?m)^#\s+(.+?)\s*$", content)
-    name = (
+    title = (
         heading.group(1).strip()
         if heading
         else path.parent.name.replace("-", " ").title()
@@ -404,24 +404,24 @@ def _project_name_and_summary(content: str, path: Path) -> tuple[str, str]:
         r"(?ms)^## Purpose\s*\n+(.*?)(?=^##\s|\Z)",
         content,
     )
-    summary = ""
+    description = ""
     if purpose:
         paragraphs = [
             line.strip() for line in purpose.group(1).splitlines() if line.strip()
         ]
-        summary = " ".join(paragraphs)
-    return name, summary or f"Current status and next move for {name}."
+        description = " ".join(paragraphs)
+    return title, description or f"Current status and next move for {title}."
 
 
 def _upgrade_project_readme(path: Path) -> bool:
     content = path.read_text(encoding="utf-8")
     metadata = frontmatter(path)
     updates: dict[str, str] = {}
-    name, summary = _project_name_and_summary(content, path)
-    if not metadata.get("name"):
-        updates["name"] = name
-    if "summary" not in metadata:
-        updates["summary"] = summary
+    title, description = _project_title_and_description(content, path)
+    if not metadata.get("title"):
+        updates["title"] = title
+    if "description" not in metadata and "summary" not in metadata:
+        updates["description"] = description
     if not updates:
         return False
     path.write_text(update_frontmatter(content, updates), encoding="utf-8")
