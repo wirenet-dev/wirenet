@@ -1,6 +1,6 @@
 {
   "name": "manager",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "A durable local workspace for projects, context, and next actions.",
   "author": {
     "name": "wirenet",

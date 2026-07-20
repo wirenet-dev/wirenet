@@ -200,6 +200,20 @@ def test_manager_keeps_jason_style_proactive_entry_triggers() -> None:
         assert trigger in skill
 
 
+def test_manager_current_stack_uses_a_fresh_calendar_signal() -> None:
+    skill = (
+        ROOT / "plugins/manager/skills/manager/SKILL.md"
+    ).read_text(encoding="utf-8")
+    normalized = " ".join(skill.split())
+
+    assert "## Fresh Live Signals" in normalized
+    assert "approved connected calendar" in normalized
+    assert "at most 30 minutes old" in normalized
+    assert "same local date and window" in normalized
+    assert "live calendar was not checked" in normalized
+    assert "Do not persist a shadow" in normalized
+
+
 def test_loop_is_general_task_automation_with_clean_completion() -> None:
     skill = (ROOT / "plugins/workflows/skills/loop/SKILL.md").read_text(
         encoding="utf-8"
@@ -255,7 +269,7 @@ def test_plugin_manifest_and_marketplace_use_core_namespace() -> None:
         (ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
     )
     assert manifest["name"] == "manager"
-    assert manifest["version"] == "0.4.1"
+    assert manifest["version"] == "0.4.2"
     assert manifest["skills"] == "./skills/"
     assert manifest["interface"]["brandColor"] == "#FF5C1A"
     prompts = manifest["interface"]["defaultPrompt"]

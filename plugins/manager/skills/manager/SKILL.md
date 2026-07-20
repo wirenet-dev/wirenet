@@ -72,6 +72,31 @@ as an explicit maintenance action.
 - Stay quiet about ordinary signal scans unless the configured task explicitly
   requests a recurring stack.
 
+## Fresh Live Signals
+
+For current-stack, day-planning, “what is on my plate?”, and “what should I
+know?” requests:
+
+1. Read the canonical Manager stack first.
+2. When an approved connected calendar is available, combine the Manager with
+   the relevant local-day calendar window before presenting the agenda as
+   complete.
+3. Reuse a successful bounded calendar read already present in the current task
+   only when it covers the same local date and window and is at most 30 minutes
+   old. Otherwise read the bounded window again. Refresh regardless of age when
+   the user says an event changed or asks about exact timing or conflicts.
+4. When calendar access is unavailable or not approved, say that the live
+   calendar was not checked instead of presenting the static Manager stack as a
+   complete daily agenda.
+5. Treat calendar events as volatile source evidence. Do not persist a shadow
+   calendar or copy raw event payloads, meeting links, attendee addresses, or
+   descriptions into the Manager merely to avoid another connector read.
+6. Propose only a durable commitment, decision, deadline, preparation gap, or
+   next move for the relevant Project Pack, following the normal approval gate.
+7. Apply the same freshness, bounded-window, and no-shadow-copy discipline to
+   any other approved live source, such as mail or messages, when it carries
+   part of the day's agenda.
+
 ## Durable Writes
 
 Write only when future work would otherwise misunderstand a project, person,

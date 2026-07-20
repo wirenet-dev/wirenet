@@ -8,6 +8,16 @@ Installations track the `stable` branch. Each release is a tag; `stable`
 fast-forwards to the latest released tag. `main` is the integration branch and
 may be ahead of the released product.
 
+## v0.4.2 — 2026-07-20
+
+- Manager skill: current-stack and day-planning answers now combine the
+  Manager with a fresh, bounded, approved calendar window (30-minute reuse
+  rule, explicit "not checked" statement, no shadow-calendar copies), and the
+  same discipline applies to other approved live sources.
+- Onboarding: first meeting offers a one-time translation of the seeded
+  README/TODO bodies when the content language is not English.
+- Added the first-bootstrap demo runbook (docs/demo-runbook.md).
+
 ## v0.4.1 — 2026-07-20
 
 - Consolidated the product into the `wirenet` monorepo (renamed from

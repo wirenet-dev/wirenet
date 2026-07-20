@@ -53,6 +53,11 @@ Classify quietly:
    to rename or pin the current task as the Manager home, and close with the
    reference's recap structure.
 
+When `content_language` is not English and the seeded `README.md` or `TODO.md`
+bodies still carry English template prose, offer once during the first meeting
+to translate them. Stable file names, schemas, metadata keys, and statuses stay
+English.
+
 ## Approval Gates
 
 Ask separately before installing or connecting plugins, reading connected
