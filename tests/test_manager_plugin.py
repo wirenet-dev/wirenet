@@ -339,7 +339,7 @@ def test_bootstrap_materializes_content_only_manager_with_local_git(
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
     assert metadata["project_pack_profile"] == "wirenet-project-pack/v0.1"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
-    assert metadata["plugin_version"] == "0.4.3"
+    assert metadata["plugin_version"] == "0.4.4"
     assert metadata["manager_id"].startswith("mgr_")
     assert (
         "Continue with $manager-setup for the personal first meeting."
@@ -485,16 +485,17 @@ def test_manager_update_check_reports_release_notes_without_writing(
     release.write_text(
         json.dumps(
             {
-                "tag_name": "v0.4.4",
-                "name": "wirenet Manager v0.4.4",
+                "tag_name": "v0.4.5",
+                "name": "wirenet Manager v0.4.5",
                 "body": (
-                    "- First user change.\n"
+                    "- First user change that wraps\n"
+                    "  onto a second line.\n"
                     "- Second user change.\n"
                     "- Third user change.\n"
                     "- Hidden fourth change."
                 ),
                 "html_url": (
-                    "https://github.com/wirenet-dev/wirenet/releases/tag/v0.4.4"
+                    "https://github.com/wirenet-dev/wirenet/releases/tag/v0.4.5"
                 ),
             }
         ),
@@ -523,17 +524,17 @@ def test_manager_update_check_reports_release_notes_without_writing(
     assert result["update"] == {
         "ok": True,
         "state": "available",
-        "current_version": "0.4.3",
-        "latest_version": "0.4.4",
+        "current_version": "0.4.4",
+        "latest_version": "0.4.5",
         "update_available": True,
-        "release_name": "wirenet Manager v0.4.4",
+        "release_name": "wirenet Manager v0.4.5",
         "release_notes": [
-            "First user change.",
+            "First user change that wraps onto a second line.",
             "Second user change.",
             "Third user change.",
         ],
         "release_url": (
-            "https://github.com/wirenet-dev/wirenet/releases/tag/v0.4.4"
+            "https://github.com/wirenet-dev/wirenet/releases/tag/v0.4.5"
         ),
         "update_command": "codex plugin marketplace upgrade wirenet",
         "post_update_action": "Start a fresh task and run $manager-setup.",
@@ -578,11 +579,11 @@ def test_manager_update_script_reports_current_release(tmp_path: Path) -> None:
     release.write_text(
         json.dumps(
             {
-                "tag_name": "v0.4.3",
-                "name": "wirenet Manager v0.4.3",
+                "tag_name": "v0.4.4",
+                "name": "wirenet Manager v0.4.4",
                 "body": "- Current release.",
                 "html_url": (
-                    "https://github.com/wirenet-dev/wirenet/releases/tag/v0.4.3"
+                    "https://github.com/wirenet-dev/wirenet/releases/tag/v0.4.4"
                 ),
             }
         ),
@@ -594,8 +595,8 @@ def test_manager_update_script_reports_current_release(tmp_path: Path) -> None:
     )
 
     assert result["state"] == "current"
-    assert result["current_version"] == "0.4.3"
-    assert result["latest_version"] == "0.4.3"
+    assert result["current_version"] == "0.4.4"
+    assert result["latest_version"] == "0.4.4"
     assert result["update_available"] is False
 
 
@@ -647,7 +648,7 @@ def test_upgrade_migrates_v01_without_rewriting_personal_content(
         (manager / ".wirenet/manager.json").read_text(encoding="utf-8")
     )
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
-    assert metadata["plugin_version"] == "0.4.3"
+    assert metadata["plugin_version"] == "0.4.4"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
     assert metadata["okf_profiles"] == [
         "wirenet-okf-project-pack/v0.1",

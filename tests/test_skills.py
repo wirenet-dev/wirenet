@@ -290,7 +290,7 @@ def test_plugin_manifest_and_marketplace_use_core_namespace() -> None:
         (ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8")
     )
     assert manifest["name"] == "manager"
-    assert manifest["version"] == "0.4.3"
+    assert manifest["version"] == "0.4.4"
     claude_manifest = json.loads(
         (ROOT / "plugins/manager/.claude-plugin/plugin.json").read_text(
             encoding="utf-8"
@@ -351,7 +351,7 @@ def test_tag_release_publishes_curated_manager_notes() -> None:
     assert "Verify tag matches Manager manifest" in workflow
     assert "gh release create" in workflow
     assert "plugins/manager/RELEASE_NOTES.md" in workflow
-    assert "# wirenet Manager v0.4.3" in notes
+    assert "# wirenet Manager v0.4.4" in notes
 
 
 def test_clean_codex_install_contract_is_complete_and_repo_readable() -> None:
