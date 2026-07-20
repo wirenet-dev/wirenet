@@ -2,11 +2,12 @@
 last_edited: 2026-07-20
 ---
 
-# wirenet Manager v0.4.3
+# wirenet Manager v0.4.4
 
 - Manager and Doctor can check the latest published stable release without
-  changing the local workspace.
-- An available update is presented with concise user-facing notes and requires
+  changing the local workspace, and wrapped GitHub notes are now presented as
+  complete sentences.
+- An available update is shown with concise user-facing notes and requires
   approval before the Marketplace is refreshed.
 - After an update, `$manager-setup` reports the installed version, any approved
   workspace migration, and the final Doctor result.

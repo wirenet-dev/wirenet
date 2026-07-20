@@ -8,6 +8,12 @@ Installations track the `stable` branch. Each release is a tag; `stable`
 fast-forwards to the latest released tag. `main` is the integration branch and
 may be ahead of the released product.
 
+## v0.4.4 — 2026-07-20
+
+- Fixed multiline GitHub Release bullets so Manager presents complete concise
+  notes instead of cutting them off at Markdown line wraps.
+- Re-ran the real installed-plugin update path against the public Release API.
+
 ## v0.4.3 — 2026-07-20
 
 - Added a read-only stable-release check to Manager Doctor. It compares the

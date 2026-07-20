@@ -28,11 +28,23 @@ def semantic_version(value: str) -> tuple[int, int, int] | None:
 
 
 def concise_notes(body: str, *, limit: int = 3) -> list[str]:
-    bullets = [
-        line.strip()[2:].strip()
-        for line in body.splitlines()
-        if line.strip().startswith("- ") and line.strip()[2:].strip()
-    ]
+    bullets: list[str] = []
+    current: str | None = None
+    for line in body.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("- ") and stripped[2:].strip():
+            if current:
+                bullets.append(current)
+            current = stripped[2:].strip()
+            continue
+        if current and line[:1].isspace() and stripped:
+            current = f"{current} {stripped}"
+            continue
+        if current:
+            bullets.append(current)
+            current = None
+    if current:
+        bullets.append(current)
     if bullets:
         return bullets[:limit]
     paragraphs = [item.strip() for item in re.split(r"\n\s*\n", body) if item.strip()]
