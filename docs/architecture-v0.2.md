@@ -86,8 +86,8 @@ External task ends
 ### Marketplace And Manifest
 
 - `.agents/plugins/marketplace.json` exposes the three public plugin packages.
-- `plugins/manager/.codex-plugin/plugin.json` identifies Manager core version
-  0.4.0, interface copy, and starter prompts.
+- `plugins/manager/.codex-plugin/plugin.json` is the canonical installed Manager
+  version source, interface copy, and starter-prompt contract.
 - `plugins/workflows/` and `plugins/content-tools/` are independently
   installable cross-project capability plugins.
 
@@ -123,7 +123,11 @@ does not enter the Manager OKF bundle and is not copied into `~/Manager`.
 - `scripts/manager_model.py`: schemas, IDs, JSON helpers, and packet renderers.
 - `scripts/create_person_note.py`: dry-run-first typed person concept generator.
 - `scripts/manager_doctor.py`: read-only Manager, Project Pack, Experiment Pack,
-  binding, and lifecycle validation.
+  binding, and lifecycle validation, with an optional read-only public release
+  check.
+- `scripts/manager_update.py`: installed-manifest versus latest-GitHub-Release
+  comparison plus concise user-facing release notes; it never updates the
+  Marketplace or personal workspace itself.
 - `scripts/manager_qmd.py`: dry-run-first QMD health, approved installation,
   Manager collection registration, retrieval context, and optional embeddings.
 - `scripts/upgrade_manager.py`: dry-run-first version negotiation and supported

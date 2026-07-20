@@ -97,6 +97,25 @@ know?” requests:
    any other approved live source, such as mail or messages, when it carries
    part of the day's agenda.
 
+## Product Updates
+
+Treat product-update awareness as a bounded public release check, not as hidden
+polling or permission to modify the Manager.
+
+1. On the first current-stack or check-in answer in a fresh task, or whenever
+   the user asks about updates, run plugin-root
+   `scripts/manager_doctor.py --manager-dir <manager> --check-updates` when a
+   public GitHub read is available. Reuse that result for the rest of the task.
+2. If the update check is unavailable, keep ordinary Manager work usable and
+   mention the limitation only when the user asked about updates.
+3. If an update is available, show the version and at most three returned
+   release-note bullets. Offer the exact returned `update_command`; do not run
+   it without explicit approval.
+4. After approval, refresh only the configured Marketplace. Tell the user to
+   start a fresh task and invoke `$manager-setup`; never treat a plugin refresh
+   as approval to migrate or rewrite personal Manager content.
+5. When no update is available, stay quiet unless the user asked explicitly.
+
 ## Durable Writes
 
 Write only when future work would otherwise misunderstand a project, person,

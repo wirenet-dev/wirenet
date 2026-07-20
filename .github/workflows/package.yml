@@ -41,3 +41,54 @@ jobs:
 
       - name: Check generated drift
         run: git diff --check
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Verify tag matches Manager manifest
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          manifest = json.loads(
+              Path("plugins/manager/.codex-plugin/plugin.json").read_text()
+          )
+          expected = f"v{manifest['version']}"
+          actual = os.environ["RELEASE_TAG"]
+          if actual != expected:
+              raise SystemExit(f"tag {actual} does not match Manager {expected}")
+          PY
+
+      - name: Prepare user-facing release notes
+        run: |
+          awk '
+            NR == 1 && $0 == "---" { frontmatter = 1; next }
+            frontmatter && $0 == "---" { frontmatter = 0; next }
+            !frontmatter { print }
+          ' plugins/manager/RELEASE_NOTES.md > /tmp/wirenet-release-notes.md
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            gh release edit "${GITHUB_REF_NAME}" \
+              --title "wirenet Manager ${GITHUB_REF_NAME}" \
+              --notes-file /tmp/wirenet-release-notes.md
+          else
+            gh release create "${GITHUB_REF_NAME}" \
+              --title "wirenet Manager ${GITHUB_REF_NAME}" \
+              --notes-file /tmp/wirenet-release-notes.md
+          fi

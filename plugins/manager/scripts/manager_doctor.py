@@ -22,6 +22,7 @@ from manager_model import (
     manager_schema_version,
     project_id_from_readme,
 )
+from manager_update import check_for_update
 from okf_projection import iter_markdown, parse_frontmatter
 
 
@@ -418,8 +419,20 @@ def inspect(manager_dir: Path) -> dict[str, object]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manager-dir", default="~/Manager")
+    parser.add_argument(
+        "--check-updates",
+        action="store_true",
+        help="read the latest public GitHub release without changing local state",
+    )
+    parser.add_argument(
+        "--release-json",
+        type=Path,
+        help=argparse.SUPPRESS,
+    )
     args = parser.parse_args()
     result = inspect(Path(args.manager_dir).expanduser().resolve(strict=False))
+    if args.check_updates:
+        result["update"] = check_for_update(release_json=args.release_json)
     print(json.dumps(result, indent=2))
     return 0 if result["ok"] else 1
 

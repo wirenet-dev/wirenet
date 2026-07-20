@@ -8,6 +8,20 @@ Installations track the `stable` branch. Each release is a tag; `stable`
 fast-forwards to the latest released tag. `main` is the integration branch and
 may be ahead of the released product.
 
+## v0.4.3 — 2026-07-20
+
+- Added a read-only stable-release check to Manager Doctor. It compares the
+  installed manifest version with the latest GitHub Release and returns a short
+  user-facing note plus the single Codex Marketplace update command.
+- Manager check-ins now surface an available update and ask before refreshing
+  the Marketplace; no plugin update mutates the personal Manager workspace.
+- `$manager-setup` now closes an update with the installed version, packaged
+  release notes, workspace-migration result, and final Doctor status.
+- Defined `plugin_version` in workspace metadata as the plugin version that
+  created or last structurally migrated the workspace. Runtime update checks
+  read the installed plugin manifest instead of treating workspace metadata as
+  the active version.
+
 ## v0.4.2 — 2026-07-20
 
 - Manager skill: current-stack and day-planning answers now combine the

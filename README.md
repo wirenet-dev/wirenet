@@ -135,6 +135,17 @@ Claude Code (same repository, same skills):
 /plugin install manager@wirenet
 ```
 
+Existing Codex users update the configured stable Marketplace with one command:
+
+```sh
+codex plugin marketplace upgrade wirenet
+```
+
+Start a fresh task afterwards and invoke `$manager-setup`. Manager can detect a
+new published GitHub Release, show a concise user-facing note, and ask before
+running the Marketplace update. A plugin refresh never changes `~/Manager` by
+itself; any supported workspace migration keeps its own preview and approval.
+
 Restart ChatGPT if requested, then start a new task with:
 
 ```text
@@ -390,10 +401,12 @@ python3 scripts/compare_routing_contracts.py
 
 ## Release Status
 
-Plugin `0.4.0` is the current implementation of the v0.2 lifecycle architecture,
+Plugin `0.4.3` is the current implementation of the v0.2 lifecycle architecture,
 its explicit workspace-upgrade path, optional QMD retrieval setup, Jason-inspired
 personal onboarding, consolidated project and person playbooks, non-developer
-runtime preflight, and optional global personal writing-voice setup. Reusable
-loops and persistent goals now ship separately in `workflows@wirenet`; content
-creation and writing audits ship in `content-tools@wirenet`.
-The repository's `main` branch is the canonical installation source.
+runtime preflight, update awareness, and optional global personal writing-voice
+setup. Reusable loops and persistent goals ship separately in
+`workflows@wirenet`; content creation and writing audits ship in
+`content-tools@wirenet`. Installations track `stable`; `main` remains the
+integration branch. A validated version tag publishes curated GitHub Release
+notes before `stable` advances.
