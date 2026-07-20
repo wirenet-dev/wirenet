@@ -8,6 +8,13 @@ Installations track the `stable` branch. Each release is a tag; `stable`
 fast-forwards to the latest released tag. `main` is the integration branch and
 may be ahead of the released product.
 
+## Unreleased
+
+- Onboarding now recommends one current-task Manager heartbeat for awareness,
+  separately approved semantic commits, and safe push windows around 09:00 and
+  16:00; a separate push automation is offered only when exact standalone
+  scheduling matters more than one-chat continuity.
+
 ## v0.4.4 — 2026-07-20
 
 - Fixed multiline GitHub Release bullets so Manager presents complete concise

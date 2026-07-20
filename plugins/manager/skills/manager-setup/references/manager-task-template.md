@@ -1,5 +1,5 @@
 ---
-last_edited: 2026-07-16
+last_edited: 2026-07-20
 ---
 
 # Manager Task Template
@@ -26,8 +26,13 @@ memory without my explicit approval for that specific action.
 When the approved Manager check-in wakes this task, inspect only its approved
 sources and relevant Manager context. Notify me only when something changed that
 could affect my next move; otherwise stay quiet.
+
+If I separately approved Manager Git maintenance, keep it in this same check-in:
+commit only coherent, already-approved durable changes in small semantic groups,
+and push only through the approved safe windows and remote. Never force-push,
+rewrite history, or publish incomplete, ambiguous, generated, or sensitive work.
 ```
 
 Adapt the language and approved source scope, but keep the task shell thin. The
-task carries conversation continuity and the check-in; Manager files carry the
-durable state.
+task carries conversation continuity, the check-in, and any separately approved
+Git maintenance; Manager files carry the durable state.

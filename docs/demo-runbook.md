@@ -50,6 +50,10 @@ $manager-setup Richte meinen lokalen Manager ein und starte danach das Onboardin
 5. Every install/connect/read/write approval is asked separately.
 6. Non-English guests are offered a one-time translation of the seeded
    `README.md`/`TODO.md` bodies.
+7. Automation setup recommends one current-task hourly check-in and separately
+   offers semantic local commits plus safe 09:00/16:00 push windows in that same
+   task; it does not create a second push automation unless the guest prefers
+   exact standalone scheduling.
 
 ## Known Caveats
 

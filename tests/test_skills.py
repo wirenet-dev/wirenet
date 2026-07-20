@@ -394,6 +394,7 @@ def test_personal_onboarding_preserves_jason_sequence_with_explicit_gates() -> N
         ROOT
         / "plugins/manager/skills/manager-setup/references/manager-task-template.md"
     ).read_text(encoding="utf-8")
+    normalized_reference = " ".join(reference.split())
 
     assert "references/onboarding.md" in bootstrap
     assert "personal first meeting" in bootstrap
@@ -411,6 +412,10 @@ def test_personal_onboarding_preserves_jason_sequence_with_explicit_gates() -> N
     assert "docs/communication-and-files.md" in reference
     assert "current task as destination" in reference
     assert "09:00 and 16:00" in reference
+    assert "single-task continuity setup" in normalized_reference
+    assert "same check-in may perform safe fast-forward pushes" in normalized_reference
+    assert "separate standalone push automation only" in normalized_reference
+    assert "exact clock scheduling" in normalized_reference
     assert "write-like-me.md" in reference
     assert "never scan the whole home directory for personal skills" in reference
     assert "offer to migrate and validate it" in reference
@@ -420,6 +425,8 @@ def test_personal_onboarding_preserves_jason_sequence_with_explicit_gates() -> N
     assert "do not duplicate Manager content" in task_template
     assert "Work first and notify second" in task_template
     assert "otherwise stay quiet" in task_template
+    assert "keep it in this same check-in" in task_template
+    assert "small semantic groups" in task_template
 
     headings = (
         "## 1. Hello",

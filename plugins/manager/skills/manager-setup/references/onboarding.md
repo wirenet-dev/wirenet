@@ -1,5 +1,5 @@
 ---
-last_edited: 2026-07-16
+last_edited: 2026-07-20
 ---
 
 # Personal Onboarding
@@ -42,7 +42,14 @@ Classify quietly:
    `../../manager/references/project-lifecycle.md`. Route canonical collaborator
    concepts through `../../manager/references/person-context.md`. Preview the
    global core guidance and optional user-owned routing only when useful.
-6. Propose one core Manager check-in and what it will watch.
+6. Propose one core Manager check-in and what it will watch. Prefer one quiet
+   current-task heartbeat for continuity. When the Manager uses Git, offer the
+   same heartbeat as the single home for hourly semantic commits of coherent,
+   already-approved Manager changes and safe push windows around 09:00 and
+   16:00 in the user's timezone. Keep check-in creation, local commit
+   maintenance, remote configuration, and pushing behind explicit approvals;
+   do not create a separate push automation unless the user prefers exact
+   standalone scheduling over one-chat continuity.
 7. Offer narrow project, people, or daily monitor tasks only when they reduce
    noise; suggest 09:00 and 16:00 in the user's timezone as the default daily
    checkpoints.

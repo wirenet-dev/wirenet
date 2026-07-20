@@ -518,9 +518,9 @@
       "id": "personal-onboarding",
       "trigger": "A healthy Manager is brand new or its personal first meeting is incomplete.",
       "reads": ["current task context", "local Manager context", "installed source capability state", "explicitly approved connected-source scopes", "approved project roots"],
-      "writes": ["approved Manager concepts", "approved Project or Experiment Packs", "optional communication-and-files concept", "optional global managed blocks", "approved thin Manager task instructions", "approved tasks and check-ins"],
+      "writes": ["approved Manager concepts", "approved Project or Experiment Packs", "optional communication-and-files concept", "optional global managed blocks", "approved thin Manager task instructions", "one approved current-task check-in with optional semantic commit and safe push maintenance", "optional approved monitor tasks"],
       "approval": "separate approval for connection, source read, durable write, global instruction, task change, and automation",
-      "description": "Mirror Jason Liu's first-meeting sequence: greet, show a grounded map, interview one question at a time, perform targeted rereads, propose continuity, and close with a clear handoff.",
+      "description": "Mirror Jason Liu's first-meeting sequence: greet, show a grounded map, interview one question at a time, perform targeted rereads, propose one-chat continuity with separately approved semantic commit and safe push maintenance, and close with a clear handoff.",
       "evidence": ["plugins/manager/skills/manager-setup/references/onboarding.md", "plugins/manager/skills/manager-setup/references/first-meeting-flow.md", "plugins/manager/skills/manager-setup/references/manager-task-template.md"]
     },
     {

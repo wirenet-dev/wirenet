@@ -1,5 +1,5 @@
 ---
-last_edited: 2026-07-16
+last_edited: 2026-07-20
 ---
 
 # wirenet Manager First-Meeting Flow
@@ -152,6 +152,27 @@ Use $manager. Read ~/Manager/TODO.md and only the relevant active Project or Exp
 Use the automation tool with the current task as destination only after explicit
 approval. Explain that local checks require the computer and ChatGPT desktop app
 to be running.
+
+When the Manager is Git-tracked, offer a single-task continuity setup rather
+than multiple automations:
+
+- the hourly check-in may inspect the complete Manager diff and create small
+  semantic commits only for coherent, already-approved durable changes;
+- the same check-in may perform safe fast-forward pushes during runs whose local
+  clock hour is 09 or 16;
+- local commits, remote creation or configuration, and remote pushes each need
+  explicit approval before they are added to the check-in;
+- never commit secrets, raw private sources, generated artifacts, ambiguous or
+  incomplete edits, and never force-push, rewrite history, or push a divergent
+  branch;
+- explain that a task heartbeat runs near those clock hours rather than as an
+  exact standalone scheduler, and that a missed window waits for the next
+  approved push window.
+
+Recommend this one-chat model by default because it keeps awareness, commits,
+push blockers, and conversation continuity together. Create a separate
+standalone push automation only when the user explicitly prefers exact clock
+scheduling or independent Scheduled runs.
 
 ## 7. Optional Monitor Tasks
 
