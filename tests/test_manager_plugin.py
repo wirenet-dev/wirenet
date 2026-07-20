@@ -27,6 +27,7 @@ DISCOVER = PLUGIN_SCRIPTS / "discover_projects.py"
 DOCTOR = PLUGIN_SCRIPTS / "manager_doctor.py"
 UPGRADE = PLUGIN_SCRIPTS / "upgrade_manager.py"
 TIDY_TIMESTAMPS = PLUGIN_SCRIPTS / "tidy_timestamps.py"
+TIDY_FRONTMATTER = PLUGIN_SCRIPTS / "tidy_frontmatter.py"
 UPDATE_CHECK = PLUGIN_SCRIPTS / "manager_update.py"
 
 
@@ -132,7 +133,7 @@ def make_legacy_v01_manager(
         filtered = [
             line
             for line in lines
-            if not line.startswith("name:") and not line.startswith("summary:")
+            if not line.startswith(("name:", "summary:", "description:"))
         ]
         readme.write_text("\n".join(filtered) + "\n", encoding="utf-8")
 
@@ -340,7 +341,7 @@ def test_bootstrap_materializes_content_only_manager_with_local_git(
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
     assert metadata["project_pack_profile"] == "wirenet-project-pack/v0.1"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
-    assert metadata["plugin_version"] == "0.4.5"
+    assert metadata["plugin_version"] == "0.4.6"
     assert metadata["manager_id"].startswith("mgr_")
     assert (
         "Continue with $manager-setup for the personal first meeting."
@@ -462,7 +463,7 @@ def test_bootstrap_uses_explicit_git_when_path_has_no_developer_tools(
     assert (manager / ".git").is_dir()
 
 
-def test_generated_project_pack_uses_created_and_updated_only(
+def test_generated_project_pack_uses_lean_frontmatter(
     tmp_path: Path,
 ) -> None:
     manager = tmp_path / "Manager"
@@ -473,7 +474,7 @@ def test_generated_project_pack_uses_created_and_updated_only(
         run_script(
             CREATE_PROJECT,
             "Timestamp Fixture",
-            "--summary",
+            "--description",
             "Verify the trimmed timestamp shape",
             "--workspace",
             str(workspace),
@@ -485,12 +486,31 @@ def test_generated_project_pack_uses_created_and_updated_only(
         ).stdout
     )
     packet = Path(str(project["packet"]))
-    for name in ("README.md", "GOAL.md", "RESULT.md", "AGENTS.md"):
+    for name in ("README.md", "GOAL.md", "RESULT.md"):
         content = (packet / name).read_text(encoding="utf-8")
         assert frontmatter_value(Path(packet / name), "created_at") is not None
         assert frontmatter_value(Path(packet / name), "updated_at") is not None
-        assert "\ntimestamp:" not in content
-        assert "\nlast_edited:" not in content
+        assert frontmatter_value(packet / name, "title") is not None
+        assert frontmatter_value(packet / name, "description") is not None
+        for key in (
+            "assembly_scope",
+            "context_scope",
+            "last_edited",
+            "name",
+            "okf_profile",
+            "scope",
+            "summary",
+            "timestamp",
+        ):
+            assert f"\n{key}:" not in content
+    agents = (packet / "AGENTS.md").read_text(encoding="utf-8")
+    assert "\ntimestamp:" not in agents
+    assert "\nlast_edited:" not in agents
+    assert frontmatter_value(packet / "README.md", "title") == "Timestamp Fixture"
+    assert (
+        frontmatter_value(packet / "README.md", "description")
+        == "Verify the trimmed timestamp shape"
+    )
 
 
 def test_tidy_timestamps_reports_clean_for_freshly_generated_manager(
@@ -552,8 +572,10 @@ def test_tidy_timestamps_removes_redundant_fields_after_checkpoint(
         content = path.read_text(encoding="utf-8")
         path.write_text(
             content.replace(
-                "created_at: 2026",
-                "timestamp: 2026-01-01T00:00:00Z\nlast_edited: 2026-01-01\ncreated_at: 2026",
+                'created_at: "2026',
+                "timestamp: 2026-01-01T00:00:00Z\n"
+                "last_edited: 2026-01-01\n"
+                'created_at: "2026',
                 1,
             ),
             encoding="utf-8",
@@ -612,6 +634,126 @@ def test_tidy_timestamps_removes_redundant_fields_after_checkpoint(
     assert idle["state"] == "clean"
 
 
+def test_tidy_frontmatter_normalizes_legacy_packet_metadata(
+    tmp_path: Path,
+) -> None:
+    manager = tmp_path / "Manager"
+    bootstrap(manager)
+    project = json.loads(
+        run_script(
+            CREATE_PROJECT,
+            "Frontmatter Fixture",
+            "--summary",
+            "Preserve this description",
+            "--manager-dir",
+            str(manager),
+            "--with-goal",
+            "--with-result",
+            "--apply",
+        ).stdout
+    )
+    packet = Path(str(project["packet"]))
+    for name in ("README.md", "GOAL.md", "RESULT.md"):
+        path = packet / name
+        content = path.read_text(encoding="utf-8")
+        title = frontmatter_value(path, "title")
+        assert title is not None
+        legacy_title = f"{title} Status" if name == "README.md" else title
+        content = content.replace(
+            'schema: "wirenet-project-pack/v0.1"',
+            'schema: "wirenet-project-pack/v0.1"\n'
+            'okf_profile: "wirenet-okf-project-pack/v0.1"',
+            1,
+        )
+        content = content.replace(
+            f'title: "{title}"',
+            f'name: "Frontmatter Fixture"\ntitle: "{legacy_title}"',
+            1,
+        )
+        content = content.replace("\ndescription:", "\nsummary:", 1)
+        content = content.replace(
+            "\nvisibility: private",
+            "\nscope: projects\n"
+            "context_scope: project\n"
+            "visibility: private\n"
+            "assembly_scope: project_context",
+            1,
+        )
+        content = content.replace(
+            "\ncreated_at:",
+            "\ntimestamp: 2026-07-20T00:00:00Z\n"
+            "last_edited: 2026-07-20\n"
+            "created_at:",
+            1,
+        )
+        path.write_text(content, encoding="utf-8")
+    agents = packet / "AGENTS.md"
+    agents.write_text(
+        agents.read_text(encoding="utf-8").replace(
+            "\n---\n\n", "\nlast_edited: 2026-07-20\n---\n\n", 1
+        ),
+        encoding="utf-8",
+    )
+
+    preview = json.loads(
+        run_script(TIDY_FRONTMATTER, "--manager-dir", str(manager)).stdout
+    )
+    assert preview["ok"] is True
+    assert preview["state"] == "frontmatter-tidy-available"
+    assert len(preview["candidate_paths"]) == 4
+
+    blocked = run_script(
+        TIDY_FRONTMATTER, "--manager-dir", str(manager), "--apply", check=False
+    )
+    assert blocked.returncode == 2
+    assert json.loads(blocked.stdout)["state"] == "checkpoint-required"
+
+    commit_manager(manager, "checkpoint before frontmatter tidy")
+    applied = json.loads(
+        run_script(
+            TIDY_FRONTMATTER, "--manager-dir", str(manager), "--apply"
+        ).stdout
+    )
+    assert applied["ok"] is True
+    assert applied["state"] == "frontmatter-tidied"
+    assert applied["doctor"]["ok"] is True
+    assert sorted(applied["changed_paths"]) == sorted(
+        f"{packet.relative_to(manager).as_posix()}/{name}"
+        for name in ("README.md", "GOAL.md", "RESULT.md", "AGENTS.md")
+    )
+
+    for name in ("README.md", "GOAL.md", "RESULT.md"):
+        path = packet / name
+        content = path.read_text(encoding="utf-8")
+        assert frontmatter_value(path, "description") is not None
+        for key in (
+            "assembly_scope",
+            "context_scope",
+            "last_edited",
+            "name",
+            "okf_profile",
+            "scope",
+            "summary",
+            "timestamp",
+        ):
+            assert f"\n{key}:" not in content
+    assert frontmatter_value(packet / "README.md", "title") == "Frontmatter Fixture"
+    assert (
+        frontmatter_value(packet / "README.md", "description")
+        == "Preserve this description"
+    )
+    assert (
+        frontmatter_value(packet / "GOAL.md", "title")
+        == "Frontmatter Fixture Goal"
+    )
+    assert "\nlast_edited:" not in agents.read_text(encoding="utf-8")
+
+    idle = json.loads(
+        run_script(TIDY_FRONTMATTER, "--manager-dir", str(manager)).stdout
+    )
+    assert idle["state"] == "clean"
+
+
 def test_upgrade_reports_current_manager_without_writes(tmp_path: Path) -> None:
     manager = tmp_path / "Manager"
     bootstrap(manager)
@@ -636,8 +778,8 @@ def test_manager_update_check_reports_release_notes_without_writing(
     release.write_text(
         json.dumps(
             {
-                "tag_name": "v0.4.6",
-                "name": "wirenet Manager v0.4.6",
+                "tag_name": "v0.4.7",
+                "name": "wirenet Manager v0.4.7",
                 "body": (
                     "- First user change that wraps\n"
                     "  onto a second line.\n"
@@ -646,7 +788,7 @@ def test_manager_update_check_reports_release_notes_without_writing(
                     "- Hidden fourth change."
                 ),
                 "html_url": (
-                    "https://github.com/wirenet-dev/wirenet/releases/tag/v0.4.6"
+                    "https://github.com/wirenet-dev/wirenet/releases/tag/v0.4.7"
                 ),
             }
         ),
@@ -675,17 +817,17 @@ def test_manager_update_check_reports_release_notes_without_writing(
     assert result["update"] == {
         "ok": True,
         "state": "available",
-        "current_version": "0.4.5",
-        "latest_version": "0.4.6",
+        "current_version": "0.4.6",
+        "latest_version": "0.4.7",
         "update_available": True,
-        "release_name": "wirenet Manager v0.4.6",
+        "release_name": "wirenet Manager v0.4.7",
         "release_notes": [
             "First user change that wraps onto a second line.",
             "Second user change.",
             "Third user change.",
         ],
         "release_url": (
-            "https://github.com/wirenet-dev/wirenet/releases/tag/v0.4.6"
+            "https://github.com/wirenet-dev/wirenet/releases/tag/v0.4.7"
         ),
         "update_command": "codex plugin marketplace upgrade wirenet",
         "post_update_action": "Start a fresh task and run $manager-setup.",
@@ -730,11 +872,11 @@ def test_manager_update_script_reports_current_release(tmp_path: Path) -> None:
     release.write_text(
         json.dumps(
             {
-                "tag_name": "v0.4.5",
-                "name": "wirenet Manager v0.4.5",
+                "tag_name": "v0.4.6",
+                "name": "wirenet Manager v0.4.6",
                 "body": "- Current release.",
                 "html_url": (
-                    "https://github.com/wirenet-dev/wirenet/releases/tag/v0.4.5"
+                    "https://github.com/wirenet-dev/wirenet/releases/tag/v0.4.6"
                 ),
             }
         ),
@@ -746,8 +888,8 @@ def test_manager_update_script_reports_current_release(tmp_path: Path) -> None:
     )
 
     assert result["state"] == "current"
-    assert result["current_version"] == "0.4.5"
-    assert result["latest_version"] == "0.4.5"
+    assert result["current_version"] == "0.4.6"
+    assert result["latest_version"] == "0.4.6"
     assert result["update_available"] is False
 
 
@@ -799,7 +941,7 @@ def test_upgrade_migrates_v01_without_rewriting_personal_content(
         (manager / ".wirenet/manager.json").read_text(encoding="utf-8")
     )
     assert metadata["schema_version"] == "wirenet-manager/v0.2"
-    assert metadata["plugin_version"] == "0.4.5"
+    assert metadata["plugin_version"] == "0.4.6"
     assert metadata["experiment_pack_profile"] == "wirenet-experiment-pack/v0.1"
     assert metadata["okf_profiles"] == [
         "wirenet-okf-project-pack/v0.1",
@@ -821,8 +963,8 @@ def test_upgrade_migrates_v01_without_rewriting_personal_content(
     ).is_file()
     assert "Personal migration marker." in readme.read_text(encoding="utf-8")
     packet_readme = Path(str(project["packet"])) / "README.md"
-    assert frontmatter_value(packet_readme, "name") == "Migration Fixture"
-    assert frontmatter_value(packet_readme, "summary") == "Preserve this packet"
+    assert frontmatter_value(packet_readme, "title") == "Migration Fixture"
+    assert frontmatter_value(packet_readme, "description") == "Preserve this packet"
     assert "Only an explicitly invoked UltraGoal" in (
         Path(str(project["packet"])) / "AGENTS.md"
     ).read_text(encoding="utf-8")

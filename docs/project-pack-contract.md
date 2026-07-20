@@ -57,17 +57,24 @@ more detailed `WORKLOG.md`.
 Every non-reserved Project Pack concept shares:
 
 ```yaml
+type: "Project Status"
 schema: "wirenet-project-pack/v0.1"
-okf_profile: "wirenet-okf-project-pack/v0.1"
 project_id: "prj_<uuid>"
-scope: projects
-context_scope: project
-assembly_scope: project_context
+title: "Example Project"
+description: "Current state and next move for the project."
+visibility: private
+status: active
+created_at: "2026-07-20"
+updated_at: "2026-07-20"
 ```
 
-Each concept adds its semantic `type`, title, status, visibility, timestamp,
-and edited dates. Producer-defined fields are preserved. Reserved `index.md`
-and `log.md` follow OKF's path-scoped formats and carry no concept metadata.
+`type` is the OKF concept boundary; `schema` and `project_id` identify the
+portable packet contract. The packet path, schema, and identity already express
+its project scope, so concepts do not duplicate that information in routing
+aliases. `title` and standard OKF `description` serve display, index, and search
+consumers. `created_at` remains stable while `updated_at` changes after a
+meaningful edit. Producer-defined fields are preserved. Reserved `index.md` and
+`log.md` follow OKF's path-scoped formats and carry no concept metadata.
 
 `AGENTS.md` is the required runtime sidecar, not a concept. It carries the same
 `project_id` under `schema: "wirenet-runtime/v0.1"` but deliberately has no
