@@ -1,6 +1,5 @@
 ---
-title: Company knowledge base
-type: index
+okf_version: "0.1"
 ---
 
 # Company knowledge base

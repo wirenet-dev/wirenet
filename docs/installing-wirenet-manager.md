@@ -45,7 +45,7 @@ During local development, the repository marketplace is
 `.agents/plugins/marketplace.json`. After publication, add it with:
 
 ```sh
-codex plugin marketplace add wirenet-dev/wirenet --ref main
+codex plugin marketplace add wirenet-dev/wirenet --ref stable
 codex plugin add manager@wirenet
 ```
 

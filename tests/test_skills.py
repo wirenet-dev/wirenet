@@ -306,7 +306,7 @@ def test_clean_codex_install_contract_is_complete_and_repo_readable() -> None:
         assert "Richte das für mich ein." in document
         assert "press both Command keys" in document
         assert (
-            "codex plugin marketplace add wirenet-dev/wirenet-manager --ref main"
+            "codex plugin marketplace add wirenet-dev/wirenet --ref stable"
             in document
         )
         assert "codex plugin add manager@wirenet" in document

@@ -26,7 +26,6 @@ def test_repository_root_contains_only_product_scaffold() -> None:
         "people",
         "projects",
         "sources",
-        "templates",
     )
     assert not [name for name in removed_reference_roots if (ROOT / name).exists()]
 
@@ -96,7 +95,7 @@ def test_frozen_routing_contracts_validate_and_have_evidence() -> None:
     assert jason["provenance"]["commit"] == "df863768495aaf524a2bf9b5b25ef2622a2591a1"
     assert jason["provenance"]["ref"] == "upstream/main"
     assert wirenet["provenance"] == {
-        "repository": "https://github.com/wirenet-dev/wirenet-manager.git",
+        "repository": "https://github.com/wirenet-dev/wirenet.git",
         "ref": "main",
         "lifecycle": "versioned-with-repository",
         "capture_rule": (

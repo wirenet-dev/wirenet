@@ -105,7 +105,7 @@ A clean Codex has no wirenet skill yet, so the first task is deliberately a
 small installer. It should preview and, after approval, run:
 
 ```sh
-codex plugin marketplace add wirenet-dev/wirenet --ref main
+codex plugin marketplace add wirenet-dev/wirenet --ref stable
 codex plugin add manager@wirenet
 ```
 
@@ -121,9 +121,18 @@ and plugin source.
 
 ## Install And Bootstrap
 
+Codex / ChatGPT Work:
+
 ```sh
-codex plugin marketplace add wirenet-dev/wirenet --ref main
+codex plugin marketplace add wirenet-dev/wirenet --ref stable
 codex plugin add manager@wirenet
+```
+
+Claude Code (same repository, same skills):
+
+```text
+/plugin marketplace add wirenet-dev/wirenet
+/plugin install manager@wirenet
 ```
 
 Restart ChatGPT if requested, then start a new task with:

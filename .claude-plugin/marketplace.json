@@ -1,0 +1,24 @@
+{
+  "name": "wirenet",
+  "owner": {
+    "name": "wirenet",
+    "url": "https://wirenet.dev"
+  },
+  "plugins": [
+    {
+      "name": "manager",
+      "source": "./plugins/manager",
+      "description": "Durable local work memory: Project Packs, onboarding, cross-workspace routing, local knowledge search."
+    },
+    {
+      "name": "workflows",
+      "source": "./plugins/workflows",
+      "description": "Cross-project workflow skills: recurring loop checks and explicit UltraGoal execution."
+    },
+    {
+      "name": "content-tools",
+      "source": "./plugins/content-tools",
+      "description": "Editorial review for AI-shaped writing and restrained static HTML artifacts."
+    }
+  ]
+}

@@ -1,3 +1,7 @@
+---
+last_edited: 2026-07-20
+---
+
 # Instance Templates
 
 Seeds for materializing WireNet element instances. They are product assets:

@@ -1,0 +1,19 @@
+{
+  "name": "manager",
+  "version": "0.4.1",
+  "description": "A durable local workspace for projects, context, and next actions.",
+  "author": {
+    "name": "wirenet",
+    "url": "https://wirenet.dev"
+  },
+  "homepage": "https://wirenet.dev",
+  "repository": "https://github.com/wirenet-dev/wirenet",
+  "license": "Apache-2.0",
+  "keywords": [
+    "manager",
+    "workspace",
+    "project-packs",
+    "work-memory",
+    "okf"
+  ]
+}
