@@ -1,6 +1,6 @@
 ---
 name: manager
-description: Run and maintain the user's wirenet Manager — their persistent local work memory. Use when the user asks what is on their plate or what they should know, wants follow-up or check-in help, starts, changes, completes, or archives a project, area, or experiment, asks to remember a person or decision, needs a durable handoff, resumes long-running work, or asks about Manager health, plugin updates, or search configuration. Also use after meaningful progress in a bound external workspace. Use manager-setup instead for first-time setup, adopting an existing folder, or structural repair.
+description: Run and maintain the user's wirenet Manager — their persistent local work memory. Use when the user asks what is on their plate or what they should know, wants follow-up or check-in help, starts, changes, completes, or archives a project, area, or experiment, asks to remember a person or decision, needs a durable handoff, resumes long-running work, or asks about Manager health, plugin updates, or search configuration. A bare invocation — a plugin mention or skill call with no request — means: deliver the check-in. Also use after meaningful progress in a bound external workspace. Use manager-setup instead for first-time setup, adopting an existing folder, or structural repair.
 ---
 
 # manager
@@ -29,6 +29,23 @@ directly. For broad, historical, or cross-project questions, query the
 documents before answering — canonical Markdown wins over a stale index.
 Without qmd, navigate indexes and links. Never run a global `qmd update`
 implicitly.
+
+## Check-In (Bare Invocation)
+
+When invoked with no request, deliver the check-in — one screen, read-only,
+judgment over completeness:
+
+1. A one-line state ("all quiet" or "two things need you") with the date.
+2. The top of `## Now` (at most three items).
+3. What changed since the last check-in, derived from the Manager's git
+   history — never from a summary file.
+4. Attention: the nearest deadline, waiting items grown old, anything
+   unblocked.
+5. One recommended next move. Then stop — no menus, no configuration
+   questions.
+
+Use an approved live calendar window when available; otherwise say it was not
+checked. If no Manager exists, offer `$manager-setup` in one sentence instead.
 
 ## Work
 

@@ -36,8 +36,8 @@
       "Everything local, everything reviewable"
     ],
     "defaultPrompt": [
-      "Set up my wirenet Manager.",
-      "What's on my plate?",
+      "What should I know right now?",
+      "Set up my Manager.",
       "Bring my projects up to date."
     ]
   }
