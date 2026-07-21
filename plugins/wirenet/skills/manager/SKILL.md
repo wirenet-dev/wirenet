@@ -1,6 +1,6 @@
 ---
 name: manager
-description: Run and maintain the user's wirenet Manager — their persistent local work memory. Use when the user asks what is on their plate or what they should know, wants follow-up or check-in help, starts, changes, completes, or archives a project or experiment, asks to remember a collaborator or decision, needs a durable handoff, resumes long-running work, or asks about vault health, plugin updates, or search configuration. Also use after meaningful progress in a bound external workspace. Use manager-setup instead for first-time setup, adopting an existing folder, or structural repair.
+description: Run and maintain the user's wirenet Manager — their persistent local work memory. Use when the user asks what is on their plate or what they should know, wants follow-up or check-in help, starts, changes, completes, or archives a project or experiment, asks to remember a collaborator or decision, needs a durable handoff, resumes long-running work, or asks about Manager health, plugin updates, or search configuration. Also use after meaningful progress in a bound external workspace. Use manager-setup instead for first-time setup, adopting an existing folder, or structural repair.
 ---
 
 # manager
@@ -87,7 +87,7 @@ the smallest diff to an existing file.
 
 Read `references/vault-model.md` when creating, promoting, completing, or
 archiving work, when a destination is genuinely ambiguous, or when explaining
-how the vault and its tools (git, qmd, doctor) work. Read
+how the Manager and its tools (git, qmd, doctor) work. Read
 `references/workspace-sync.md` after meaningful progress in a bound external
-workspace. Read `references/maintenance.md` for vault health, plugin update
+workspace. Read `references/maintenance.md` for Manager health, plugin update
 checks, and qmd upkeep.

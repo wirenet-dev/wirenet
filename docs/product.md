@@ -58,7 +58,14 @@ Code and Codex. The full behavior is defined in
 repository; the wordmark stays lowercase by design. **WireNet** (capitalized
 in prose) is the company that builds, sells, and operates it. The user's
 folder is simply "the Manager" — technically a vault of plain files;
-customers never need a second word for it.
+customers never need a second word for it. In the operating-system picture,
+the Manager joins the manager family (window manager, package manager): the
+context manager of the agentic OS.
+
+The organization elements follow the same rule and always carry their
+half-sentence on first mention in customer-facing text, then stand alone:
+the **Shelf** — a team's shared skills (the package source) — and the
+**Base** — a team's shared knowledge (the base system).
 
 ## Who It Is For
 

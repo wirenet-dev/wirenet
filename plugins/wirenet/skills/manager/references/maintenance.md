@@ -10,7 +10,7 @@ Ongoing health, plugin updates, and retrieval upkeep. Setup runs once via
   demo. It checks: every pack has a resolving `projects/index.md` entry,
   bindings resolve to existing paths, no seeded empty placeholders, no
   archived pack carrying new active state.
-- Fix findings as previewed proposals, smallest diff first. If the vault is
+- Fix findings as previewed proposals, smallest diff first. If the Manager is
   missing or structurally broken beyond small fixes, hand off to
   `$manager-setup` in repair mode instead of improvising structure.
 
@@ -23,7 +23,7 @@ Ongoing health, plugin updates, and retrieval upkeep. Setup runs once via
   bullets, then offer the exact returned update command. Do not run it without
   explicit approval.
 - After an approved update, tell the user to start a fresh session. A plugin
-  refresh is never approval to migrate or rewrite personal vault content;
+  refresh is never approval to migrate or rewrite personal Manager content;
   conventions arriving with a new plugin version are applied dry-run-first as
   their own approved step.
 

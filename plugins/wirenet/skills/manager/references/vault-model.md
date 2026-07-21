@@ -1,6 +1,6 @@
 # Vault Model
 
-What a healthy Manager vault looks like, where content belongs, how lifecycle
+What a healthy Manager looks like, where content belongs, how lifecycle
 works, and which tools help. This reference ships with the plugin; the user
 never needs to read it — the agent applies it so the user only experiences it.
 
@@ -70,12 +70,12 @@ State is location plus index group — no status fields:
 
 ## Tools
 
-All tools are optional conveniences; the vault must stay fully usable with
+All tools are optional conveniences; the Manager must stay fully usable with
 nothing but a file reader and git.
 
 - **git** carries history, review, and backup; approved push windows sync a
   private remote. Never configure remotes or automation without approval.
-- **qmd** indexes the vault as one collection (registered at setup, with
+- **qmd** indexes the Manager as one collection (registered at setup, with
   approval). Search results are candidate routing; read the full documents
   before answering; canonical Markdown wins over a stale index. Never run a
   global `qmd update` implicitly — the collection refresh is an explicit
