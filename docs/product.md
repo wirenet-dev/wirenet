@@ -52,6 +52,14 @@ interview-style onboarding, delivered as one installable plugin for Claude
 Code and Codex. The full behavior is defined in
 [`core-contract.md`](core-contract.md).
 
+## Naming
+
+**wirenet** (lowercase) is the product — the plugin, the conventions, this
+repository; the wordmark stays lowercase by design. **WireNet** (capitalized
+in prose) is the company that builds, sells, and operates it. The user's
+folder is simply "the Manager" — technically a vault of plain files;
+customers never need a second word for it.
+
 ## Who It Is For
 
 Individuals first: knowledge workers who use AI assistants daily and want

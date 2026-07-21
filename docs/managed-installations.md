@@ -4,7 +4,7 @@ last_edited: 2026-07-21
 
 # Managed WireNet Installations
 
-WireNet can be installed for one person or operated for an organization without
+wirenet can be installed for one person or operated for an organization without
 turning customer state into product state. The product repository distributes
 behavior; each installation owns its data and its repositories.
 
@@ -27,7 +27,7 @@ The client or owning organization creates and owns the private Base and Shelf
 repositories. Authorized people and service operators receive normal,
 revocable collaborator access. Local clones may exist on multiple devices, but
 Git history and the organization's review policy determine the shared state.
-WireNet does not create remotes or accounts during local initialization.
+wirenet does not create remotes or accounts during local initialization.
 
 Personal and customer repositories should use explicit namespaces and access
 policies. Secrets, credentials, raw customer exports, and private source dumps
