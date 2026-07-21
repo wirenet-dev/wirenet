@@ -1,15 +1,20 @@
 ---
-last_edited: 2026-07-20
+last_edited: 2026-07-21
 ---
 
-# wirenet Manager v0.4.6
+# wirenet v0.5.0
 
-- New Project and Experiment Pack concepts now use one metadata field per
-  durable meaning. Redundant scope aliases, per-concept `okf_profile`, `name`,
-  and `summary` are gone; standard OKF `title` and `description` serve indexes,
-  search, and display consistently.
-- New `scripts/tidy_frontmatter.py` safely normalizes existing packets after a
-  clean Git checkpoint. It previews affected files, preserves personal prose
-  and unknown producer metadata, and requires a healthy Manager Doctor result.
-- Onboarding can keep awareness, semantic commits, and safe push windows in one
-  current Manager task instead of requiring a separate push automation.
+Your assistant remembers your work — across tools, sessions, and projects,
+on your machine.
+
+- One plugin, two skills: `manager` for daily work, `manager-setup` for the
+  guided first meeting (and repair).
+- Your Manager now works with any agent, with no wirenet software installed —
+  its instructions travel inside the folder.
+- New: `areas/` for ongoing responsibilities, a Someday section for
+  uncommitted ideas, and a doctor that checks structure — never your
+  content — and proposes instead of acting.
+- Setup is a conversation: one greeting, six questions, and every change
+  previewed and approved.
+- Cleaner under the hood: no required metadata in your files, git history as
+  the only chronicle, and honest staleness (answers carry their as-of).

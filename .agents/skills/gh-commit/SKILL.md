@@ -1,7 +1,6 @@
 ---
 name: gh-commit
 description: "Review git changes and split them into semantic commits with clear messages. Use when the user asks to commit work, clean up local history, or group a mixed diff into logical commits. Do not commit on main or master unless the user explicitly asks."
-last_edited: 2026-06-15
 ---
 
 # GH Commit

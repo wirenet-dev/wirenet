@@ -1,7 +1,6 @@
 ---
 name: gh-address-comments
 description: Help address review/issue comments on the open GitHub PR for the current branch using `oai_gh` or `gh`; verify auth first and prompt the user to authenticate if not logged in.
-last_edited: 2026-06-15
 ---
 
 # PR Comment Handler
