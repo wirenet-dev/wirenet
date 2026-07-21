@@ -12,6 +12,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -37,6 +41,24 @@ jobs:
           python3 -m json.tool plugins/wirenet/.claude-plugin/plugin.json >/dev/null
           python3 -m json.tool .agents/plugins/marketplace.json >/dev/null
           python3 -m json.tool .claude-plugin/marketplace.json >/dev/null
+
+      - name: Check manifest versions stay in sync
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          codex = json.loads(Path("plugins/wirenet/.codex-plugin/plugin.json").read_text())
+          claude = json.loads(Path("plugins/wirenet/.claude-plugin/plugin.json").read_text())
+          if codex["version"] != claude["version"]:
+              raise SystemExit(
+                  f"manifest versions differ: codex {codex['version']} vs claude {claude['version']}"
+              )
+          if codex["name"] != claude["name"]:
+              raise SystemExit(
+                  f"manifest names differ: codex {codex['name']} vs claude {claude['name']}"
+              )
+          PY
 
       - name: Run tests
         run: pytest -q
