@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Local lifecycle helper for a WireNet installation.
 
+Operator tool for people who work with the product repository. Installing
+and using the Manager plugin never requires this CLI; customers stay on the
+marketplace path.
+
 Commands:
   wirenet status              Report configured elements, git state, and bindings.
   wirenet doctor              Run the read-only Manager doctor for this installation.
