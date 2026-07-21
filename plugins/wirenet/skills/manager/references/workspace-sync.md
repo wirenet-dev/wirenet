@@ -22,7 +22,10 @@ when it fires.
    - pack `AGENTS.md` only for changed recurring sources, safety rules, or
      read order;
    - `GOAL.md` / `RESULT.md` only when the outcome contract or completed
-     evidence earns a separate document.
+     evidence earns a separate document;
+   - any contradiction between a pack and observed reality — propose the
+     correction rather than silently working around it; "this pack
+     contradicts X — please review" is a valid minimum.
 3. Show the intended diff and ask before writing, unless the user already
    approved that exact update.
 

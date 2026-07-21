@@ -10,6 +10,15 @@ Ongoing health, plugin updates, and retrieval upkeep. Setup runs once via
   demo. It checks: every pack has a resolving `projects/index.md` entry,
   bindings resolve to existing paths, no seeded empty placeholders, no
   archived pack carrying new active state.
+- Staleness: an active project quiet for ~90 days without a waiting handoff
+  is a finding; an area is measured against its own review cadence instead —
+  idle is normal there, a missed review is the finding.
+- Reclassification is two-stage: the doctor flags mechanical candidates
+  (long-lived active pack, recurring activity, no visible completion state);
+  the agent then applies the "does it end?" test to the README before
+  proposing the move (`git mv` to `areas/` plus the index regroup) as a
+  previewed diff. A declined proposal is remembered in `.wirenet/` and not
+  re-raised.
 - Fix findings as previewed proposals, smallest diff first. If the Manager is
   missing or structurally broken beyond small fixes, hand off to
   `$manager-setup` in repair mode instead of improvising structure.

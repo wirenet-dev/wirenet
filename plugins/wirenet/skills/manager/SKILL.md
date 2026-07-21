@@ -1,6 +1,6 @@
 ---
 name: manager
-description: Run and maintain the user's wirenet Manager — their persistent local work memory. Use when the user asks what is on their plate or what they should know, wants follow-up or check-in help, starts, changes, completes, or archives a project or experiment, asks to remember a collaborator or decision, needs a durable handoff, resumes long-running work, or asks about Manager health, plugin updates, or search configuration. Also use after meaningful progress in a bound external workspace. Use manager-setup instead for first-time setup, adopting an existing folder, or structural repair.
+description: Run and maintain the user's wirenet Manager — their persistent local work memory. Use when the user asks what is on their plate or what they should know, wants follow-up or check-in help, starts, changes, completes, or archives a project, area, or experiment, asks to remember a person or decision, needs a durable handoff, resumes long-running work, or asks about Manager health, plugin updates, or search configuration. Also use after meaningful progress in a bound external workspace. Use manager-setup instead for first-time setup, adopting an existing folder, or structural repair.
 ---
 
 # manager
@@ -51,27 +51,37 @@ change.
 
 | Content | Home |
 | --- | --- |
-| Cross-project commitments and waiting items | `TODO.md` |
+| Cross-project commitments, waiting items, uncommitted Someday ideas | `TODO.md` |
 | Confirmed working style and boundaries | `agent/USER_CONTEXT.md` |
-| Project status, decisions, next move | `projects/<slug>/README.md` |
+| Work that ends with a defined outcome | `projects/<slug>/README.md` |
+| Ongoing responsibility with a standard, no end | `areas/<slug>/README.md` |
 | Recurring sources and local safety rules | that pack's `AGENTS.md`, only for real deltas |
-| Collaborator context | `people/<slug>.md` |
+| Durable relationship context | `people/<slug>.md` |
 | Bounded spike with a decision criterion | `experiments/<slug>/README.md` |
 | Durable scratch without a better home | `notes/` |
 | Transient generated intermediates | `outputs/<task-slug>/` (ignored) |
 
 Distinguish sent, received, drafted, discussed, and approved. External side
 effects — messages, meetings, cloud documents, automations, sync — each need
-their own explicit approval.
+their own explicit approval. When observed reality contradicts a pack, propose
+the correction with the task's handoff — never silently work around it;
+"this pack contradicts X — please review" is a valid minimum.
 
 ## Lifecycle
 
-- New pack: create `projects/<slug>/README.md` (plus `AGENTS.md` only for real
-  deltas) and add an index entry. Bind an external workspace only when code,
-  media, data, or a separate toolchain need their own working tree.
+- Classify with one question — does it end? Defined outcome → project (its
+  README must say when it is done); bounded question with a decision
+  criterion → experiment; standard to maintain, no end → area. Propose an
+  area only when recurring upkeep has no home, never prophylactically.
+- New pack: create the README (plus `AGENTS.md` only for real deltas) and add
+  an index entry — areas go under **Ongoing**. Bind an external workspace
+  only when code, media, data, or a separate toolchain need their own working
+  tree.
 - State changes: move the entry between the index groups (Active, Waiting /
-  Blocked, Later); retire by moving the pack to `archive/` and its entry to
-  Archived. Waiting and blocked stay live — never archive open handoffs.
+  Blocked, Later, Ongoing); retire by moving the pack to `archive/` and its
+  entry to Archived. Waiting and blocked stay live — never archive open
+  handoffs. An area archives only when the responsibility itself ends — never
+  for being quiet.
 - Experiments end by conclusion, promotion to `projects/`, or archive; keep
   the original as origin evidence.
 - Never create `WORKLOG.md`; only an explicitly invoked `$ultragoal` owns it.
@@ -79,9 +89,11 @@ their own explicit approval.
 ## People
 
 Search `people/` for an existing file before proposing a new one; never create
-one because a name appeared once. Keep only work-relevant durable context —
-role, relationship, decisions, current handoffs, project links — and propose
-the smallest diff to an existing file.
+one because a name appeared once. The relationship decides the file, the
+interaction decides the content: any durable relationship qualifies, but keep
+only context that helps future collaboration — role, relationship, decisions,
+current handoffs, project links — and never sensitive facts irrelevant to the
+interaction. Propose the smallest diff to an existing file.
 
 ## References
 

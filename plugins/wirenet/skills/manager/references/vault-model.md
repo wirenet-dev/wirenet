@@ -9,7 +9,7 @@ never needs to read it — the agent applies it so the user only experiences it.
 ```text
 ~/Manager/
 ├── README.md                 who the user is, how this folder works (short)
-├── TODO.md                   ordered cross-project stack (Now / Next / Waiting / Later)
+├── TODO.md                   ordered cross-project stack (Now / Next / Waiting / Later / Someday)
 ├── AGENTS.md                 one page: read order, update threshold, approval gate
 ├── agent/USER_CONTEXT.md     durable working style and boundaries
 ├── projects/
@@ -19,12 +19,18 @@ never needs to read it — the agent applies it so the user only experiences it.
 │       ├── AGENTS.md         only when real local deltas exist
 │       ├── GOAL.md           optional: durable outcome contract
 │       └── RESULT.md         optional: completed evidence
-├── people/<slug>.md          work-relevant collaborator context
+├── areas/<slug>/README.md    ongoing responsibility: standard, state, cadence
+├── people/<slug>.md          durable relationship context
 └── .wirenet/                 machine-local: bindings, versions, health state
 ```
 
 Created lazily, on first real content — never seeded empty:
 
+- `areas/<slug>/`: an ongoing responsibility with a standard to maintain but
+  no end date. Starts as a single README (what "healthy" means, current state
+  against that standard, related projects, a self-chosen review cadence);
+  `routines/` (procedures this area owns) and `reference/` (material it
+  maintains) appear only when real content earns them.
 - `experiments/<slug>/`: bounded spike with a question and decision criterion.
 - `notes/`: durable scratch without a better home.
 - `sources/`: curated retained evidence — never large, private, or operational
@@ -50,17 +56,28 @@ Created lazily, on first real content — never seeded empty:
 
 State is location plus index group — no status fields:
 
+- Classify with one question: **does it end?** A defined outcome → project,
+  and its README must be able to say when it is done. A bounded question with
+  a decision criterion → experiment. A responsibility with a standard but no
+  end → area. Example: a client *relationship* is an area (standard: client
+  healthy, invoiced, next opportunity visible; routines: invoicing); each
+  *mandate* for that client is a project that ends with delivery. Areas spawn
+  projects; the project links its parent area in prose, and status lives only
+  in the project.
+- Propose a new area only when recurring upkeep work has no home — never
+  prophylactically. Not every client or topic earns one.
 - `projects/index.md` groups packs under **Active**, **Waiting / Blocked**,
-  **Later**, and a compact **Archived** section. Moving the entry is the
-  transition.
-- Classify new work once: project (multi-session, durable state), experiment
-  (bounded question + decision criterion), or ignored (recorded in bindings,
-  never re-asked). Knowledge-first projects stay Manager-native; bind an
+  **Later**, **Ongoing** (the areas), and a compact **Archived** section.
+  Moving the entry is the transition.
+- Folders that should never produce reminders are recorded as ignored in the
+  bindings, never re-asked. Knowledge-first packs stay Manager-native; bind an
   external workspace only when code, media, data, or a toolchain need their
   own working tree.
 - Complete or retire: confirm no open next move or waiting handoff remains,
   then move the pack to `archive/<slug>/` and its entry to Archived. Never
-  archive merely because work is blocked or waiting.
+  archive merely because work is blocked or waiting. An area archives only
+  when the responsibility itself ends — never for being quiet; idle is normal
+  for areas, and staleness is measured against the area's own review cadence.
 - Reactivate before writing new active state into an archived pack. Promote an
   experiment by moving it to `projects/`, transferring its binding, and
   linking the origin.
