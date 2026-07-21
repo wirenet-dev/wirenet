@@ -54,6 +54,13 @@ interview-style onboarding, delivered as one installable plugin for Claude
 Code and Codex. The full behavior is defined in
 [`core-contract.md`](core-contract.md).
 
+At its sharpest: **wirenet and the Manager write the contracts between a
+person and their agents** — what is decided, promised, permitted, and
+considered done — as plain files the person can always inspect. Chat is
+where you talk; the Manager is where things become binding. People with
+perfect memory still write contracts: not because memory fails, but because
+writing is the act of committing.
+
 ## Naming
 
 Three tiers. **WireNet** (capitalized in prose) is the company that builds,
