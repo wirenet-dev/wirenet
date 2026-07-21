@@ -2,12 +2,14 @@
 last_edited: 2026-07-21
 ---
 
-# wirenet Manager v0.5 Core Contract (Draft)
+# wirenet Manager v0.5 Core Contract
 
-Status: proposal for review. Nothing here is released; v0.4.6 remains the
-current contract. This document defines the slimmed core that a v0.5 release
-would implement, and what moves into optional layers. Migration mechanics are
-out of scope here and become their own dry-run-first release step.
+Status: governing contract for v0.5, implemented on branch `v0.5-core`.
+This document defines the product core and what moves into optional layers.
+Migration mechanics are out of scope here and become their own dry-run-first
+release step. The product essence and its reasoning live in
+[`product.md`](product.md); individual decisions are recorded in
+[`decisions/`](decisions/).
 
 ## Product Statement
 
@@ -20,7 +22,7 @@ The core product is four things:
    maintenance).
 3. **Retrieval** (`qmd`): a derived search layer over the folder, configured at
    onboarding, never a hard dependency.
-4. **Onboarding** (`$manager-onboarding`): an interview that builds the first
+4. **Onboarding** (`$manager-setup`): an interview that builds the first
    vault and installs the global wiring, so the user never learns the
    structure — they experience it.
 
@@ -171,7 +173,7 @@ Exactly two skills; maintenance is a reference, not a skill:
   (five lines). Three references: `vault-model.md` (structure, routing,
   lifecycle, tools), `workspace-sync.md` (bound external workspaces), and
   `maintenance.md` (doctor, plugin update checks, qmd upkeep).
-- `$manager-onboarding`: first-time setup, adopting an existing folder, and
+- `$manager-setup`: first-time setup, adopting an existing folder, and
   structural repair. Interview-first; personalizes the vault's `AGENTS.md`,
   offers the write-like-me voice bootstrap (generated skill lives at the
   global skill root, outside the vault), and hands off to `$manager` when
@@ -192,6 +194,20 @@ Exactly two skills; maintenance is a reference, not a skill:
   client runtime, control plane: separate layers with their own contracts,
   opened on real demand. The core must not depend on any of them.
 
+## Memory Hygiene
+
+Agent-maintained memory rots without a counterweight. The doctor flags a pack
+as possibly stale when its last change is clearly old (around 90 days) while
+it sits in an active index group without a waiting handoff. A staleness
+finding is a proposal to review, archive, or reaffirm — never an automatic
+action.
+
+## Compatibility Promise
+
+Any plugin from v0.5 onward reads any vault from v0.5 onward. New conventions
+arrive as optional capabilities; migrations are always explicit, dry-run-first,
+and approved. A plugin update never rewrites personal content.
+
 ## Migration From v0.2 (Summary Only)
 
 A separate dry-run-first, doctor-validated release step: strip non-core
@@ -211,7 +227,7 @@ workspace bindings with two-way wiring, health checks and managed updates,
 optional retrieval, and the managed-service path.
 
 Upstream's skill set maps into the plugin as follows: `onboarding`,
-`new-project`, and `new-person` → `$manager-onboarding` plus the `$manager`
+`new-project`, and `new-person` → `$manager-setup` plus the `$manager`
 lifecycle and people sections; `assistant` → `$manager` with the continuity
 model; `write-like-me-bootstrap` → the onboarding voice step; `ultragoal`
 stays an optional, separately invoked layer owning `WORKLOG.md`. Upstream's
@@ -220,13 +236,11 @@ developer and utility skills (`gh-commit`, `gh-fix-ci`, `gh-address-comments`,
 part of the Manager plugin; content skills (`audit-ai-writing`,
 `simple-html-artifact`) ship separately in `content-tools@wirenet`.
 
-## Open Questions For Review
+## Resolved Review Questions
 
-1. Keep `agent/USER_CONTEXT.md` as a separate file (upstream-compatible) or
-   fold it into root `README.md`? Draft keeps it separate: README stays the
-   short human landing page, USER_CONTEXT the agent-facing profile.
-2. Does `content_language` need a machine-readable home once README frontmatter
-   is gone, or is "match the language of existing documents" sufficient?
-   Draft: the skill rule is sufficient.
-3. Is an **Archived** section in `projects/index.md` wanted, or is `archive/`
-   plus git history enough? Draft: keep a compact Archived section.
+1. `agent/USER_CONTEXT.md` stays a separate file: README remains the short
+   human landing page, USER_CONTEXT the agent-facing profile.
+2. "Match the language of the existing documents" replaces the
+   `content_language` frontmatter field; no machine-readable home is needed.
+3. `projects/index.md` keeps a compact **Archived** section alongside
+   `archive/`.
