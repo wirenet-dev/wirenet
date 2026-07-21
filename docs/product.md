@@ -96,6 +96,24 @@ agents maintain the Manager, so every improvement in agents improves the
 product. Kernels got a thousand times faster; home directories did not
 disappear.
 
+## The Five Elements
+
+The new operating system has four visible elements, each with its owner. The
+**runtimes** are the kernel — capability and execution; they belong to the
+vendors, deliberately not to us. The **Manager** is the home directory —
+identity, state, and consent; it belongs to the person. The **Shelf** is the
+package source — certified capability — and the **Base** is the shared
+memory — certified knowledge; both belong to the organization.
+
+The fifth element is invisible and binds the other four: **the
+conventions** — the constitution, the formats, the one merge ritual, the
+address every agent knows. In the operating-system picture it is POSIX: the
+standard that lets userland outlive every kernel. Nobody owns a standard the
+way one owns software; whoever writes it and operates it best shapes the
+whole layer. That is WireNet's position and its business (ADR 006, ADR 010):
+build no kernels, sell no apps — write the contracts between all parties,
+publish them open, and be the one who runs them best.
+
 ## Who It Is For
 
 Individuals first: knowledge workers who use AI assistants daily and want
