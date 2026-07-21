@@ -46,6 +46,18 @@ opened only on real demand.
   and without the doctor. Missing tooling reduces convenience, never access.
 - **One fact, one home.** Canonical facts live in exactly one document; other
   documents link. Portfolio facts live in `projects/index.md`.
+- **Plugin-optional.** The vault carries its own operating system: its root
+  `AGENTS.md` holds the behavioral core, natively discovered by any agent
+  through nearest-instructions. The plugin delivers, extends reach, and
+  maintains — it never constitutes required behavior. A vault works fully
+  with no wirenet software installed. "Update my pack" works with zero
+  machinery.
+- **Store what search cannot find.** The Manager holds intent, status,
+  decisions, relationships, and pointers — never what an agent can derive
+  from a workspace itself (code, file layout, documentation). The update
+  threshold gates when to write; derivability gates what. Knowledge-first
+  packs are the deliberate exception: for work whose only home is the
+  Manager, it is the content store as well as the index.
 
 ## Visible File Model
 
@@ -141,6 +153,11 @@ Do not write: activity logs, raw messages or media, generated files,
 speculative inference presented as fact, secrets or credentials, or
 implementation detail that will not matter next session.
 
+**Replace, don't append.** A pack's status says how things stand now, in
+about one screen (~80 lines); updates replace stale prose instead of layering
+onto it. History lives in git — `git log` on the pack is the chronicle. The
+doctor flags oversized packs as findings.
+
 Preview every inferred durable write and obtain approval, unless the user
 already approved that exact change. Distinguish sent, received, drafted,
 discussed, and approved. External side effects (messages, meetings, cloud
@@ -201,6 +218,12 @@ structure word.
 
 ## Skill Surface
 
+The behavioral core — read order, routing, thresholds, lifecycle, approval
+gates — lives in the vault's own root `AGENTS.md`, written at setup and
+changed only through approved migrations. Skills defer to it and add what
+conventions cannot: procedures (setup, repair), reach (cross-workspace
+sync), and upkeep (doctor, updates, qmd).
+
 Exactly two skills; maintenance is a reference, not a skill:
 
 - `$manager`: one page. Orient (read order), retrieve (qmd optional), work
@@ -249,6 +272,11 @@ measured against their self-chosen review cadence instead of the calendar
 default — idle is normal there; a missed review is the finding. A staleness
 finding is a proposal to review, archive, or reaffirm — never an automatic
 action.
+
+**The orientation budget.** A fresh session reaches full orientation — root
+files, catalog, one pack — in roughly 250 lines of reading. The doctor
+computes the actual figure; exceeding the budget is a finding. This is the
+product's efficiency promise made measurable.
 
 ## Compatibility Promise
 
