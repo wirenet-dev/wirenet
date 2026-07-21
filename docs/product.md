@@ -71,6 +71,22 @@ half-sentence on first mention in customer-facing text, then stand alone:
 the **Shelf** — a team's shared skills (the package source) — and the
 **Base** — a team's shared knowledge (the base system).
 
+## Why Better Agents Make This More Valuable, Not Less
+
+The Manager stores the four things no capability level derives from a disk:
+**stance** (what was decided, promised, abandoned — artifacts show work, not
+your relationship to it), **consent** (what an agent may do; the more capable
+the agent, the more the binding question shifts from can to may), **canon**
+(independent re-derivation yields divergent readings; coordination between
+agents, sessions, and people needs one agreed source of truth), and
+**ownership** (capability arrives inside vendor products; the neutral home
+directory is what survives them). Everything capability makes redundant —
+retrieval, mechanical checks — is deliberately labeled an optional
+convenience and disposable. The core is built downstream of capability:
+agents maintain the Manager, so every improvement in agents improves the
+product. Kernels got a thousand times faster; home directories did not
+disappear.
+
 ## Who It Is For
 
 Individuals first: knowledge workers who use AI assistants daily and want
