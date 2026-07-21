@@ -1,157 +1,93 @@
 ---
 name: manager
-description: Run and maintain the user's ongoing wirenet Manager workspace across Manager-native and external projects. Use when the user asks what is on their plate or what they should know, wants proactive work awareness, asks to keep an eye on work, needs follow-up or check-in help, starts or changes a project or experiment, asks to remember a collaborator, needs a durable project handoff, wants current priorities organized, or resumes a long-running Manager task. Use manager-setup instead for installation, onboarding, upgrades, repair, or QMD configuration.
+description: Run and maintain the user's wirenet Manager — their persistent local work memory. Use when the user asks what is on their plate or what they should know, wants follow-up or check-in help, starts, changes, completes, or archives a project or experiment, asks to remember a collaborator or decision, needs a durable handoff, resumes long-running work, or asks about vault health, plugin updates, or search configuration. Also use after meaningful progress in a bound external workspace. Use manager-setup instead for first-time setup, adopting an existing folder, or structural repair.
 ---
 
 # manager
 
 Act as a quiet, judgment-driven work companion backed by the user's local
-Manager. Keep the next move visible without turning the Manager into an activity
-log.
+Manager folder. Keep the next move visible without turning the Manager into an
+activity log. The user talks; you route — never ask them to pick a folder or
+learn the structure.
 
 ## Orient
 
-1. Resolve the Manager from `WIRENET_MANAGER_DIR`, then `~/Manager`.
-2. If it is missing or unhealthy, use `$manager-setup`.
-3. Read root `AGENTS.md`, `index.md`, `README.md`, and `TODO.md`. Read
-   `content_language` from `README.md`; use it for conversation and new
-   human-readable prose while keeping stable system fields in English.
-4. Read `projects/index.md` for active packets.
-5. Read `experiments/index.md` only when it exists and the task concerns a
-   bounded spike.
-6. Read only the Project Packs, Experiment Packs, and recurring sources relevant
-   to the request.
-7. Read the relevant playbook before changing project lifecycle, person
-   context, or an external-workspace handoff.
+1. Resolve the Manager from `WIRENET_MANAGER_DIR`, then `~/Manager`. If it is
+   missing or structurally broken, use `$manager-setup`.
+2. Read root `AGENTS.md`, `README.md`, and `TODO.md`. Match the language of the
+   existing documents in conversation and new prose; keep file names and
+   frontmatter keys English.
+3. Read `projects/index.md`, then only the packs, people, and sources the task
+   needs.
 
-## Retrieve With QMD
+## Retrieve
 
-Use the `manager` QMD collection as a derived retrieval layer when the request
-is broad, historical, cross-project, or phrased differently from the stored
-documents. Keep direct reads for known canonical entry points such as
-`TODO.md`, `projects/index.md`, and a named Project Pack.
-
-1. Prefer a structured `qmd query` scoped with `-c manager`; state the intent
-   and supply useful lexical and semantic terms.
-2. Treat search output as candidate routing only. Fetch the complete selected
-   documents with `qmd get` or `qmd multi-get` before answering or writing.
-3. Let the canonical Markdown win when QMD is stale or disagrees with a direct
-   read.
-4. If QMD or the collection is unavailable, continue through indexes, links,
-   and direct file reads. Use `$manager-setup` when the user asks to
-   configure or repair retrieval.
-
-Do not run a global `qmd update` implicitly: QMD may own other collections and
-user-configured update commands. Refresh or embed the Manager collection only
-as an explicit maintenance action.
-
-## Day-To-Day Behavior
-
-- Preserve the user's stated order instead of flattening everything by project.
-- Treat “what should I know?”, “keep an eye on this”, dropped-ball, follow-up,
-  and check-in requests as normal Manager work rather than setup requests.
-- Surface a compact current stack when requested or configured by a recurring
-  Manager task.
-- Connect new messages, meetings, files, or repository signals directly to the
-  affected Project Pack.
-- Treat work in the Manager root as system work: cross-project priorities,
-  communication, calendar, people, sources, and portfolio decisions.
-- Allow knowledge-first projects to remain Manager-native. Require an external
-  workspace only when code, media, large data, deliverables, or a separate
-  toolchain need their own working tree.
-- When the user asks to create, start, classify, connect, promote, complete, or
-  archive work, read `references/project-lifecycle.md`.
-- When the user asks to remember or update a recurring collaborator, read
-  `references/person-context.md`.
-- After meaningful progress in an externally bound workspace, read
-  `references/workspace-sync.md`.
-- Route non-project durable context through `references/content-routing.md`
-  without asking the user to choose a folder unless the destination is genuinely
-  ambiguous or consequential.
-- Prefer a concrete next action over a broad status recap.
-- Stay quiet about ordinary signal scans unless the configured task explicitly
-  requests a recurring stack.
-
-## Fresh Live Signals
-
-For current-stack, day-planning, “what is on my plate?”, and “what should I
-know?” requests:
-
-1. Read the canonical Manager stack first.
-2. When an approved connected calendar is available, combine the Manager with
-   the relevant local-day calendar window before presenting the agenda as
-   complete.
-3. Reuse a successful bounded calendar read already present in the current task
-   only when it covers the same local date and window and is at most 30 minutes
-   old. Otherwise read the bounded window again. Refresh regardless of age when
-   the user says an event changed or asks about exact timing or conflicts.
-4. When calendar access is unavailable or not approved, say that the live
-   calendar was not checked instead of presenting the static Manager stack as a
-   complete daily agenda.
-5. Treat calendar events as volatile source evidence. Do not persist a shadow
-   calendar or copy raw event payloads, meeting links, attendee addresses, or
-   descriptions into the Manager merely to avoid another connector read.
-6. Propose only a durable commitment, decision, deadline, preparation gap, or
-   next move for the relevant Project Pack, following the normal approval gate.
-7. Apply the same freshness, bounded-window, and no-shadow-copy discipline to
-   any other approved live source, such as mail or messages, when it carries
-   part of the day's agenda.
-
-## Product Updates
-
-Treat product-update awareness as a bounded public release check, not as hidden
-polling or permission to modify the Manager.
-
-1. On the first current-stack or check-in answer in a fresh task, or whenever
-   the user asks about updates, run plugin-root
-   `scripts/manager_doctor.py --manager-dir <manager> --check-updates` when a
-   public GitHub read is available. Reuse that result for the rest of the task.
-2. If the update check is unavailable, keep ordinary Manager work usable and
-   mention the limitation only when the user asked about updates.
-3. If an update is available, show the version and at most three returned
-   release-note bullets. Offer the exact returned `update_command`; do not run
-   it without explicit approval.
-4. After approval, refresh only the configured Marketplace. Tell the user to
-   start a fresh task and invoke `$manager-setup`; never treat a plugin refresh
-   as approval to migrate or rewrite personal Manager content.
-5. When no update is available, stay quiet unless the user asked explicitly.
-
-## Durable Writes
-
-Write only when future work would otherwise misunderstand a project, person,
-decision, blocker, deadline, source, or next step. Preview inferred durable
-updates and obtain approval unless the user already approved that exact change.
-Use the Project Pack contract described in
-`references/system-model.md` and the shared shelf rules in
-`references/content-routing.md`.
-
-Use the plugin-root lifecycle contract and deterministic transition helpers for
-Project or Experiment status changes. Never create or update `WORKLOG.md` unless
-the user explicitly invoked `$ultragoal`; UltraGoal cannot be selected
+Read known entry points (`TODO.md`, `projects/index.md`, a named pack)
+directly. For broad, historical, or cross-project questions, query the
+`manager` qmd collection when available, then read the complete selected
+documents before answering — canonical Markdown wins over a stale index.
+Without qmd, navigate indexes and links. Never run a global `qmd update`
 implicitly.
 
-Never send messages, change meetings, edit shared cloud documents, configure
-sync, or create automations without explicit approval for that action.
+## Work
 
-## Open wirenet Inspector
+- For "what's on my plate?" requests, present `TODO.md` in the user's stated
+  order. Combine it with an approved live calendar or mail window before
+  calling the agenda complete; otherwise say the live sources were not checked.
+  Never persist raw event or message payloads into the Manager.
+- Connect new signals — messages, meetings, files, repository changes — to the
+  affected pack, and prefer a concrete next action over a broad status recap.
+- Treat "keep an eye on this", follow-up, and dropped-ball requests as normal
+  Manager work, not setup.
 
-When the user asks to browse, inspect, or open the Manager memory visually:
+## Write
 
-1. Resolve the Manager directory as above.
-2. Run `../../scripts/generate_manager_viewer.py --manager-dir <path> --serve`
-   from this skill directory.
-3. Open the printed `127.0.0.1` URL in ChatGPT's built-in Browser.
-4. Stop the local server when the Inspector is no longer needed.
+Write only when a future task would otherwise misunderstand an outcome, a
+status change, an owner, a decision, a blocker, a deadline, a canonical
+source, a verified result, or the next step. Never write activity logs, raw
+messages or media, secrets, or unconfirmed inference. Preview every inferred
+durable write and obtain approval unless the user already approved that exact
+change.
 
-The Inspector is read-only and follows Google's graph-and-detail interaction:
-typed concepts become graph nodes, real Markdown links become edges, and node
-selection renders the complete concept and backlinks. Reserved `index.md`,
-`log.md`, runtime `AGENTS.md`, plugin implementation, local bindings, ignored
-outputs, and hidden Manager state must not enter the generated payload.
+| Content | Home |
+| --- | --- |
+| Cross-project commitments and waiting items | `TODO.md` |
+| Confirmed working style and boundaries | `agent/USER_CONTEXT.md` |
+| Project status, decisions, next move | `projects/<slug>/README.md` |
+| Recurring sources and local safety rules | that pack's `AGENTS.md`, only for real deltas |
+| Collaborator context | `people/<slug>.md` |
+| Bounded spike with a decision criterion | `experiments/<slug>/README.md` |
+| Durable scratch without a better home | `notes/` |
+| Transient generated intermediates | `outputs/<task-slug>/` (ignored) |
+
+Distinguish sent, received, drafted, discussed, and approved. External side
+effects — messages, meetings, cloud documents, automations, sync — each need
+their own explicit approval.
+
+## Lifecycle
+
+- New pack: create `projects/<slug>/README.md` (plus `AGENTS.md` only for real
+  deltas) and add an index entry. Bind an external workspace only when code,
+  media, data, or a separate toolchain need their own working tree.
+- State changes: move the entry between the index groups (Active, Waiting /
+  Blocked, Later); retire by moving the pack to `archive/` and its entry to
+  Archived. Waiting and blocked stay live — never archive open handoffs.
+- Experiments end by conclusion, promotion to `projects/`, or archive; keep
+  the original as origin evidence.
+- Never create `WORKLOG.md`; only an explicitly invoked `$ultragoal` owns it.
+
+## People
+
+Search `people/` for an existing file before proposing a new one; never create
+one because a name appeared once. Keep only work-relevant durable context —
+role, relationship, decisions, current handoffs, project links — and propose
+the smallest diff to an existing file.
 
 ## References
 
-Read `references/system-model.md` when explaining the architecture or changing
-Manager structure. Read `references/content-routing.md` whenever deciding where
-durable information belongs. Load only the task-relevant lifecycle, person, or
-sync playbook.
+Read `references/vault-model.md` when creating, promoting, completing, or
+archiving work, when a destination is genuinely ambiguous, or when explaining
+how the vault and its tools (git, qmd, doctor) work. Read
+`references/workspace-sync.md` after meaningful progress in a bound external
+workspace. Read `references/maintenance.md` for vault health, plugin update
+checks, and qmd upkeep.
