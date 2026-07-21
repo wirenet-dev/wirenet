@@ -4,6 +4,11 @@ last_edited: 2026-07-20
 
 # Installing wirenet manager v0.2
 
+> **Status (2026-07-21):** This document describes the v0.2 install flow and
+> is superseded on the `v0.5-core` branch (one plugin `wirenet`, two skills).
+> [`core-contract.md`](core-contract.md) governs; the rewrite lands with the
+> README station.
+
 ## Fast Start With An Appshot
 
 The public README is also the clean-install contract. Open the repository page,

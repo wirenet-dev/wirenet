@@ -4,6 +4,12 @@ last_edited: 2026-07-16
 
 # Testing Markdown As Code
 
+> **Status (2026-07-21):** Parts of this document describe v0.2 behavior and
+> are superseded on the `v0.5-core` branch. [`core-contract.md`](core-contract.md)
+> governs; a revision lands with the tests station. In particular, required
+> `type` frontmatter no longer exists — see
+> [ADR 004](decisions/004-conventions-over-frontmatter.md).
+
 wirenet Manager treats natural-language workspace behavior as a software
 product. Markdown bodies carry human meaning and agent instructions; non-empty
 `type` frontmatter is required for every non-reserved knowledge document;
