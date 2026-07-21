@@ -102,6 +102,11 @@ nothing but a file reader and git.
   validating frontmatter. Run it after structural moves.
 - **Obsidian or any Markdown editor** may open the folder directly as a local
   view; `.obsidian/` stays git-ignored, device-local UI state.
+- **Skills and connectors** are the runtime's inventory, not the Manager's:
+  what is installed is derivable and never recorded here — it would rot. The
+  Manager keeps only judgment: which tool serves which work, in the pack's
+  `AGENTS.md` or `USER_CONTEXT.md`; a team's certified skill catalog is the
+  Shelf, a later layer.
 
 ## Skeletons
 
