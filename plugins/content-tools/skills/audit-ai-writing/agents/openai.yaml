@@ -1,7 +1,0 @@
-interface:
-  display_name: "AI writing audit"
-  short_description: "Find and repair weak AI-shaped writing"
-  icon_small: "./assets/wirenet-globe.svg"
-  icon_large: "./assets/wirenet-globe.svg"
-  brand_color: "#FF5C1A"
-  default_prompt: "Use $audit-ai-writing to audit this draft and propose a tighter revision."

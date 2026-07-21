@@ -1,0 +1,44 @@
+{
+  "name": "wirenet",
+  "version": "0.5.0",
+  "description": "Your persistent work memory: a local Manager folder your agents read, keep current, and always ask before writing to.",
+  "author": {
+    "name": "wirenet",
+    "url": "https://wirenet.dev"
+  },
+  "homepage": "https://wirenet.dev",
+  "repository": "https://github.com/wirenet-dev/wirenet",
+  "license": "Apache-2.0",
+  "keywords": [
+    "manager",
+    "work-memory",
+    "context",
+    "projects",
+    "assistant"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "wirenet",
+    "shortDescription": "Your persistent work memory across projects and sessions",
+    "longDescription": "wirenet gives your assistant a durable local memory: a Manager folder on your computer that knows who you work with, what is on your plate, and where every project stands. Set it up once in a guided first meeting; from then on, your assistant reads it at the start of any task, keeps it current after meaningful progress, and always asks before writing. Plain files, versioned with git, owned by you.",
+    "developerName": "wirenet",
+    "category": "Productivity",
+    "websiteURL": "https://wirenet.dev",
+    "brandColor": "#FF5C1A",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/logo.svg",
+    "logoDark": "./assets/logo-dark.svg",
+    "capabilities": [
+      "Guided first-meeting setup",
+      "Current stack and next actions",
+      "Project and people memory",
+      "Handoffs from any workspace",
+      "Everything local, everything reviewable"
+    ],
+    "defaultPrompt": [
+      "Set up my wirenet Manager.",
+      "What's on my plate?",
+      "Bring my projects up to date."
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 {
-  "name": "manager",
-  "version": "0.4.6",
-  "description": "A durable local workspace for projects, context, and next actions.",
+  "name": "wirenet",
+  "version": "0.5.0",
+  "description": "Your persistent work memory: a local Manager folder your agents read, keep current, and always ask before writing to.",
   "author": {
     "name": "wirenet",
     "url": "https://wirenet.dev"
@@ -11,9 +11,9 @@
   "license": "Apache-2.0",
   "keywords": [
     "manager",
-    "workspace",
-    "project-packs",
     "work-memory",
-    "okf"
+    "context",
+    "projects",
+    "assistant"
   ]
 }
