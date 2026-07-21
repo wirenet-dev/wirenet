@@ -32,7 +32,7 @@ def test_manifests_exist_and_match() -> None:
     assert claude["name"] == codex["name"] == "wirenet"
     assert claude["version"] == codex["version"]
     assert codex["skills"] == "./skills/"
-    assert codex["interface"]["displayName"] == "wirenet"
+    assert codex["interface"]["displayName"] == "Manager"
 
 
 def test_marketplaces_list_single_wirenet_plugin() -> None:

@@ -1,5 +1,5 @@
 interface:
-  display_name: "manager"
+  display_name: "Manager"
   short_description: "Your check-in: what should I know right now?"
   icon_small: "./assets/wirenet-globe.svg"
   icon_large: "./assets/wirenet-globe.svg"

@@ -56,11 +56,13 @@ Code and Codex. The full behavior is defined in
 
 ## Naming
 
-**wirenet** (lowercase) is the product — the plugin, the conventions, this
-repository; the wordmark stays lowercase by design. **WireNet** (capitalized
-in prose) is the company that builds, sells, and operates it. The user's
-folder is simply "the Manager" — technically a vault of plain files;
-customers never need a second word for it. In the operating-system picture,
+Three tiers. **WireNet** (capitalized in prose) is the company that builds,
+sells, and operates it. **wirenet** (lowercase) is the system — the plugin
+id, the conventions, this repository; the wordmark stays lowercase by
+design. **Manager** is the product face the user sees and addresses: the
+display name in the app ("@Manager"), the persona they talk to, and their
+folder — technically a vault of plain files; customers never need a second
+word for any of it. In the operating-system picture,
 the Manager joins the manager family (window manager, package manager): the
 context manager of the agentic OS.
 
