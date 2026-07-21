@@ -1,15 +1,17 @@
 ---
-last_edited: 2026-07-16
+last_edited: 2026-07-21
 ---
 
 # wirenet
 
 wirenet is the canonical product monorepo for the WireNet context system: the
-Manager (work memory), the Shelf (curated skills), the Base (shared knowledge
-and data catalog), and the Client Runtime (narrow context packets in bound
-workspaces). Instance templates live under `templates/`; `bin/wirenet` is the
-lean local control plane (`status`, `doctor`). The canonical architecture
-concept lives in the Base under `governance/system-architecture.md`.
+Manager (personal work memory), the Shelf (organization-owned curated skills),
+the Base (organization-owned shared knowledge), and the Client Runtime (narrow
+context packets in bound workspaces). Instance templates live under
+`templates/`; `bin/wirenet` previews and materializes Base or Shelf instances
+and checks a configured installation. The portable system contract lives in
+[`docs/architecture-v0.2.md`](docs/architecture-v0.2.md); a Base may describe
+its own concrete installation but never becomes the product source of truth.
 
 Wirenet Context Studio is a separately versioned visual companion application
 for OKF discovery, ontology inspection, quality governance, graph exploration,
@@ -175,6 +177,30 @@ optional QMD package manager from the bundled Codex workspace runtime when
 available, then falls back to executables already on `PATH`. It never installs
 system developer tools implicitly and stops before writing if its required
 local runtime is unavailable.
+
+## Base And Shelf Instances
+
+Manager is personal: each person gets an independent Manager workspace. Base
+and Shelf are organization-scoped: each organization owns its own repositories
+and access policy, while each authorized device may keep a local clone. They are
+instances of the WireNet product, not forks that redefine the product.
+
+Preview a new organization instance before writing anything:
+
+```sh
+bin/wirenet init base --owner acme
+bin/wirenet init shelf --owner acme
+```
+
+Repeat with `--apply` to materialize the seed. The command records only local
+identity and absolute paths in `~/.wirenet/installation.json`; it creates no Git
+remote, account, sync service, or customer record. `bin/wirenet status` and
+`bin/wirenet doctor` resolve the configured Manager, Base, and Shelf paths.
+
+Product updates flow one way through versioned templates and migrations. Client
+knowledge and skills never flow back into this repository. See
+[`docs/managed-installations.md`](docs/managed-installations.md) for ownership,
+repository, provenance, and managed-service boundaries.
 
 When the current task becomes the long-running Manager home, onboarding uses a
 thin task contract for conversation continuity and the approved check-in. It

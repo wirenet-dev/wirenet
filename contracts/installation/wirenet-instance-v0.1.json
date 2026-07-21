@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wirenet.dev/schemas/wirenet-instance-v0.1.json",
+  "title": "WireNet materialized instance origin",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "installation_id",
+    "element",
+    "owner",
+    "origin"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "wirenet-instance/v0.1"
+    },
+    "installation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "element": {
+      "enum": [
+        "base",
+        "shelf"
+      ]
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1
+    },
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "template_version"
+      ],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "format": "uri"
+        },
+        "template_version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

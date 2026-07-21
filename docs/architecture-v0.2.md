@@ -1,5 +1,5 @@
 ---
-last_edited: 2026-07-16
+last_edited: 2026-07-21
 ---
 
 # wirenet Manager v0.2 Architecture
@@ -39,6 +39,35 @@ in-scope Markdown file must carry a non-empty OKF `type`. Generic shelf README
 manuals therefore belong in plugin documentation or runtime instructions. Only
 the typed root Manager Overview and typed Project Status READMEs remain as
 instance knowledge.
+
+## Installation Topology
+
+WireNet separates the distributable product from every materialized
+installation. The public `wirenet-dev/wirenet` repository owns reusable code,
+schemas, templates, migrations, and documentation. It contains no personal or
+customer state.
+
+| Element | Scope | Canonical owner | Repository rule |
+| --- | --- | --- | --- |
+| Product | Global distribution | WireNet product maintainers | One public product monorepo |
+| Manager | One person | That person | Independent private workspace and, when synchronized, its own private repository |
+| Base | One organization | That organization | Separate organization-owned private repository; cloned per authorized device |
+| Shelf | One organization | That organization | Separate organization-owned private repository; cloned per authorized device |
+| Client Runtime | One bound working context | Owning project or system | Stays with the external workspace it operates on |
+
+The device-local `~/.wirenet/installation.json` resolves a stable installation
+ID, owner, and absolute element paths. It is runtime configuration, not portable
+knowledge, and must not contain credentials. Materialized Base and Shelf seeds
+receive a `.wirenet/instance.json` origin manifest so later update tooling can
+reason about their source template without claiming ownership of instance data.
+
+Distribution is intentionally one way: product versions publish templates and
+explicit migrations; an installation chooses when to apply them. Personal,
+organization, and customer content does not merge into the product repository.
+A managed WireNet engagement grants the operator normal collaborator access to
+client-owned repositories and records decisions in the client's own Base. It
+does not require a central control-plane repository. Cross-customer inventory,
+telemetry, or hosted administration remains a separate future product decision.
 
 ## Routing Overview
 
