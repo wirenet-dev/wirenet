@@ -4,6 +4,10 @@ last_edited: 2026-07-20
 
 # First-Bootstrap Demo Runbook
 
+> **Status (2026-07-21):** This choreography still references v0.2 skills and
+> structure. [`core-contract.md`](core-contract.md) governs; the revision
+> lands with the demo-preparation step before the next live bootstrap.
+
 Runbook for a live first bootstrap with a new user (dry run on your own
 machine first, then the real person on their machine). The acceptance
 contract behind it is `docs/acceptance-onboarding.md`; this page is the

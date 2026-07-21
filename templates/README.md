@@ -1,5 +1,5 @@
 ---
-last_edited: 2026-07-20
+last_edited: 2026-07-21
 ---
 
 # Instance Templates
@@ -14,3 +14,10 @@ instance; no standalone template repository is a source of truth.
 
 The Manager seed remains at `plugins/manager/templates/manager/`, owned by the
 Manager plugin bootstrap.
+
+On `--apply`, `wirenet init base|shelf` copies the selected seed and adds a
+runtime `.wirenet/instance.json` containing the installation ID, owner, element,
+and product template origin. The manifest contains no credentials or instance
+knowledge. Starter concepts that later need seeded upgrades should carry their
+own explicit origin/version metadata; reserved `index.md` and `log.md` files do
+not receive concept frontmatter.

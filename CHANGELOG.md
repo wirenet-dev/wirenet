@@ -12,6 +12,27 @@ may be ahead of the released product.
 
 - No unreleased changes.
 
+## v0.5.0 — 2026-07-21
+
+- One plugin: `manager`, `workflows`, and `content-tools` consolidate into a
+  single `wirenet` plugin; skills stay `manager` and `manager-setup`.
+- The Manager seed carries its own operating system: a one-page `AGENTS.md`
+  with routing, thresholds, and safety — fully usable with no wirenet
+  software installed.
+- New flexibility model: `areas/` for ongoing responsibilities ("does it
+  end?"), an Ongoing index group, and a Someday section in the stack.
+- Conventions over frontmatter: no required metadata, no IDs in documents;
+  lifecycle is location plus index grouping; bindings move to a slug-keyed
+  v1 format with a schema in `contracts/manager/`.
+- Scripts consolidate into a conventions doctor (index consistency, bindings,
+  pack size, staleness, orientation budget, bounded update check) and a qmd
+  sync helper; the viewer and generators are retired.
+- manager-setup becomes a first meeting: exact greeting, six-question
+  interview, quiet setup states, work-first-notify-second continuity offer,
+  write-like-me offer, global wiring — each with its own approval.
+- The Jason Liu comparison machinery is retired (ADR 002); his template
+  remains credited inspiration.
+
 ## v0.4.6 — 2026-07-20
 
 - Reduced generated Project and Experiment Pack frontmatter to one field per

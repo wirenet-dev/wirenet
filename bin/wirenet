@@ -1,29 +1,61 @@
 #!/usr/bin/env python3
-"""Lean local control plane for the WireNet system.
+"""Local lifecycle helper for a WireNet installation.
+
+Operator tool for people who work with the product repository. Installing
+and using the Manager plugin never requires this CLI; customers stay on the
+marketplace path.
 
 Commands:
-  wirenet status   Report the four element instances, git state, and bindings.
-  wirenet doctor   Run the read-only Manager doctor from this repository.
+  wirenet status              Report configured elements, git state, and bindings.
+  wirenet doctor              Run the read-only Manager doctor for this installation.
+  wirenet init base|shelf     Preview or materialize an instance from the product seed.
 
-Canonical reference: Base governance concept "WireNet system architecture".
+The device-local installation configuration defaults to
+~/.wirenet/installation.json. Override it with --config or the
+WIRENET_INSTALLATION_CONFIG environment variable.
 """
 
 from __future__ import annotations
 
+import argparse
+import getpass
 import json
+import os
+import shutil
 import subprocess
 import sys
+import tempfile
+import uuid
 from pathlib import Path
+from typing import Any
+
 
 REPO = Path(__file__).resolve().parent.parent
 HOME = Path.home()
-
-ELEMENTS = {
-    "Manager": HOME / "Manager",
-    "Shelf": HOME / "Developer" / "shelf",
-    "Base": HOME / "Data" / "base",
-    "Product": REPO,
+INSTALLATION_SCHEMA = "wirenet-installation/v0.1"
+INSTANCE_SCHEMA = "wirenet-instance/v0.1"
+TEMPLATE_VERSION = "0.1.0"
+PRODUCT_REPOSITORY = "https://github.com/wirenet-dev/wirenet.git"
+ELEMENT_LABELS = {
+    "manager": "Manager",
+    "shelf": "Shelf",
+    "base": "Base",
+    "product": "Product",
 }
+DEFAULT_PATHS = {
+    "manager": HOME / "Manager",
+    "shelf": HOME / "Developer" / "shelf",
+    "base": HOME / "Data" / "base",
+}
+
+
+class ConfigError(ValueError):
+    """The local installation configuration violates its contract."""
+
+
+def default_config_path() -> Path:
+    configured = os.environ.get("WIRENET_INSTALLATION_CONFIG")
+    return Path(configured).expanduser() if configured else HOME / ".wirenet" / "installation.json"
 
 
 def git(path: Path, *args: str) -> str | None:
@@ -51,43 +83,224 @@ def describe(label: str, path: Path) -> None:
     print(f"{label}: {path} — {branch or '(detached)'}, {state}")
 
 
-def check_bindings() -> int:
-    bindings = ELEMENTS["Manager"] / ".wirenet" / "workspace-bindings.json"
+def validate_installation(data: object) -> dict[str, Any]:
+    if not isinstance(data, dict):
+        raise ConfigError("root must be a JSON object")
+    if data.get("schema_version") != INSTALLATION_SCHEMA:
+        raise ConfigError(f"schema_version must be {INSTALLATION_SCHEMA!r}")
+    for key in ("installation_id", "owner"):
+        if not isinstance(data.get(key), str) or not data[key].strip():
+            raise ConfigError(f"{key} must be a non-empty string")
+    elements = data.get("elements")
+    if not isinstance(elements, dict):
+        raise ConfigError("elements must be an object")
+    for element in ("manager", "base", "shelf"):
+        entry = elements.get(element)
+        if not isinstance(entry, dict):
+            raise ConfigError(f"elements.{element} must be an object")
+        path = entry.get("path")
+        if not isinstance(path, str) or not path.strip():
+            raise ConfigError(f"elements.{element}.path must be a non-empty string")
+        if not Path(path).expanduser().is_absolute():
+            raise ConfigError(f"elements.{element}.path must be absolute")
+    return data
+
+
+def load_installation(path: Path) -> dict[str, Any] | None:
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ConfigError(str(error)) from error
+    return validate_installation(data)
+
+
+def element_path(config: dict[str, Any] | None, element: str) -> Path:
+    if config is None:
+        return DEFAULT_PATHS[element]
+    return Path(config["elements"][element]["path"]).expanduser()
+
+
+def new_installation(*, owner: str, installation_id: str | None = None) -> dict[str, Any]:
+    return {
+        "schema_version": INSTALLATION_SCHEMA,
+        "installation_id": installation_id or f"inst_{uuid.uuid4()}",
+        "owner": owner,
+        "elements": {
+            element: {"path": str(path.resolve(strict=False))}
+            for element, path in DEFAULT_PATHS.items()
+        },
+    }
+
+
+def write_json_atomic(path: Path, data: dict[str, Any], *, private: bool = False) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_name: str | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            delete=False,
+        ) as handle:
+            json.dump(data, handle, indent=2, sort_keys=True)
+            handle.write("\n")
+            temporary_name = handle.name
+        if private:
+            os.chmod(temporary_name, 0o600)
+        os.replace(temporary_name, path)
+        temporary_name = None
+    finally:
+        if temporary_name is not None:
+            Path(temporary_name).unlink(missing_ok=True)
+
+
+def check_bindings(manager_path: Path) -> int:
+    bindings = manager_path / ".wirenet" / "workspace-bindings.json"
     if not bindings.is_file():
         print(f"bindings: {bindings} — MISSING")
         return 1
-    data = json.loads(bindings.read_text())
+    try:
+        data = json.loads(bindings.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        print(f"bindings: {bindings} — INVALID ({error})")
+        return 1
+    version = data.get("schema_version", "")
     broken = 0
-    for kind in ("projects", "experiments"):
-        for entry in data.get(kind, []):
-            path = Path(entry["path"])
-            if not path.exists():
-                ident = entry.get("project_id") or entry.get("experiment_id")
-                print(f"binding {ident}: {path} — MISSING")
-                broken += 1
-    total = sum(len(data.get(k, [])) for k in ("projects", "experiments"))
+    total = 0
+    if version == "wirenet-bindings/v1":
+        for slug, paths in (data.get("bindings") or {}).items():
+            for raw in paths:
+                total += 1
+                if not Path(raw).expanduser().exists():
+                    print(f"binding {slug}: {raw} — MISSING")
+                    broken += 1
+    elif version.startswith("wirenet-workspace-bindings"):
+        print("bindings: legacy v0.2 format — run the v0.5 migration")
+        for kind in ("projects", "experiments"):
+            for entry in data.get(kind, []):
+                total += 1
+                if not Path(entry["path"]).exists():
+                    broken += 1
+    else:
+        print(f"bindings: unknown schema_version {version!r}")
+        return 1
     print(f"bindings: {total - broken}/{total} resolve")
     return 1 if broken else 0
 
 
-def status() -> int:
-    print("WireNet system status")
-    for label, path in ELEMENTS.items():
-        describe(label, path)
-    return check_bindings()
+def status(config_path: Path) -> int:
+    config = load_installation(config_path)
+    print("WireNet installation status")
+    if config is None:
+        print(f"installation: not configured — using defaults ({config_path})")
+    else:
+        print(f"installation: {config['installation_id']} — owner {config['owner']}")
+        print(f"config: {config_path}")
+    for element in ("manager", "base", "shelf"):
+        describe(ELEMENT_LABELS[element], element_path(config, element))
+    describe(ELEMENT_LABELS["product"], REPO)
+    return check_bindings(element_path(config, "manager"))
 
 
-def doctor(args: list[str]) -> int:
-    script = REPO / "plugins" / "manager" / "scripts" / "manager_doctor.py"
-    return subprocess.run([sys.executable, str(script), *args]).returncode
+def doctor(config_path: Path, args: list[str]) -> int:
+    config = load_installation(config_path)
+    script = REPO / "plugins" / "wirenet" / "scripts" / "doctor.py"
+    doctor_args = list(args)
+    if "--manager-dir" not in doctor_args:
+        doctor_args.extend(["--manager-dir", str(element_path(config, "manager"))])
+    return subprocess.run([sys.executable, str(script), *doctor_args]).returncode
+
+
+def init_instance(config_path: Path, argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(prog="wirenet init")
+    parser.add_argument("element", choices=("base", "shelf"))
+    parser.add_argument("--path", type=Path, help="target instance directory")
+    parser.add_argument("--owner", help="person or organization that owns the installation")
+    parser.add_argument("--installation-id", help="stable installation ID for a new config")
+    parser.add_argument("--apply", action="store_true", help="materialize the previewed changes")
+    args = parser.parse_args(argv)
+
+    config = load_installation(config_path)
+    config_exists = config is not None
+    if config is None:
+        owner = (args.owner or getpass.getuser()).strip()
+        if not owner:
+            parser.error("--owner must not be empty")
+        config = new_installation(owner=owner, installation_id=args.installation_id)
+    else:
+        if args.installation_id and args.installation_id != config["installation_id"]:
+            parser.error("--installation-id cannot replace the ID in an existing config")
+        if args.owner:
+            config["owner"] = args.owner.strip()
+            if not config["owner"]:
+                parser.error("--owner must not be empty")
+
+    target = (args.path or element_path(config, args.element)).expanduser().resolve(strict=False)
+    template = REPO / "templates" / args.element
+    target_blocked = target.is_symlink() or (target.exists() and (not target.is_dir() or any(target.iterdir())))
+
+    print("WireNet init preview")
+    print(f"element: {ELEMENT_LABELS[args.element]}")
+    print(f"target: {target}")
+    print(f"template: {template}")
+    print(f"config: {config_path}")
+    if target_blocked:
+        print("result: blocked — target must be absent or an empty directory")
+        return 1
+    if not args.apply:
+        print("result: no changes (run again with --apply)")
+        return 0
+
+    if not template.is_dir():
+        print(f"template missing: {template}", file=sys.stderr)
+        return 1
+    target.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(template, target, dirs_exist_ok=True)
+    config["elements"][args.element] = {"path": str(target)}
+    validate_installation(config)
+    write_json_atomic(config_path, config, private=True)
+    manifest = {
+        "schema_version": INSTANCE_SCHEMA,
+        "installation_id": config["installation_id"],
+        "element": args.element,
+        "owner": config["owner"],
+        "origin": {
+            "repository": PRODUCT_REPOSITORY,
+            "template_version": TEMPLATE_VERSION,
+        },
+    }
+    write_json_atomic(target / ".wirenet" / "instance.json", manifest)
+    action = "updated" if config_exists else "created"
+    print(f"result: created {args.element} instance; {action} installation config")
+    return 0
+
+
+def extract_global_args(argv: list[str]) -> tuple[Path, list[str]]:
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--config", type=Path, default=default_config_path())
+    args, remaining = parser.parse_known_args(argv)
+    return args.config.expanduser().resolve(strict=False), remaining
 
 
 def main(argv: list[str]) -> int:
-    command = argv[0] if argv else "status"
-    if command == "status":
-        return status()
-    if command == "doctor":
-        return doctor(argv[1:])
+    config_path, remaining = extract_global_args(argv)
+    command = remaining[0] if remaining else "status"
+    command_args = remaining[1:]
+    try:
+        if command == "status":
+            if command_args:
+                raise ConfigError(f"unexpected status arguments: {' '.join(command_args)}")
+            return status(config_path)
+        if command == "doctor":
+            return doctor(config_path, command_args)
+        if command == "init":
+            return init_instance(config_path, command_args)
+    except ConfigError as error:
+        print(f"installation config invalid: {error}", file=sys.stderr)
+        return 1
     print(__doc__.strip(), file=sys.stderr)
     return 0 if command in {"-h", "--help", "help"} else 1
 

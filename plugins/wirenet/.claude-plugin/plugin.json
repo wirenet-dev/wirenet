@@ -1,0 +1,19 @@
+{
+  "name": "wirenet",
+  "version": "0.5.0",
+  "description": "Your persistent work memory: a local Manager folder your agents read, keep current, and always ask before writing to.",
+  "author": {
+    "name": "wirenet",
+    "url": "https://wirenet.dev"
+  },
+  "homepage": "https://wirenet.dev",
+  "repository": "https://github.com/wirenet-dev/wirenet",
+  "license": "Apache-2.0",
+  "keywords": [
+    "manager",
+    "work-memory",
+    "context",
+    "projects",
+    "assistant"
+  ]
+}

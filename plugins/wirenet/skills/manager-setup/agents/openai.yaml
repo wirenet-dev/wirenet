@@ -1,0 +1,7 @@
+interface:
+  display_name: "Manager Setup"
+  short_description: "Meet your Manager and set up durable work memory"
+  icon_small: "./assets/wirenet-globe.svg"
+  icon_large: "./assets/wirenet-globe.svg"
+  brand_color: "#002FA7"
+  default_prompt: "Set up my wirenet Manager."

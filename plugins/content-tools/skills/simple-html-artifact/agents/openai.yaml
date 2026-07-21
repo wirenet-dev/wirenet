@@ -1,7 +1,0 @@
-interface:
-  display_name: "simple HTML artifact"
-  short_description: "Build a clear, self-contained HTML document"
-  icon_small: "./assets/wirenet-globe.svg"
-  icon_large: "./assets/wirenet-globe.svg"
-  brand_color: "#FF5C1A"
-  default_prompt: "Use $simple-html-artifact to turn this information into a clear HTML artifact."
