@@ -102,3 +102,40 @@ nothing but a file reader and git.
   validating frontmatter. Run it after structural moves.
 - **Obsidian or any Markdown editor** may open the folder directly as a local
   view; `.obsidian/` stays git-ignored, device-local UI state.
+
+## Skeletons
+
+When creating files, start from these shapes — headings are the contract,
+prose fills them. Every placeholder encodes its own quality bar.
+
+**Pack README** (`projects/<slug>/README.md`): `# <Title>` · Purpose (one
+sentence, must be able to say when this is done) · Current Status (how things
+stand now — replaced, not appended; about one screen; "current state, known
+constraints, and last meaningful update") · Next Move (checkboxes, "first
+concrete next step") · Owners And Collaborators · Decisions And Blockers ·
+Sources (direct evidence links, absolute dates).
+
+**Area README** (`areas/<slug>/README.md`): `# <Title>` · Standard (what
+"healthy" means) · Current State (against that standard) · Related Projects ·
+Routines (link `routines/` files when they exist) · Review (cadence, last
+review date).
+
+**GOAL.md** (only when a project earns it): Outcome ("the observable result
+that means this goal is complete") · Constraints · Verification ("command,
+check, screenshot, review, or artifact that can prove progress") · Approvals
+("actions that require explicit user approval").
+
+**RESULT.md** (only for durable completed evidence): What Changed ·
+Verification ("commands, checks, screenshots, or review evidence") · Open
+Ends ("follow-ups, blockers, or known gaps").
+
+**Person** (`people/<slug>.md`): `# <Name>` · Context (a short, dated reason
+this relationship matters) · Relationship (how you usually work together;
+evidence-backed patterns, not vibes) · Boundaries ("things agents should not
+assume, share, or do on this person's behalf") · Links (related packs). Add a
+`last verified` date to facts that can go stale.
+
+**Pack AGENTS.md** (only for real local deltas): Sources ("canonical files,
+services, datasets, or docs in priority order") · Safety Gates ("files,
+services, or accounts that must not be modified"; actions needing approval).
+Rules supplement the root `AGENTS.md`, never repeat it.
