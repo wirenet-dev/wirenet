@@ -76,7 +76,9 @@ context manager of the agentic OS.
 The organization elements follow the same rule and always carry their
 half-sentence on first mention in customer-facing text, then stand alone:
 the **Shelf** — a team's shared skills (the package source) — and the
-**Base** — a team's shared knowledge (the base system).
+**Base** — a team's shared knowledge (the base system). The Base is shared
+memory, the Shelf is shared hands, the Manager stays yours — and one merge
+ritual governs all three (ADR 014).
 
 ## Why Better Agents Make This More Valuable, Not Less
 
