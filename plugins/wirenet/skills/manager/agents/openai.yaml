@@ -3,5 +3,5 @@ interface:
   short_description: "Your check-in: what should I know right now?"
   icon_small: "./assets/wirenet-globe.svg"
   icon_large: "./assets/wirenet-globe.svg"
-  brand_color: "#FF5C1A"
+  brand_color: "#002FA7"
   default_prompt: "What should I know right now?"

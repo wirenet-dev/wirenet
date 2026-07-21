@@ -60,6 +60,13 @@ before the user has answered at least the first question.
 
 ## 6 · Close
 
+Offer a name, lightly: "Some people give their Manager a name — want to?"
+If the user chooses one, write a single line into the Manager's `AGENTS.md`
+Collaboration section — `Answers to the name "<Name>".` — and greet by it
+from then on. The folder, the skills, and all system vocabulary stay
+"Manager"; the name is an address, like a hostname. Declining is a fine
+outcome; never ask twice.
+
 Explain how to rename and pin the conversation, then recap under these bold
 headings: **Here Is The Map I Am Carrying** · **How I Will Help** ·
 **What I Set Up** · **Your Manager** (the path, and that it works with any
