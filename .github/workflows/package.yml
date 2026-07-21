@@ -33,8 +33,10 @@ jobs:
 
       - name: Validate plugin JSON
         run: |
-          python3 -m json.tool plugins/manager/.codex-plugin/plugin.json >/dev/null
+          python3 -m json.tool plugins/wirenet/.codex-plugin/plugin.json >/dev/null
+          python3 -m json.tool plugins/wirenet/.claude-plugin/plugin.json >/dev/null
           python3 -m json.tool .agents/plugins/marketplace.json >/dev/null
+          python3 -m json.tool .claude-plugin/marketplace.json >/dev/null
 
       - name: Run tests
         run: pytest -q
@@ -63,12 +65,12 @@ jobs:
           from pathlib import Path
 
           manifest = json.loads(
-              Path("plugins/manager/.codex-plugin/plugin.json").read_text()
+              Path("plugins/wirenet/.codex-plugin/plugin.json").read_text()
           )
           expected = f"v{manifest['version']}"
           actual = os.environ["RELEASE_TAG"]
           if actual != expected:
-              raise SystemExit(f"tag {actual} does not match Manager {expected}")
+              raise SystemExit(f"tag {actual} does not match wirenet {expected}")
           PY
 
       - name: Prepare user-facing release notes
@@ -77,7 +79,7 @@ jobs:
             NR == 1 && $0 == "---" { frontmatter = 1; next }
             frontmatter && $0 == "---" { frontmatter = 0; next }
             !frontmatter { print }
-          ' plugins/manager/RELEASE_NOTES.md > /tmp/wirenet-release-notes.md
+          ' plugins/wirenet/RELEASE_NOTES.md > /tmp/wirenet-release-notes.md
 
       - name: Publish GitHub Release
         env:
@@ -85,10 +87,10 @@ jobs:
         run: |
           if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
             gh release edit "${GITHUB_REF_NAME}" \
-              --title "wirenet Manager ${GITHUB_REF_NAME}" \
+              --title "wirenet ${GITHUB_REF_NAME}" \
               --notes-file /tmp/wirenet-release-notes.md
           else
             gh release create "${GITHUB_REF_NAME}" \
-              --title "wirenet Manager ${GITHUB_REF_NAME}" \
+              --title "wirenet ${GITHUB_REF_NAME}" \
               --notes-file /tmp/wirenet-release-notes.md
           fi
