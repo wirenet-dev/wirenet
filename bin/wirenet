@@ -167,15 +167,26 @@ def check_bindings(manager_path: Path) -> int:
     except (OSError, json.JSONDecodeError) as error:
         print(f"bindings: {bindings} — INVALID ({error})")
         return 1
+    version = data.get("schema_version", "")
     broken = 0
-    for kind in ("projects", "experiments"):
-        for entry in data.get(kind, []):
-            path = Path(entry["path"])
-            if not path.exists():
-                ident = entry.get("project_id") or entry.get("experiment_id")
-                print(f"binding {ident}: {path} — MISSING")
-                broken += 1
-    total = sum(len(data.get(kind, [])) for kind in ("projects", "experiments"))
+    total = 0
+    if version == "wirenet-bindings/v1":
+        for slug, paths in (data.get("bindings") or {}).items():
+            for raw in paths:
+                total += 1
+                if not Path(raw).expanduser().exists():
+                    print(f"binding {slug}: {raw} — MISSING")
+                    broken += 1
+    elif version.startswith("wirenet-workspace-bindings"):
+        print("bindings: legacy v0.2 format — run the v0.5 migration")
+        for kind in ("projects", "experiments"):
+            for entry in data.get(kind, []):
+                total += 1
+                if not Path(entry["path"]).exists():
+                    broken += 1
+    else:
+        print(f"bindings: unknown schema_version {version!r}")
+        return 1
     print(f"bindings: {total - broken}/{total} resolve")
     return 1 if broken else 0
 
@@ -196,7 +207,7 @@ def status(config_path: Path) -> int:
 
 def doctor(config_path: Path, args: list[str]) -> int:
     config = load_installation(config_path)
-    script = REPO / "plugins" / "wirenet" / "scripts" / "manager_doctor.py"
+    script = REPO / "plugins" / "wirenet" / "scripts" / "doctor.py"
     doctor_args = list(args)
     if "--manager-dir" not in doctor_args:
         doctor_args.extend(["--manager-dir", str(element_path(config, "manager"))])
