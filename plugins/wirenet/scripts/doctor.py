@@ -49,6 +49,17 @@ def last_commit_age_days(repo: Path, path: Path) -> float | None:
     return (time.time() - int(stamp)) / 86400
 
 
+def load_accepted(manager: Path) -> list[dict]:
+    path = manager / ".wirenet" / "accepted.json"
+    if not path.is_file():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return data.get("accepted", [])
+    except (OSError, json.JSONDecodeError):
+        return []
+
+
 def check(manager: Path) -> tuple[list[dict], list[dict]]:
     errors: list[dict] = []
     findings: list[dict] = []
@@ -144,6 +155,23 @@ def check(manager: Path) -> tuple[list[dict], list[dict]]:
     if orientation > ORIENTATION_BUDGET:
         findings.append({"check": "orientation-budget", "detail": f"{orientation} lines (root files + largest pack) > {ORIENTATION_BUDGET}"})
     findings.append({"check": "orientation-budget-info", "detail": f"current orientation read: {orientation} lines"})
+
+    accepted = load_accepted(manager)
+    if accepted:
+        kept: list[dict] = []
+        suppressed = 0
+        for finding in findings:
+            if any(
+                entry.get("check") == finding["check"]
+                and entry.get("match", "") in finding["detail"]
+                for entry in accepted
+            ):
+                suppressed += 1
+            else:
+                kept.append(finding)
+        if suppressed:
+            kept.append({"check": "accepted-deviations", "detail": f"{suppressed} finding(s) suppressed as accepted (see .wirenet/accepted.json)"})
+        findings = kept
     return errors, findings
 
 

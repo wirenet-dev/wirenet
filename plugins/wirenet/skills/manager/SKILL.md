@@ -45,7 +45,9 @@ judgment over completeness:
    questions.
 
 Use an approved live calendar window when available; otherwise say it was not
-checked. If no Manager exists, offer `$manager-setup` in one sentence instead.
+checked. Run the doctor quietly alongside: errors always surface; of the soft
+findings, mention at most one — the most relevant. If no Manager exists,
+offer `$manager-setup` in one sentence instead.
 
 ## Work
 

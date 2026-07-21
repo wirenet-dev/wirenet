@@ -23,6 +23,23 @@ Ongoing health, plugin updates, and retrieval upkeep. Setup runs once via
   missing or structurally broken beyond small fixes, hand off to
   `$manager-setup` in repair mode instead of improvising structure.
 
+## Guardrails
+
+- Three layers: **invariants** (doctor errors — root files, resolving index,
+  valid bindings, no secrets; always surfaced, repair offered), **conventions**
+  (findings — sizes, groups, staleness; deviate consciously), and **free
+  space** — the doctor checks only what the contract names and never comments
+  on unknown folders, files, or sections. Local rules the user adds to their
+  own `AGENTS.md` supplement the framework; framework changes arrive only as
+  proposed diffs.
+- **Accepted deviations**: when the user declares a finding intentional,
+  record `{"check": ..., "match": ...}` in `.wirenet/accepted.json` — the
+  doctor suppresses it from then on and reports only a quiet count. Never
+  re-raise an accepted deviation.
+- **One nudge per check-in**: the check-in runs the doctor quietly; errors
+  always surface, but at most one new soft finding — the most relevant one.
+  Never a wall of findings.
+
 ## Plugin Updates
 
 - Check for updates only as a bounded public release check: on the first

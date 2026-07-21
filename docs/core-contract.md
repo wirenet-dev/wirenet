@@ -273,6 +273,14 @@ default — idle is normal there; a missed review is the finding. A staleness
 finding is a proposal to review, archive, or reaffirm — never an automatic
 action.
 
+**Guardrails, three layers.** Invariants (missing root files, broken index
+links, invalid bindings, secrets) are doctor errors with repair offered.
+Conventions (size, grouping, staleness) are findings a user may consciously
+reject — an accepted deviation is recorded machine-locally and never
+re-raised. Everything else is free space: the doctor checks only what this
+contract names and never comments on unknown folders, files, or sections.
+The check-in surfaces errors always and at most one new soft finding.
+
 **The orientation budget.** A fresh session reaches full orientation — root
 files, catalog, one pack — in roughly 250 lines of reading. The doctor
 computes the actual figure; exceeding the budget is a finding. This is the
