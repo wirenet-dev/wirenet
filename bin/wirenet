@@ -192,7 +192,7 @@ def status(config_path: Path) -> int:
 
 def doctor(config_path: Path, args: list[str]) -> int:
     config = load_installation(config_path)
-    script = REPO / "plugins" / "manager" / "scripts" / "manager_doctor.py"
+    script = REPO / "plugins" / "wirenet" / "scripts" / "manager_doctor.py"
     doctor_args = list(args)
     if "--manager-dir" not in doctor_args:
         doctor_args.extend(["--manager-dir", str(element_path(config, "manager"))])
