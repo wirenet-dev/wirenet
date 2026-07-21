@@ -1,121 +1,68 @@
 ---
 name: manager-setup
-description: Set up, onboard, upgrade, inspect, repair, or explain a local wirenet Manager workspace. Use after installing or updating manager@wirenet, when creating ~/Manager, continuing the first personal meeting, learning the user's work and writing voice, resolving a workspace-schema mismatch, checking Manager health, or configuring QMD retrieval.
+description: Create or repair the user's wirenet Manager. Use when the user wants to set up their Manager for the first time ("set me up"), asks to install or initialize it, wants to adopt an existing folder as their Manager, or when $manager found it missing or structurally broken. In a first meeting, the first user-visible sentence must be exactly "Hi, I'm your Manager." (in the user's language). Runs once per machine; ongoing work and maintenance belong to $manager.
 ---
 
-# manager setup
+# manager-setup
 
-Create or repair the technical Manager baseline conservatively. Bootstrap owns
-filesystem, schema, Git, Doctor, QMD, and managed-global-instruction mechanics.
-This skill also owns the personal first meeting after the technical baseline is
-healthy.
+Build the user's Manager through a first meeting, not a wizard. Keep it
+human: read the room, show the map, ask one good question at a time, and ask
+approval before doing setup. The user ends setup with a working Manager and
+no learned structure words.
 
-Read `references/runtime-preflight.md` before running any Python, Git, upgrade,
-or QMD helper. Resolve bundled Codex executables when available so the user does
-not need a developer setup.
+## Read First
 
-Do not clone the product repository into the user's personal Manager. The
-installed plugin owns behavior; `~/Manager` owns personal content and local
-history; external projects stay where they are.
+Read `references/first-meeting.md` before a first meeting. Use
+`references/offers.md`, `references/runtime-preflight.md`, and the
+write-like-me references only as needed.
 
-## Technical Workflow
+## Setup State
 
-1. Complete the runtime preflight. Invoke helpers with the resolved Python
-   executable and pass the resolved Git executable with `--git-bin`. Stop before
-   writing if either runtime cannot be resolved.
-2. Infer the human content language from the setup request. State it once and
-   ask only when ambiguous. Recommend `~/Manager` unless the user chooses
-   another location. Pass the BCP 47-style tag to
-   `bootstrap_manager.py --content-language`; stable system structure remains
-   English.
-3. When `.wirenet/manager.json` exists, preview the plugin-root
-   `scripts/upgrade_manager.py --git-bin <resolved-git>` result.
-   - `current`: continue to Doctor.
-   - `upgrade-available`: require a clean local Git checkpoint, show the plan,
-     and ask before applying.
-   - `plugin-too-old`: stop and ask the user to update the plugin.
-   - `manual-review`, `recovery-required`, `unsupported`: stop rather than
-     guessing.
-4. Preview `scripts/bootstrap_manager.py --git-bin <resolved-git>` without
-   `--apply`.
-5. Ask before creating or repairing the directory, then rerun with `--apply`.
-   Use `--repair` only for an existing Manager; repair creates missing scaffold
-   and never overwrites personalized files.
-6. Require Manager Doctor `ok: true`.
-7. Preview plugin-root `scripts/tidy_frontmatter.py --git-bin <resolved-git>`.
-   - `clean`: generated packet frontmatter already uses the lean contract;
-     continue silently.
-   - `frontmatter-tidy-available`: this is an independent maintenance action,
-     not a schema migration. Require a clean local Git checkpoint, show the
-     candidate paths, and ask before applying. Re-run Doctor `ok: true` after
-     applying.
-8. Run plugin-root `scripts/manager_doctor.py --check-updates` when a public
-   GitHub read is available. If the installed plugin is current, read the
-   packaged `RELEASE_NOTES.md` and close an update task with a concise report:
-   installed version, workspace-migration result (`none` is valid), up to three
-   user-facing release-note bullets, and final Doctor status. An unavailable
-   release check does not invalidate a healthy Manager.
-9. Preview plugin-root `scripts/manager_qmd.py`.
-   - If QMD is healthy, offer the `manager` collection registration.
-   - If missing or unhealthy, explain the state and ask before using `--install`.
-   - Add `--embed` only after separate approval for model-backed embeddings.
-   - QMD failure does not invalidate the Manager; canonical file reads remain.
-10. When the technical baseline is healthy, read `references/onboarding.md` and
-    continue the first meeting in the same task. Do not present the technical
-    recap as completed onboarding.
+Classify quietly — never announce the state:
 
-## Setup Operations Used During Onboarding
+- **brand_new**: no usable Manager exists. Run the full first meeting.
+- **partial**: a Manager exists but the map, people, bindings, wiring, or
+  continuity are incomplete. Fill only the gaps.
+- **established**: a healthy Manager exists. Do not replay setup; orient
+  briefly and hand to `$manager`.
 
-Run these only when the onboarding map makes them useful and the user approves
-their exact scope:
+## Materialize
 
-- Discover explicitly named project roots with plugin-root
-  `scripts/discover_projects.py`; never scan the whole home directory.
-- Classify each relevant folder as project, bounded experiment, or ignored by
-  following `../manager/references/project-lifecycle.md`.
-- Preview then create Project Packs with plugin-root
-  `scripts/create_project_pack.py`; create Experiment Packs with
-  `scripts/create_experiment_pack.py`; record ignored workspaces with
-  plugin-root `scripts/record_ignored_workspace.py`.
-- Preview `scripts/install_global_guidance.py` before adding the core managed
-  block to global `AGENTS.md`.
-- Offer the optional routing block only when the user already has a stable
-  workspace convention. Do not invent a folder hierarchy or keep duplicate
-  manual and managed routing rules.
+1. Resolve the target from `WIRENET_MANAGER_DIR`, then `~/Manager`.
+2. Preview with `scripts/bootstrap_manager.py --dry-run`; after approval run
+   it for real. It copies the seed from the plugin, never overwrites,
+   initializes git, and makes the first commit — the user's history starts
+   with their own content, not a template's.
+3. Never create a nested Manager inside an existing one, and never default to
+   another location unless the user explicitly chooses it. If a folder with
+   prior content exists, propose adopting it in place: create only missing
+   files and preserve existing structure.
+4. Personalize `AGENTS.md` (Collaboration) and `agent/USER_CONTEXT.md` from
+   the calibrated interview — edit the seed lines, do not append to them.
 
-## Upgrade Safety
+## Wire Up
 
-Ask before applying a workspace migration. Require a clean local Git checkpoint,
-run the updater with `--apply`, require Doctor `ok: true`, inspect the diff, and
-commit only the planned structural migration. Never overwrite personal prose or
-user routing rules. A plugin update is never permission to mutate personal
-Manager content.
+Each step needs its own explicit approval:
 
-## Safety
+1. Managed global block via `scripts/install_global_guidance.py` (preview
+   first; runtime-specific target files).
+2. Bindings for external workspaces the user names now: slug and paths in
+   `.wirenet/workspace-bindings.json`, plus the one-line pointer in each
+   workspace's own `AGENTS.md`/`CLAUDE.md`.
+3. qmd registration when qmd is available; skip quietly when it is not.
+4. The continuity offer per `references/offers.md`.
+5. The write-like-me offer per `references/offers.md`, only when scans
+   include enough authored messages.
 
-- Never move, copy, upload, or index raw project media or source trees.
-- Keep absolute workspace paths only in `.wirenet/workspace-bindings.json`.
-- Preserve existing global instructions outside managed blocks.
-- Never silently add a Git remote, cloud database, sync service, communication
-  connection, source read, automation, or inferred personal knowledge.
-- Never overwrite a QMD collection name that points elsewhere.
-- Accept only the canonical workspace contract or a supported deterministic
-  migration. Leave ambiguous layouts untouched for explicit review.
+## Repair Mode
 
-## Resources
+When `$manager` sends the user here for structural damage: fix only what the
+doctor found, as previewed diffs, smallest first; then hand back. Repair
+never rewrites personal prose.
 
-- `scripts/bootstrap_manager.py`: dry-run-first seed, local Git initialization,
-  repair, and Doctor wrapper.
-- `scripts/install_global_guidance.py`: idempotent core and optional routing
-  block installer.
-- `references/runtime-preflight.md`: Codex-bundled and PATH executable
-  resolution for non-developer computers.
-- plugin-root `scripts/upgrade_manager.py`: version negotiation and migration.
-- plugin-root `scripts/tidy_frontmatter.py`: normalizes legacy packet metadata,
-  removes redundant routing and timestamp aliases, and migrates `summary` to
-  standard OKF `description`.
-- plugin-root `scripts/manager_qmd.py`: QMD health and collection setup.
-- `references/manager-model.md`: canonical workspace model.
-- `references/onboarding.md`: first-meeting workflow and approval gates.
-- `references/first-meeting-flow.md`: detailed conversation sequence.
-- `references/write-like-me.md`: optional personal voice-skill setup.
+## Done
+
+Setup is complete only when every offer is handled, declined, or unavailable.
+Close per `references/first-meeting.md`; never end completed setup on a
+configuration question. Every turn ends with a clear question, next step,
+offer, or the final recap.
