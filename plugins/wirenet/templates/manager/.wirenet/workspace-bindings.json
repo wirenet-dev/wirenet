@@ -1,7 +1,5 @@
 {
-  "schema_version": "wirenet-workspace-bindings/v0.2",
-  "updated_at": "2026-07-15T00:00:00Z",
-  "projects": [],
-  "experiments": [],
+  "schema_version": "wirenet-bindings/v1",
+  "bindings": {},
   "ignored": []
 }

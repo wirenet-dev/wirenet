@@ -1,12 +1,11 @@
-# Projects
+# Portfolio
 
-This index catalogs Manager-native and externally bound Project Packs.
-External code, media, data, and deliverables remain in their own workspaces.
+## Active
 
-## Active Project Packs
+## Waiting / Blocked
 
-## Waiting And Blocked
+## Later
 
-## Completed Project Packs
+## Ongoing
 
-## Archived Project Packs
+## Archived

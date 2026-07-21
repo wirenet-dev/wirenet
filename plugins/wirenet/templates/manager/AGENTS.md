@@ -1,96 +1,87 @@
----
-schema: "wirenet-runtime/v0.1"
-visibility: local
-audience: agent
-status: active
-last_edited: 2026-07-16
----
+# Manager Instructions
 
-# wirenet Manager Instructions
+This folder is the user's Manager: their durable work memory. Any agent
+working here, or in a workspace bound to it, follows these rules. They work
+with no wirenet software installed — the wirenet plugin adds setup, health
+checks, and cross-workspace reach, never required behavior.
 
-## Purpose
+## Start Here
 
-Use this repository as the user's local work-memory layer. Keep it concise,
-reviewable, and useful to the next task.
+- Read `README.md`, `TODO.md`, and `projects/index.md` before acting; open
+  only the packs, people, and sources the task needs.
+- Read the nearest `AGENTS.md` before working in any subdirectory. Local
+  rules supplement these; when they conflict, the more specific rule wins.
+- Match the language of the existing documents in conversation and new
+  prose. File names and system vocabulary stay English.
 
-## Language Contract
+## What Lives Where
 
-- Read `content_language` from the root `README.md` and use that language for
-  conversation and new human-readable Manager prose.
-- Keep file and folder names, frontmatter keys, schemas, IDs, enum values,
-  plugin commands, and these runtime instructions in English.
-- Preserve the language of established documents unless the user explicitly
-  asks to translate them. Do not translate metadata keys or controlled values.
+- Cross-project commitments and waiting items: `TODO.md`, in the user's
+  stated order. Uncommitted ideas: its final `## Someday` section.
+- Working style and boundaries: `agent/USER_CONTEXT.md`.
+- Work that ends with a defined outcome: `projects/<slug>/README.md` — it
+  must be able to say when it is done. A pack `AGENTS.md` exists only for
+  real local deltas: recurring sources, safety gates.
+- Ongoing responsibility with a standard but no end: `areas/<slug>/README.md`
+  — what healthy means, the current state against it, related projects, a
+  review cadence. Quiet is normal for areas.
+- A bounded question with a decision criterion: `experiments/<slug>/`.
+- Durable relationship context: `people/<slug>.md`. The relationship decides
+  the file; the interaction decides the content — never sensitive facts
+  irrelevant to it.
+- Curated evidence: `sources/`. Durable scratch: `notes/`. Structured
+  cross-project documents: `docs/`. Inactive work: `archive/`. Generated
+  intermediates: `outputs/` (git-ignored). All created on first use.
+- Machine-local state (bindings, health): `.wirenet/` — not for prose.
 
-## Read Order
+Classify with one question — does it end? A defined outcome is a project; a
+standard to maintain is an area; a bounded question is an experiment.
 
-1. `README.md` and `index.md` for the human overview and knowledge catalog.
-2. `TODO.md` for the immediate stack.
-3. `projects/index.md` for project lifecycle and `experiments/index.md` when it
-   exists and a bounded spike is relevant.
-4. The relevant Project or Experiment Pack's `README.md` and `AGENTS.md`.
-5. Optional `GOAL.md`, `RESULT.md`, `WORKLOG.md`, `log.md`, and additional
-   concepts only when present and relevant.
-6. People, notes, docs, sources, and external workspaces only when the task needs them.
+## Keeping This Current
 
-## Durable State
+- Write only when a future task would otherwise misunderstand an outcome, a
+  decision, an owner, a blocker, a deadline, a source, or the next step.
+- Store what search cannot find: intent, status, decisions, relationships,
+  pointers. Never record what an agent can derive from a workspace itself.
+- Replace, don't append. A pack's status says how things stand now, in about
+  one screen. History lives in git. Prefer updating the canonical existing
+  file over creating adjacent notes.
+- When reality contradicts a pack, propose the correction with your handoff —
+  never work around it silently.
+- Preserve durable meaning, not motion: no activity logs, raw messages,
+  transcripts, or speculation presented as fact. Use absolute dates and
+  label inference when it matters.
+- Preview durable writes and get approval unless that exact change was
+  already approved. Do not leave decisions only in chat when they will
+  matter later. If nothing meaningful changed, do not churn the Manager.
 
-- Current project state belongs in `projects/<slug>/README.md`.
-- Stable outcomes and completion criteria may be separated into `GOAL.md` when
-  a durable goal contract improves the handoff.
-- Completed work and verification may be separated into `RESULT.md` when the
-  evidence deserves a durable document.
-- Recurring source routes and project-specific agent rules belong in `AGENTS.md`.
-- Only an explicitly invoked UltraGoal may create or update `WORKLOG.md` for
-  detailed attempts and recovery state.
-- Meaningful dated state transitions may use optional `log.md` when a sparse
-  chronology improves navigation; routine activity does not.
-- Additional project concepts are allowed when they have a clear purpose, OKF
-  `type`, and the packet's stable `project_id`.
-- Cross-project priorities belong in `TODO.md`.
-- Human collaboration notes belong in `people/`.
-- Quick durable scratch knowledge belongs in `notes/`; structured standalone
-  documents may use `docs/` when no more specific home is stronger.
-- Curated retained evidence belongs in `sources/`; short-lived spikes belong in
-  `experiments/`; each real experiment starts with `README.md` and `AGENTS.md`,
-  remains bounded, and ends by conclusion, promotion, or archive. Inactive
-  durable context belongs in `archive/`.
-- A few transient review files may stay together under
-  `outputs/<task-slug>/`. When files begin to need recurring editing, durable
-  delivery, or their own toolchain, suggest an external workspace and Project
-  Pack without interrupting useful work merely to reorganize it. Promote
-  canonical meaning into a typed knowledge document.
-- Do not write new working state into archived packets without explicit
-  reactivation. Treat waiting and blocked as live states, and preserve promoted
-  experiments as origin evidence.
+## Lifecycle
 
-## Workspace Contract
-
-- `AGENTS.md` files are the runtime instruction hierarchy. They use
-  `schema: "wirenet-runtime/v0.1"` and never declare an OKF `type`.
-- `index.md` and `log.md` are reserved OKF support documents and never declare
-  a concept `type`.
-- Every other Markdown document in the Manager is a typed OKF concept.
-- Keep reusable behavior, schemas, generation rules, and canonical templates in
-  the installed wirenet Manager plugin rather than copying them into this
-  workspace.
-- Create a shelf-local `index.md` only when actual content benefits from a
-  catalog. Do not create explanatory shelf README placeholders.
-
-## Update Threshold
-
-Update the Manager when future work would otherwise misunderstand status,
-ownership, blockers, decisions, deadlines, canonical sources, or next steps.
-Do not record every command, edit, test run, transient experiment, or generated
-artifact. Prefer one compact handoff after a meaningful work phase.
+- Status is location plus index group. `projects/index.md` is the only
+  catalog: Active, Waiting / Blocked, Later, Ongoing (areas), Archived.
+- Retire a project by moving it to `archive/` with its entry. Areas archive
+  only when the responsibility itself ends — never for being quiet.
+- Experiments end by conclusion, promotion to `projects/`, or archive; keep
+  the original as origin evidence.
 
 ## Safety
 
-- Preserve external project locations and raw source material.
-- Treat `sources/` as the curated Knowledge Shelf and `outputs/` as ignored,
-  device-local working memory.
-- Never write secrets, credentials, account numbers, or private keys.
-- Preview inferred durable updates and ask before writing unless the user has
-  already approved the exact change.
-- Do not configure remotes, sync services, messages, meetings, or automations
-  without explicit approval.
+- Never store secrets, credentials, account numbers, or private keys.
+- External side effects — sending, publishing, meetings, payments, deleting,
+  automations, sync — each need explicit approval. Connected accounts are
+  not permission to act.
+- Distinguish sent, received, drafted, discussed, and approved.
+- Prefer small, reversible edits; ask before anything destructive or
+  surprising.
+
+## Collaboration
+
+- Direct, practical, low-ceremony. Lead with what changed, what was
+  verified, and what still needs attention.
+- Make reasonable calls on minor, reversible questions; ask the smallest
+  useful question otherwise.
+- Push back plainly when a request risks churn, context loss, or leaked
+  private data.
+- If a request points at a symptom, look one level deeper for the cause
+  before patching.
+- When validation is blocked, say exactly what was not run and why.
