@@ -52,7 +52,7 @@ opened only on real demand.
 ```text
 ~/Manager/
 ├── README.md                 who the user is, how this folder works (short)
-├── TODO.md                   ordered cross-project stack (Now / Next / Waiting / Later)
+├── TODO.md                   ordered cross-project stack (Now / Next / Waiting / Later / Someday)
 ├── AGENTS.md                 one page: read order, update threshold, approval gate
 ├── agent/USER_CONTEXT.md     durable working style and boundaries
 ├── projects/
@@ -62,13 +62,21 @@ opened only on real demand.
 │       ├── AGENTS.md         only when real local deltas exist
 │       ├── GOAL.md           optional: durable outcome contract
 │       └── RESULT.md         optional: completed evidence
-├── people/<slug>.md          work-relevant collaborator context
+├── areas/<slug>/             ongoing responsibility: standard, state, cadence
+├── people/<slug>.md          durable relationship context
 └── .wirenet/                 machine-local: bindings, versions, health state
 ```
 
-Created lazily, on first real content: `experiments/<slug>/`, `notes/`,
-`sources/`, `docs/`, `archive/`, `outputs/` (git-ignored). Their meaning is
-defined in the skill's routing reference, not in per-folder README files.
+Created lazily, on first real content: `areas/<slug>/`, `experiments/<slug>/`,
+`notes/`, `sources/`, `docs/`, `archive/`, `outputs/` (git-ignored). Their
+meaning is defined in the skill's routing reference, not in per-folder README
+files. Inside an area, `routines/` and `reference/` are named conventions that
+are themselves created lazily — an area starts as a single `README.md`.
+
+`TODO.md` ends with a `## Someday` section for ideas the user has not
+committed to: Later means committed but not now; Someday means not committed.
+The agent may propose promoting a Someday item during a check-in, never the
+reverse silently, and may propose pruning dead entries during health checks.
 
 ## Frontmatter
 
@@ -90,19 +98,38 @@ defined in the skill's routing reference, not in per-folder README files.
 
 ## Lifecycle Without Status Fields
 
-State is expressed by location and by grouping in `projects/index.md`:
+State is expressed by location and by grouping in `projects/index.md`.
+Classification is one decidable question per container — **"Does it end?"**:
+work that ends with a defined outcome is a project; a bounded question with a
+decision criterion is an experiment; a responsibility with a standard to
+maintain but no end date is an area.
 
+- `projects/` admission requires a nameable completion state: the README must
+  answer "when is this done?" in prose (no field). A pack that cannot answer
+  is routed toward `areas/`. The test applies at creation and
+  reclassification, never as a retroactive sweep.
+- An area's README states what "healthy" means, the current state against that
+  standard, related projects, and a self-chosen review cadence. Areas spawn
+  projects ("Health" is an area; "run a half-marathon in October" is a
+  project); the project links its parent area in prose, and status lives only
+  in the project. The agent proposes a new area only when recurring upkeep
+  work has no home — never prophylactically.
 - `projects/index.md` groups packs under **Active**, **Waiting / Blocked**,
-  and **Later**. The group is the status; no enum field exists.
+  **Later**, **Ongoing** (the area packs), and a compact **Archived** section.
+  The group is the status; no enum field exists. One catalog, one read, full
+  portfolio.
 - Completing or retiring a pack moves it to `archive/<slug>/` and moves its
-  index entry to an **Archived** section (or removes it).
-- Waiting and blocked stay live in `projects/`; never archive open handoffs.
+  index entry to **Archived**. Waiting and blocked stay live; never archive
+  open handoffs. An area archives only when the responsibility itself ends —
+  never for being quiet: idle is normal for areas.
 - Experiments live in `experiments/<slug>/` with a question and a decision
   criterion in their README; they end by conclusion, promotion (move to
   `projects/`), or archive. The original stays referenced as origin evidence.
 - The doctor validates consistency (every pack has an index entry, every entry
   resolves, archived packs receive no new active state) instead of validating
-  frontmatter.
+  frontmatter, and may propose — never perform — project→area
+  reclassification for packs with no completion state. A declined proposal is
+  remembered in `.wirenet/` and not re-raised.
 
 ## Update Contract
 
@@ -118,6 +145,14 @@ Preview every inferred durable write and obtain approval, unless the user
 already approved that exact change. Distinguish sent, received, drafted,
 discussed, and approved. External side effects (messages, meetings, cloud
 documents, automations, sync) each require their own explicit approval.
+
+**The contradiction rule.** When observed reality contradicts a pack during
+any task, the agent must propose the correction — silently working around a
+known-stale pack is forbidden. The proposal arrives with the task's normal
+handoff (immediately only if the contradiction blocks the task itself), and
+"this pack contradicts X — please review" is a valid minimum when the right
+fix is unknown. Read-time contradiction is the system's highest-precision
+error signal; this rule is the feedback loop that captures it.
 
 ## Global Wiring
 
@@ -194,11 +229,24 @@ Exactly two skills; maintenance is a reference, not a skill:
   client runtime, control plane: separate layers with their own contracts,
   opened on real demand. The core must not depend on any of them.
 
+The organizational Base layer is decided but not yet built (ADR 008/009): a
+per-organization git repository of typed Markdown entities — four enforced
+frontmatter keys, certification as an owner's merge, capture as push-on-work —
+consumed clone-first through a second qmd collection, with MCP as a later
+transport for cloneless consumers. The Manager references Base entities and
+never copies them; the Base never reads the Manager. Shared projects carry
+their pack in the shared workspace — the Base is a knowledge layer, not
+project coordination. Its contract (`base-contract.md`, schema in
+`contracts/`, a Base doctor, a link-verb registry) is written when the layer
+is built.
+
 ## Memory Hygiene
 
 Agent-maintained memory rots without a counterweight. The doctor flags a pack
 as possibly stale when its last change is clearly old (around 90 days) while
-it sits in an active index group without a waiting handoff. A staleness
+it sits in an active index group without a waiting handoff. Areas are
+measured against their self-chosen review cadence instead of the calendar
+default — idle is normal there; a missed review is the finding. A staleness
 finding is a proposal to review, archive, or reaffirm — never an automatic
 action.
 

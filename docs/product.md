@@ -31,7 +31,9 @@ wirenet is userland.
 
 Checked like code does not mean typed like code: the personal vault stays
 prose governed by conventions, and machine-readable typing appears only where
-machines truly need it (see `decisions/004`).
+machines truly need it (see `decisions/004`). The theoretical ground for
+these choices — systems thinking, data-systems engineering, knowledge-graph
+minimalism — is named in [`foundations.md`](foundations.md).
 
 ## The Bet
 
