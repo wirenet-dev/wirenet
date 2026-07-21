@@ -115,7 +115,7 @@ def test_status_uses_configured_paths_and_manager_bindings(tmp_path: Path) -> No
     runtime = manager / ".wirenet"
     runtime.mkdir()
     (runtime / "workspace-bindings.json").write_text(
-        json.dumps({"projects": [], "experiments": [], "ignored": []}) + "\n",
+        json.dumps({"schema_version": "wirenet-bindings/v1", "bindings": {}, "ignored": []}) + "\n",
         encoding="utf-8",
     )
     config = tmp_path / "installation.json"

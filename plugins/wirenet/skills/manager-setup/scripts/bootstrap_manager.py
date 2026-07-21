@@ -83,7 +83,9 @@ def main(argv: list[str]) -> int:
             status = git(target, "status", "--porcelain")
             if status.stdout.strip():
                 result = git(
-                    target, "commit", "-q", "-m", "manager: materialize v0.5 seed"
+                    target, "-c", "user.name=wirenet setup",
+                    "-c", "user.email=setup@wirenet.dev",
+                    "commit", "-q", "-m", "manager: materialize v0.5 seed",
                 )
                 committed = result.returncode == 0
 
